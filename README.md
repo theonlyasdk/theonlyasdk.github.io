@@ -6,4 +6,4 @@ _**Ohaiyo!**_ I'm **TheOnlyASDK**. Nothing special about me, just another CS stu
 - [Geminix](https://github.com/theonlyasdk/geminix): Frontend for Google's [Gemini](https://gemini.google.com/) LLM
 
 # Contact
-Feel free to email me at [theonlyasdk\@gmail.com](mailto:theonlyasdk@gmail.com) :D
+Feel free to email me at [theonlyasdk@gmail.com](mailto:theonlyasdk@gmail.com) :D
