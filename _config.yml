@@ -1,12 +1,5 @@
-theme: minima
+remote_theme: pages-themes/midnight@v0.2.0
 plugins:
 - jekyll-remote-theme
 title: TheOnlyASDK's Garage
 description: I try to make cool stuff in my free time... :)
-author:
-  name: TheOnlyASDK
-  email: "theonlyasdk@gmail.com"
-minima:
-  skin: dark
-  social_links:
-    - { platform: github,  user_url: "https://github.com/theonlyasdk" }
