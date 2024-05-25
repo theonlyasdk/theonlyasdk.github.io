@@ -1,10 +1,12 @@
 theme: minima
 plugins:
 - jekyll-remote-theme
-minima:
-  skin: dark
 title: TheOnlyASDK's Garage
 description: I try to make cool stuff in my free time... :)
 author:
   name: TheOnlyASDK
   email: "theonlyasdk@gmail.com"
+minima:
+  skin: dark
+  social_links:
+    - { platform: github,  user_url: "https://github.com/theonlyasdk" }
