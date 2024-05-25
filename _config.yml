@@ -1,5 +1,7 @@
-remote_theme: pages-themes/midnight@v0.2.0
+theme: minima
 plugins:
 - jekyll-remote-theme
+minima:
+  skin: dark
 title: TheOnlyASDK's Garage
 description: I try to make cool stuff in my free time... :)
