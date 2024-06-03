@@ -1,0 +1,13 @@
+name: TheOnlyASDK
+dp: https://upload.wikimedia.org/wikipedia/commons/2/2f/Rickrolling_QR_code.png
+description: "
+  <p>
+    <b><i>Ohaiyo!</i></b> I'm <b>TheOnlyASDK</b>. Nothing special about me, just another CS student. I make stuff and post them here in my freetime. Feel free to contribute to any of my repositories if you find silly bugs in them!
+  </p>
+"
+email: theonlyasdk@gmail.com
+contact:
+  - title: github
+    url: https://github.com/theonlyasdk
+  - title: email
+    url: mailto:theonlyasdk@gmail.com
