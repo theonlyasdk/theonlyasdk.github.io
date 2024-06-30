@@ -68,6 +68,6 @@ class ProjectsLoader {
     }
 }
 
-let loader = new ProjectsLoader("https://raw.githubusercontent.com/theonlyasdk/libasdk/main/web/data/more_apps_list.json");
+let loader = new ProjectsLoader("https://raw.githubusercontent.com/theonlyasdk/libasdk/main/web/data/projects.json");
 
 loader.load();
