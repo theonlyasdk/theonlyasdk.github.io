@@ -4,6 +4,11 @@
   <body>
     <main>
       {% include header.html %} {% include bio.html %}
+      <div class="quick-links">
+          <a href="/projects">Projects</a>
+          <b>/</b>
+          <a href="/about">About</a>
+      </div>
       <section class="articles">
         {% for post in site.posts %}
         <article class="article">

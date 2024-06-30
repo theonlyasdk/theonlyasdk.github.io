@@ -209,8 +209,8 @@ main {
 [data-theme="light"] {
   .content code,
   .content pre {
-    color: var(--gray-5);
-    background: var(--gray-2_5) !important;
+    color: var(--gray-1);
+    background: var(--gray-2-5) !important;
   }
 }
 

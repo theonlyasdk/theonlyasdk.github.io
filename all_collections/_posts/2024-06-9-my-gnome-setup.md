@@ -14,9 +14,9 @@ I use the following utilities to extend my Gnome desktop:
 - AppIndicator and KStatusNotifierItem Support
 
 # Extensions I use
-- Blur My Shell to blur parts of Gnome desktop
-- OpenWeather for weather in top bar
-- Pano Clipboard Manager
+- [Blur My Shell](https://extensions.gnome.org/extension/3193/blur-my-shell/): To blur parts of Gnome desktop
+- [OpenWeather](https://extensions.gnome.org/extension/750/openweather/): Shows weather in the top bar
+- [Pano Clipboard Manager](https://extensions.gnome.org/extension/5278/pano/): For easy clipboard access
 - Desktop Icons NG (Ubuntu Builtin)
 - Window List (Ubuntu Builtin)
 - User Themes (Ubuntu Builtin)
@@ -24,20 +24,20 @@ I use the following utilities to extend my Gnome desktop:
 - Applications Menu (Ubuntu Builtin)
 
 # Editors I use
-- LiteXL: https://lite-xl.com/
-- Sublime Text: https://www.sublimetext.com/
-- VSCode: https://code.visualstudio.com/
-- NeoVim: https://neovim.io/
+- LiteXL: [https://lite-xl.com/](https://lite-xl.com/)
+- Sublime Text: [https://www.sublimetext.com/](https://www.sublimetext.com/)
+- VSCode: [https://code.visualstudio.com/](https://code.visualstudio.com/)
+- NeoVim: [https://neovim.io/](https://neovim.io/)
 
 # Browsers I use
-- Firefox: https://www.mozilla.org/en-US/firefox/
+- Firefox: [https://www.mozilla.org/en-US/firefox/](https://www.mozilla.org/en-US/firefox/)
 
 # Distro I'm on
-- Ubuntu: https://ubuntu.com/
+- Ubuntu: [https://ubuntu.com/](https://ubuntu.com/)
 
 # LiteXL Plugins
-I use `lpm` to install LiteXL plugins. (https://github.com/lite-xl/lite-xl-plugin-manager).
-I use several plugins from this repository: https://github.com/lite-xl/lite-xl-plugins
+I use [`lpm`](https://github.com/lite-xl/lite-xl-plugin-manager) to install LiteXL plugins.
+I use the following plugins from this repository: [https://github.com/lite-xl/lite-xl-plugins](https://github.com/lite-xl/lite-xl-plugins)
 - bracketmatch
 - codeplus
 - colorpreview
@@ -55,5 +55,5 @@ I use several plugins from this repository: https://github.com/lite-xl/lite-xl-p
 - search_ui
 - statusclock
 - sortcss
-- terminal (https://github.com/adamharrison/lite-xl-terminal) [Shortcut: Alt+T]
-- todotreeview (https://github.com/drmargarido/TodoTreeView)
+- terminal [https://github.com/adamharrison/lite-xl-terminal](https://github.com/adamharrison/lite-xl-terminal) _[Shortcut: Alt+T]_
+- todotreeview [https://github.com/drmargarido/TodoTreeView](https://github.com/drmargarido/TodoTreeView)

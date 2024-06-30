@@ -88,7 +88,7 @@ main {
   width: 25px;
   height: 25px;
   margin: 0 0 0.3rem 0;
-  transition: all 0.2s ease-in-out;
+  transition: all 0.1s ease-out;
 }
 @media (prefers-color-scheme: light) {
   #social-wrapper img {
@@ -106,7 +106,7 @@ main {
   }
 }
 #social-wrapper img:hover {
-  transform: scale(1.2);
+  transform: scale(1.2) translateY(-.1em);
 }
 
 /* article section */
@@ -114,7 +114,7 @@ main {
 .articles {
   display: grid;
   row-gap: 2rem;
-  margin: 4rem 0 3rem 0;
+  margin: 2rem 0 3rem 0;
 }
 .articles .article {
   padding: 2rem;
@@ -153,6 +153,22 @@ main {
   padding: 0 0.8rem;
   line-height: 1.3rem;
   cursor: pointer;
+}
+.quick-links {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+.quick-links>a {
+  color: var(--white-2);
+  font-size: 1.5em;
+}
+.quick-links>b {
+  padding-right: .3em;
+  padding-left: .3em;
+}
+.quick-links>a:hover {
+  color: var(--white-1);
 }
 /* media query */
 

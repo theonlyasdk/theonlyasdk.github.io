@@ -8,6 +8,10 @@
   --gray-6: #111111;
   --white-1: #eeeeee;
   --white-2: #a9abb3;
+  --red-1: #421e23;
+  --purple-1: #272643;
+  --royal-blue-1: #2c698d;
+  --teal-1: #bae8e8;
 }
 
 @media (prefers-color-scheme: light) {
@@ -21,6 +25,7 @@
     --gray-6: #a9abb3;
     --white-1: #242526;
     --white-2: #242526;
+    --red-1: #ff8091;
   }
 }
 
@@ -35,6 +40,7 @@
     --gray-6: #111111;
     --white-1: #eeeeee;
     --white-2: #a9abb3;
+    --red-1: #421e23;
   }
 }
 
@@ -48,6 +54,7 @@
   --gray-6: #a9abb3;
   --white-1: #242526;
   --white-2: #242526;
+  --red-1: #ff8091;
 }
 
 [data-theme="dark"] {
@@ -60,6 +67,7 @@
   --gray-6: #111111;
   --white-1: #eeeeee;
   --white-2: #a9abb3;
+  --red-1: #421e23;
 }
 
 #category-modal-bg {

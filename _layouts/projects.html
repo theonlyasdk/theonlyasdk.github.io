@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% include head.html %}
+  <body>
+    <main>
+      {% include header.html %}
+        <div class="content">
+          <h1 class="title-margin-bottom">My Projects</h1>
+          <div class="projects-card-container" id="projects-list">
+            <!-- Content will be filled by projects loader script -->
+            <div class="projects-loading"><i>Loading projects...</i></div>
+          </div>
+        </div>
+      {% include footer.html %}
+    </main>
+    {% include category-modal.html %}
+    {% include projects-loader.html %}
+  </body>
+</html>
