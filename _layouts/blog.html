@@ -1,33 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
-  {% include head.html %}
-  <body>
-    <main>
-      {% include header.html %} {% include bio.html %}
-      <div class="quick-links">
-          <a href="/projects">Projects</a>
-          <b>/</b>
-          <a href="/about">About</a>
-      </div>
-      <section class="articles">
-        {% for post in site.posts %}
-        <article class="article">
-          <h2 class="article-title">
-            <a href="{{site.baseurl}}{{post.url}}"> {{post.title}} </a>
-          </h2>
-          <small class="date">{{post.date | date_to_string}}</small>
-          <div class="categories">
-            {% for c in post.categories %}
-            <a href="#!" data-base-url="{{site.baseurl}}" class="category"
-              >{{c}}</a
-            >
-            {% endfor %}
-          </div>
-        </article>
-        {%endfor%}
-      </section>
-      {% include footer.html %}
-    </main>
-    {% include category-modal.html%}
-  </body>
+{% include head.html %}
+
+<body>
+  <main>
+    {% include header.html %}
+    {% include bio.html %}
+    <div class="quick-links">
+      <a href="/projects">Projects</a>
+      <b>/</b>
+      <a href="/about">About</a>
+    </div>
+    <section class="articles">
+      {% for post in site.posts %}
+      <article class="article">
+        <h1 class="article-title">
+          <a href="{{site.baseurl}}{{post.url}}"> {{post.title}} </a>
+        </h1>
+        <small class="date">Posted on <b>{{post.date | date_to_string}}</b></small>
+        <div class="categories">
+          {% for c in post.categories %}
+          <a href="#!" data-base-url="{{site.baseurl}}" class="category">{{c}}</a>
+          {% endfor %}
+        </div>
+      </article>
+      {%endfor%}
+    </section>
+    {% include footer.html %}
+  </main>
+  {% include category-modal.html%}
+</body>
+
 </html>

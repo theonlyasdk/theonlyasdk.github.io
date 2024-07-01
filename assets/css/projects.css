@@ -2,7 +2,8 @@
 	background-color: var(--gray-2-5);
 	padding: 1.3em;
 	border-radius: .8em;
-	margin-bottom: 0.5em;
+	margin-bottom: 0.7em;
+	box-shadow: 0px 2px 4px var(--gray-2-5);
 }
 
 .projects-card-container {
@@ -22,9 +23,49 @@
 }
 
 .project-card:hover {
-	background-color: var(--gray-2);
+	background-color: var(--gray-3);
+}
+.button {
+	background-color: var(--gray-6);
+	color: var(--white-02);
+	font-size: 1em;
+	border-radius: .4em;
+	padding-left: .3em;
+	padding-right: .3em;
+	padding-top: .2em;
+	padding-bottom: .2em;
+	align-content: center;
+	max-height: fit-content;
+}
+.button:hover {
+	background-color: var(--gray-5);
+	color: var(--white-01);
+}
+.project-card-bottom {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+}
+.project-card-tags > .project-tag {
+	background-color: var(--royal-blue-1);
+	color: var(--white-02);
+	padding-left: .5em;
+	padding-right: .5em;
+	padding-top: .4em;
+	padding-bottom: .4em;
+	border-radius: .4em;
+	margin-right: .3em;
+	font-size: .9rem;
 }
 
+.project-card-tags > .project-tag:hover {
+	background-color: var(--royal-blue-2);
+	color: var(--white-01);
+}
+
+.project-card-tags {
+	margin-top: .6em;
+}
 .title-margin-bottom {
 	margin-bottom: 1em;
 	margin-top: -.5em;
