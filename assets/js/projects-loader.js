@@ -1,9 +1,10 @@
 let logger = new Logger("LibASDK Projects Loader");
 let projects_list_container = document.getElementById("projects-list");
-let msg_error_loading_content = `
+const genLoadError = (msg) => `
     <div class="error-loading-projects">
         <h1>Oops! Unable to load projects!</h1>
         <p>Please check the console and report the error in the issues tab of the GitHub repository for this website!</p>
+        <i><b>Reason</b>: <code>${msg}</code></i>
     </div>
 `;
 
@@ -29,7 +30,7 @@ class ProjectsLoader {
 
     propogate = (projects_list) => {
         if (projects_list === null) {
-            projects_list_container.innerHTML = msg_error_loading_content;
+            projects_list_container.innerHTML = genLoadError("ERR_NULL_LIST");
             logger.error("Skipping more apps list propogation because projects list is empty...");;
             return;
         }
@@ -78,5 +79,5 @@ try {
         "https://raw.githubusercontent.com/theonlyasdk/libasdk/main/web/data/projects.json"
     ).load();
 } catch (e) {
-    projects_list_container.innerHTML = msg_error_loading_content;
+    projects_list_container.innerHTML = genLoadError(e);
 }

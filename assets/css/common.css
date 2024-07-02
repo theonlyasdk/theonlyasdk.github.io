@@ -3,6 +3,9 @@
   --gray-2: #32353a;
   --gray-2-5: #282a2e;
   --gray-3: #25282c;
+  --gray-3-transparent-1: #25282c99;
+  --gray-3-transparent-2: #25282c55;
+  --gray-3-transparent-3: #25282c22;
   --gray-4: #151618;
   --gray-5: #151618;
   --gray-6: #111111;
@@ -21,6 +24,9 @@
     --gray-2: #32353a;
     --gray-2-5: #d2d2d2;
     --gray-3: #e8e8e8;
+    --gray-3-transparent-1: #e8e8e899;
+    --gray-3-transparent-2: #e8e8e855;
+    --gray-3-transparent-3: #e8e8e822;
     --gray-4: #eeeeee;
     --gray-5: #f5f5f5;
     --gray-6: #a9abb3;
@@ -39,6 +45,9 @@
     --gray-2: #32353a;
     --gray-2-5: #282a2e;
     --gray-3: #25282c;
+    --gray-3-transparent-1: #25282c99;
+    --gray-3-transparent-2: #25282c55;
+    --gray-3-transparent-3: #25282c22;
     --gray-4: #151618;
     --gray-5: #151618;
     --gray-6: #111111;
@@ -56,6 +65,9 @@
   --gray-2: #32353a;
   --gray-2-5: #d2d2d2;
   --gray-3: #e8e8e8;
+  --gray-3-transparent-1: #e8e8e899;
+  --gray-3-transparent-2: #e8e8e855;
+  --gray-3-transparent-3: #e8e8e822;
   --gray-4: #eeeeee;
   --gray-5: #f5f5f5;
   --gray-6: #a9abb3;
@@ -158,4 +170,8 @@ hr {
   border-left: none !important;
   border-right: none !important;
   margin-bottom: 1.75rem !important;
+}
+
+p {
+  line-height: 1.8em;
 }
