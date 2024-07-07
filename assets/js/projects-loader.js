@@ -53,7 +53,7 @@ class ProjectsLoader {
                 !checkNotNullOrEmpty(url) ||
                 !checkNotNullOrEmpty(tags)) return;
 
-            let btn_demo = `<a href="${demo_url}" class="button" title="Click to see a demo of this project (usually a web app)">Demo</a>`;
+            let btn_demo = `<a href="${demo_url}" target="_blank" class="button" title="Click to see a demo of this project (usually a web app)">Demo</a>`;
             let project_card_template = `
                 <div class="project-card">
                   <h1 class="project-card-title"><a href="${url}">${name}</a></h1>
