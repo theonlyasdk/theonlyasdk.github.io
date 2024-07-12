@@ -63,3 +63,6 @@ I use `zsh` with [Oh My Zsh](https://ohmyz.sh/)
 
 # Other tools
 - [fzf](https://github.com/junegunn/fzf) (Fuzzy finder)
+
+# Configuration Files
+The configuration files I use can be found at []()
