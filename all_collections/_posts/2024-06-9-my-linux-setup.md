@@ -1,11 +1,11 @@
 ---
 layout: post
-title: My Gnome Setup
+title: My Linux Setup
 date: 2024-06-03
 categories: ["setup", "gnome", "desktop", "linux", "customization"]
 ---
 
-Here's a quick overview of my Gnome setup:
+Here's a quick overview of my Linux (Gnome) setup:
 
 # Utilities I use
 I use the following utilities to extend my Gnome desktop:
@@ -57,3 +57,9 @@ I use the following plugins from this repository: [https://github.com/lite-xl/li
 - sortcss
 - terminal [https://github.com/adamharrison/lite-xl-terminal](https://github.com/adamharrison/lite-xl-terminal) _[Shortcut: Alt+T]_
 - todotreeview [https://github.com/drmargarido/TodoTreeView](https://github.com/drmargarido/TodoTreeView)
+
+# Shell
+I use `zsh` with [Oh My Zsh](https://ohmyz.sh/)
+
+# Other tools
+- [fzf](https://github.com/junegunn/fzf) (Fuzzy finder)
