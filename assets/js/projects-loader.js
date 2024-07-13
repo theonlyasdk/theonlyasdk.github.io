@@ -72,8 +72,24 @@ class ProjectsLoader {
         });
 
         document.querySelector(".projects-loading").style.display = "none";
+        document.querySelector("#projects-search-box").addEventListener("keydown", () => {
+            this.filter(document.querySelector("#projects-search-box").value);
+        });
+    }
+
+    filter(filter) {
+        const fuzzify = (text) => text.toLowerCase().replace(" ", "")
+        const projects = document.querySelectorAll('#projects-list .project-card')
+        projects.forEach(task => {
+            task.classList.remove('d-none')
+            const title = fuzzify(task.querySelector('.project-card-title a').innerText)
+            if (!title.includes(fuzzify(filter))) {
+                task.classList.add('d-none')
+            }
+        })
     }
 }
+
 try {
     new ProjectsLoader(
         "https://raw.githubusercontent.com/theonlyasdk/libasdk/main/web/data/projects.json"
