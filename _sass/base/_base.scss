@@ -524,6 +524,19 @@ mjx-container {
 .projects-search-box {
   margin-top: .5em;
   margin-bottom: 1.5em;
+
+  border-radius: 1.2em;
+  border: 1px solid var(--search-border-color);
+  padding: .2em .4em .2em .8em;
+}
+
+.projects-search-box:focus {
+  border-color: var(--input-focus-border-color);
+  outline: none !important;
+}
+
+.projects-search-box:active {
+  outline: none !important;
 }
 
 .projects-card-container {
@@ -537,3 +550,4 @@ mjx-container {
   width: 100%;
   text-align: center;
 }
+

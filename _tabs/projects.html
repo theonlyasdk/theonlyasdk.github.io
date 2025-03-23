@@ -3,7 +3,57 @@ layout: page-notitle
 icon: fas fa-code
 order: 4
 ---
+<style>
+.project-card {
+  background-color: var(--card-bg);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  padding: 0em 2em 0em 2em;
+  width: 100%;
+  margin-bottom: 1.2em;
+  box-shadow: var(--card-shadow);
+  border: 0;
+}
 
+.project-card > h1 {
+  margin: 2rem 0 1rem;
+}
+
+.project-card-tags {
+  display: flex;
+  flex-direction: row;
+}
+
+.category.project-tag {
+  margin-right: 0.4em;
+  margin-bottom: 0;
+}
+
+.project-tag-icon {
+  align-content: center;
+}
+
+.project-card-bottom {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+</style>
+
+<!--
+<div class="project-card">
+  <h1 class="project-card-title"><a href="${url}">${name}</a></h1>
+  <p class="project-card-content">${description}</p>
+  <div class="project-card-bottom">
+      <div class="project-card-tags categories">
+        ${tag_elements}
+      </div>
+      ${should_show_demo_btn ? btn_demo : ""}
+  </div>
+</div>
+ -->
 <div class="projects-page-content align-center">
   <h1>My Projects</h1>
   <input class="projects-search-box" type="text" placeholder="Search projects..." autocomplete="off" id="projects-search-box">
@@ -12,3 +62,6 @@ order: 4
     <div class="projects-loading"><i>Loading projects...</i></div>
   </div>
 </div>
+
+<script src="{{ '/assets/js/logger.js' | relative_url }}"></script>
+<script src="{{ '/assets/js/projects-loader.js' | relative_url }}"></script>
