@@ -93,7 +93,7 @@ class ProjectsLoader {
 
 try {
     new ProjectsLoader(
-        "/assets/data/projects.json"
+        "https://raw.githubusercontent.com/theonlyasdk/libasdk/main/web/data/projects.json"
     ).load();
 } catch (e) {
     projects_list_container.innerHTML = genLoadError(e);
