@@ -2,7 +2,7 @@
 layout: post
 title: Some Processing 4 Snippets
 date: 2025-03-31
-categories: ["processing-4", "programming", "graphics", "code", "snippets"]
+categories: ["graphics", "processing-4", "programming", "code", "snippets"]
 ---
 
 Here are some Processing 4 code snippets:
