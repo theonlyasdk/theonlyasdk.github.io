@@ -1,6 +1,6 @@
 ---
 layout: post
-title: My Linux Setup
+title: Some Processing 4 Snippets
 date: 2025-03-31
 categories: ["processing-4", "programming", "graphics", "code", "snippets"]
 ---
