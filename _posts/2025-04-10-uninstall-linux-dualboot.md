@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Uninstall Linux in a dualboot system
-date: 2025-03-31
+date: 2025-04-10
 categories: ["linux", "uninstall", "dualboot", "windows", "os"]
 ---
 
