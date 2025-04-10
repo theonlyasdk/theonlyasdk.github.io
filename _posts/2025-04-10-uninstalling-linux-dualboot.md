@@ -34,5 +34,4 @@ This will install Windows boot manager into `S:`, i.e your EFI partition.
 # 3. Remove Linux Partitions
 Final step is to remove the partitions where you've installed Linux to. (You should already know where to find this)
 
-> [!NOTE]
 > I wrote this article solely for my own reference, so I don't mention a lot of things. If you think anything should be added, please feel free to open a pull request :)
