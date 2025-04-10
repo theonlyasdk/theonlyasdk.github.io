@@ -7,7 +7,7 @@ categories: ["linux", "uninstall", "dualboot", "windows", "os"]
 
 In this article I'm going to show you how to uninstall any Linux distribution from your Linux-Windows dualboot setup.
 
-> ℹ Run all of these commands in an elevated command prompt or powershell.
+> Run all of these commands in an elevated command prompt or powershell.
 
 # 1. Mounting the EFI partition
 In this step, we're going to mount the EFI partition of your system. This is where the boot files for your operating system live. This is usually where GRUB gets installed to.
@@ -34,4 +34,5 @@ This will install Windows boot manager into `S:`, i.e your EFI partition.
 # 3. Remove Linux Partitions
 Final step is to remove the partitions where you've installed Linux to. (You should already know where to find this)
 
-> ℹ I wrote this article solely for my own reference, so I don't mention a lot of things. If you think anything should be added, please feel free to open a pull request :)
+> [!NOTE]
+> I wrote this article solely for my own reference, so I don't mention a lot of things. If you think anything should be added, please feel free to open a pull request :)
