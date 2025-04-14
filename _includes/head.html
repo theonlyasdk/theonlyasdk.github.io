@@ -12,8 +12,7 @@
   <!-- Preload Resources -->
   <link rel="preload" href="{{ '/assets/css/:THEME.css' | replace: ':THEME', site.theme | relative_url }}" as="style" />
   <link rel="preload" href="{{ '/assets/js/dist/theme.min.js' | relative_url }}" as="script" />
-  <link rel="preload" href="{{ site.data.origin[type].webfonts | relative_url }}" as="font" type="font/woff2"
-    crossorigin="anonymous" />
+  <!-- <link rel="preload" href="{{ site.data.origin[type].webfonts | relative_url }}" as="font" type="font/woff2" crossorigin="anonymous" /> -->
   <link rel="dns-prefetch" href="//cdnjs.cloudflare.com" />
   <link rel="dns-prefetch" href="//fonts.googleapis.com" />
   <link rel="dns-prefetch" href="//github.com" />
@@ -91,9 +90,6 @@
   <!-- Theme style -->
   <link rel="stylesheet" href="{{ '/assets/css/:THEME.css' | replace: ':THEME', site.theme | relative_url }}">
 
-  <!-- Font Awesome Icons -->
-  <link rel="stylesheet" href="{{ site.data.origin[type].fontawesome.css | relative_url }}">
-
   <!-- 3rd-party Dependencies -->
 
   {% if site.toc and page.toc %}
@@ -115,21 +111,7 @@
 
   {% include js-selector.html lang=lang %}
 
-  {% if jekyll.environment == 'production' %}
-    <!-- PWA -->
-    {% if site.pwa.enabled %}
-      <script defer src="{{ '/app.min.js' | relative_url }}?baseurl={{ site.baseurl | default: '' }}&register={{ site.pwa.cache.enabled }}"></script>
-    {% endif %}
-
-    <!-- Web Analytics -->
-    {% for analytics in site.analytics %}
-      {% capture str %}{{ analytics }}{% endcapture %}
-      {% assign platform = str | split: '{' | first %}
-      {% if site.analytics[platform].id and site.analytics[platform].id != empty %}
-        {% include analytics/{{ platform }}.html %}
-      {% endif %}
-    {% endfor %}
-  {% endif %}
-
   {% include metadata-hook.html %}
+
+  <!-- Some unimportant scripts are loaded in footer.html -->
 </head>
