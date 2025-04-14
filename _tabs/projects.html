@@ -49,7 +49,6 @@ order: 4
     border-color: var(--btn-border-color);
     box-shadow: var(--card-shadow);
     user-select: none;
-    margin-right: .8em;
     transition: all 0.3s ease;
   }
 
@@ -121,47 +120,10 @@ order: 4
     overflow: hidden;
   }
 
-  @media (max-width: 768px) {
-    .project-card-title a {
-      border: none !important;
-    }
-
-    .filter-icon {
-      display: none;
-    }
-
-    .projects-filter {
-      justify-content: space-evenly;
-      overflow-x: scroll;
-      overflow-y: visible;
-      margin-bottom: 0.5em;
-    }
-
-    .projects-filter::-webkit-scrollbar {
-      display: none;
-    }
-
-    .filter-tags>.filter-tag:last-child {
-      margin-right: 0;
-    }
-
-    .filter-tags {
-      flex-wrap: nowrap;
-      padding-left: 0.2em;
-    }
-
-    .filter-tags>.filter-tag {
-      flex-grow: 1;
-      margin-top: 0.5em;
-      text-align: center;
-      flex-wrap: nowrap;
-      text-wrap-mode: nowrap;
-      white-space: nowrap;
-    }
-
-    .projects-search-box {
-      margin-bottom: 1em;
-    }
+  .filter-tags {
+    flex-wrap: nowrap;
+    padding-left: 0.2em;
+    gap: .7em;
   }
 
   .projects-filter {
@@ -172,7 +134,9 @@ order: 4
   }
 
   .projects-search-box {
-    margin-bottom: 1em;
+    margin-bottom: 0;
+    margin-top: 0;
+    flex: 1;
   }
 
   .projects-top-bar {
@@ -201,28 +165,77 @@ order: 4
   .projects-page-content {
     width: 100%;
   }
+
+  .search-box-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    align-items: center;
+    gap: 1em;
+    justify-content: flex-start;
+    margin-top: .8em;
+    margin-bottom: 1em;
+  }
+
+  .btn-search-filter {
+    background-color: var(--card-bg);
+    border-radius: 0.5em;
+    padding: .2em .7em .2em .7em;
+    border-color: var(--btn-border-color);
+    box-shadow: var(--card-shadow);
+    user-select: none;
+    transition: all 0.3s ease;
+    outline: none;
+    border: none;
+  }
+
+  @media (max-width: 768px) {
+    .project-card-title a {
+      border: none !important;
+    }
+
+    .filter-icon {
+      display: none;
+    }
+
+    .projects-filter {
+      justify-content: space-evenly;
+      overflow-x: scroll;
+      overflow-y: visible;
+      margin-bottom: 1em;
+    }
+
+    .projects-filter::-webkit-scrollbar {
+      display: none;
+    }
+
+    .filter-tags>.filter-tag:last-child {
+      margin-right: 0;
+    }
+
+    .filter-tags>.filter-tag {
+      flex-grow: 1;
+      margin-top: 0.5em;
+      text-align: center;
+      flex-wrap: nowrap;
+      text-wrap-mode: nowrap;
+      white-space: nowrap;
+    }
+  }
 </style>
 
-<!--
-<div class="project-card">
-  <h1 class="project-card-title"><a href="${url}">${name}</a></h1>
-  <p class="project-card-content">${description}</p>
-  <div class="project-card-bottom">
-      <div class="project-card-tags categories">
-        ${tag_elements}
-      </div>
-      ${should_show_demo_btn ? btn_demo : ""}
-  </div>
-</div>
- -->
 <div class="projects-page-content">
   <div class="projects-top-bar">
     <h1 class="projects-top-bar-title">My Projects</h1>
-    <input class="projects-search-box" type="text" placeholder="Search projects..." autocomplete="off"
-      id="projects-search-box">
-    <div class="projects-filter">
+    <div class="search-box-container">
+      <input class="projects-search-box" type="text" placeholder="Search projects..." autocomplete="off"
+        id="projects-search-box">
+      <button class="btn-search-filter" onclick="loader.toggleProjectsFilter()" title="Filter by"><i
+          class="fa-solid fa-filter" id="clear-filter"></i></button>
+    </div>
+    <div class="projects-filter d-none">
       <div class="flex-row filter-icon">
-        <i class="fa-solid fa-filter" title="Filter by"></i>
+        <i class="fa-solid fa-filter"></i>
         &nbsp;&nbsp;
         <b>Filter by: </b>
       </div>

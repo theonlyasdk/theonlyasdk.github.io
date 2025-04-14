@@ -11,7 +11,7 @@ if (projects_list_container === null ||
   projects_list_container.innerHTML === undefined ||
   projects_list_container.innerHTML === "") {
   logger.error("Unable to find projects list container!");
-  throw new Error("Unable to find projects list container!");
+  window.alert("Unable to find projects list container!");
 }
 
 const genLoadError = (msg) => `
@@ -29,7 +29,7 @@ function checkNotNullOrEmpty(string) {
 class ProjectsLoader {
   constructor(url) { this.url = url; }
 
-  load = () => {
+  load() {
     fetch(this.url)
       .then((response) => {
         return response.json();
@@ -42,7 +42,7 @@ class ProjectsLoader {
       });
   }
 
-  propogate = (projects_list) => {
+  propogate(projects_list) {
     if (projects_list === null) {
       projects_list_container.innerHTML = genLoadError("ERR_NULL_LIST");
       logger.error("Skipping more apps list propogation because projects list is empty...");;
@@ -112,17 +112,15 @@ class ProjectsLoader {
 
     if (visible) {
       elemFilterByTag.onanimationend = null;
-      elemFilterByTag.classList.remove('d-pop-out');
-      elemFilterByTag.classList.remove('d-none');
-      elemFilterByTag.classList.add('d-pop-in');
-      elemFilterByTag.classList.add('active-tag');
+      elemFilterByTag.classList.remove('d-pop-out', 'd-none');
+      elemFilterByTag.classList.add('d-pop-in', 'active-tag');
       elemFilterText.innerHTML = tagName;
     }
     else {
       elemFilterByTag.classList.remove('d-pop-in');
       elemFilterByTag.classList.add('d-pop-out');
 
-      if (window.innerWidth <= 768) { // Mobile screen
+      if (window.innerWidth <= 768) {
         elemFilterByTag.classList.add('d-none');
       }
 
@@ -130,7 +128,7 @@ class ProjectsLoader {
         elemFilterByTag.classList.remove('active-tag');
         elemFilterText.innerHTML = '';
 
-        if (window.innerWidth > 768) { // Desktop or tablet screen
+        if (window.innerWidth > 768) {
           elemFilterByTag.classList.add('d-none');
         }
       };
@@ -138,6 +136,9 @@ class ProjectsLoader {
   }
 
   filterByTag(tagName) {
+    if (document.querySelector('.projects-filter').classList.contains('d-none')) {
+      this.toggleProjectsFilter();
+    }
     this.setFilterTagTextAndVisibility(tagName !== '', tagName);
     if (tagName === '') this.scrollToTop();
 
@@ -169,6 +170,23 @@ class ProjectsLoader {
       top: 0,
       behavior: 'smooth'
     });
+  }
+
+  toggleProjectsFilter() {
+    const filterElement = document.querySelector('.projects-filter');
+    if (filterElement) {
+      if (filterElement.classList.contains('d-none')) {
+        filterElement.classList.remove('d-none', 'd-pop-out');
+        filterElement.classList.add('d-pop-in');
+      } else {
+        filterElement.classList.remove('d-pop-in');
+        filterElement.classList.add('d-pop-out');
+        filterElement.onanimationend = () => {
+          filterElement.classList.add('d-none');
+          filterElement.onanimationend = null;
+        };
+      }
+    }
   }
 }
 
