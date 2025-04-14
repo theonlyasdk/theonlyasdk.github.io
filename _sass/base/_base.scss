@@ -481,31 +481,3 @@ mjx-container {
     margin-top: 3rem;
   }
 }
-
-.hover-glow-no-decor {
-  transition: all 1s ease;
-}
-
-.hover-glow-no-decor:hover {
-  text-decoration: none !important;
-  text-shadow: 1px 1px 25px rgba(255,236,0,0.63);
-  color:white !important;
-  @include mx.keyframes(fade){
-    0% {
-      text-shadow: 1px 1px 25px blue;
-    }
-    25% {
-      text-shadow: 1px 1px 25px red;
-    }
-    50% {
-      text-shadow: 1px 1px 25px green;
-    }
-    75% {
-      text-shadow: 1px 1px 25px purple;
-    }
-    100% {
-      text-shadow: 1px 1px 25px blue;
-    }
-  }
-  @include mx.animate(fade, 1s, linear, infinite);
-}

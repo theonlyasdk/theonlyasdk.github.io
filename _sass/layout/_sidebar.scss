@@ -239,45 +239,6 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
       @extend %button;
       @extend %sidebar-links;
       @extend %sidebar-link-hover;
-
-      box-shadow: 0px 0px 0px 0px #00000000;
-
-      &:hover {
-        box-shadow: 0px 0px 20px 0px var(--mode-toggle-glow-1);
-
-        @include mx.keyframes(fade-in){
-          0% {
-            box-shadow: 0px 0px 0px 0px #00000000;
-          }
-          100% {
-            box-shadow: 0px 0px 20px 0px var(--mode-toggle-glow-1);
-          }
-        }
-        @include mx.keyframes(fade-loop){
-          0% {
-            box-shadow: 0px 0px 20px 0px var(--mode-toggle-glow-1);
-          }
-          50% {
-            box-shadow: 0px 0px 20px 0px var(--mode-toggle-glow-2);
-          }
-          100% {
-            box-shadow: 0px 0px 20px 0px var(--mode-toggle-glow-1);
-          }
-        }
-        &{animation: fade-in 250ms linear forwards, fade-loop 2s linear 1s infinite;}
-      }
-        @include mx.keyframes(fade-out){
-          0% {
-            box-shadow: 0px 0px 20px 0px var(--mode-toggle-glow-1);
-          }
-          100% {
-            box-shadow: 0px 0px 0px 0px #00000000;
-          }
-        }
-
-      &:not(:hover) {
-        &{animation: fade-out 250ms linear forwards;}
-      }
     }
 
     .icon-border {
