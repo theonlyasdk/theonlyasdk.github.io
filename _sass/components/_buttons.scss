@@ -36,7 +36,10 @@
   &:hover {
     transform: translate3d(0, -2px, 0);
     -webkit-transform: translate3d(0, -2px, 0);
-    scale: 1.1;
+  }
+
+  &:active {
+    background-color: var(--card-bg-active);
   }
 
   i {
