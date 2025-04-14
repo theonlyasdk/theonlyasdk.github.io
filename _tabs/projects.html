@@ -61,7 +61,7 @@ order: 4
     display: flex;
     flex-direction: row;
     align-items: center;
-    margin-bottom: 0.5em;
+    margin-bottom: 1em;
   }
 
   .c-pointer {
@@ -122,22 +122,25 @@ order: 4
     margin-right: .7em;
   }
 
+  .project-card {
+    transition: all 0.8s cubic-bezier(0, .72, .06, 1);
+    overflow: hidden;
+  }
+
   @media (max-width: 768px) {
-    .project-card {
-      transition: all 0.5s cubic-bezier(0, -0.12, 0, 1.06);
-      overflow: hidden;
+    .project-card-title a {
+      text-decoration: none;
     }
 
     .filter-icon {
       display: none;
     }
 
-    .filter-tag {}
-
     .projects-filter {
       justify-content: space-evenly;
       overflow-x: scroll;
       overflow-y: visible;
+      margin-bottom: 0.5em;
     }
 
     .filter-tags>.filter-tag:last-child {
@@ -161,31 +164,22 @@ order: 4
       white-space: nowrap;
     }
 
-    /* .filter-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5em;
-    }
-
-    .filter-tags>.filter-tag {
-      flex-grow: 1;
-      margin-top: 0.5em;
-      text-align: center;
-    } */
-
     .projects-search-box {
       margin-bottom: 1em;
     }
+  }
 
-    .d-none {
-      display: block !important;
-      /* width: 0 !important;
-      height: 0 !important; */
-      opacity: 0 !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      scale: 0 !important;
-    }
+  .d-none {
+    display: block !important;
+    opacity: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    scale: 0 !important;
+    height: 0 !important;
+  }
+
+  .error-loading-projects>h1 {
+    margin-bottom: 0.2em;
   }
 </style>
 
@@ -218,7 +212,7 @@ order: 4
       <div class="filter-tag c-pointer">
         <span id="current-filter-tag" onclick="loader.filterByDemo()">Has demo</span>
       </div>
-      <div class="filter-tag c-pointer" id="filter-by-tag" onclick="loader.filterByTag('')">
+      <div class="filter-tag c-pointer d-none" id="filter-by-tag" onclick="loader.filterByTag('')">
         <span class="category project-tag">Tag</span>
         <i class="fa-solid fa-xmark" id="clear-filter"></i>
       </div>
@@ -254,12 +248,12 @@ order: 4
   }
 
   const genLoadError = (msg) => `
-<div class="error-loading-projects">
-      <h1>Oops! Unable to load projects!</h1>
-      <p>Please check the console and report the error in the issues tab of the GitHub repository for this website!</p>
-      <i><b>Reason</b>: <code>${msg}</code></i>
-  </div>
-`;
+    <div class="error-loading-projects">
+          <h1>Oops! Unable to load projects!</h1>
+          <p>Please check the console and report the error in the issues tab of the GitHub repository for this website!</p>
+          <i><b>Reason</b>: <code>${msg}</code></i>
+      </div>
+  `;
 
   function checkNotNullOrEmpty(string) {
     return string !== undefined && string !== null && string !== "";
@@ -404,9 +398,11 @@ order: 4
   }
 
   try {
+    // Switch to the local json to not make a load on GitHub servers while developing
+    // loader = new ProjectsLoader("/assets/data/projects.json");
     loader = new ProjectsLoader("https://raw.githubusercontent.com/theonlyasdk/libasdk/main/web/data/projects.json");
     loader.load();
   } catch (e) {
-    projects_list_container.innerHTML = genLoadError(e);
+    projects_list_container.innerHTML = genLoadError('ERR_LOADER_INIT: ' + e);
   }
 </script>
