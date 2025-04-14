@@ -16,6 +16,7 @@
 
 #topbar {
   @extend %btn-color;
+  margin-top: .5em;
 
   #breadcrumb {
     font-size: 1rem;

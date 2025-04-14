@@ -46,12 +46,6 @@ order: 4
     margin-bottom: 1em;
   }
 
-  .projects-search-box {
-    margin-bottom: 0;
-    margin-top: 0;
-    flex: 1;
-  }
-
   /* Project Cards */
   .project-card {
     background-color: var(--card-bg);
@@ -81,6 +75,45 @@ order: 4
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+  }
+
+  .projects-page-content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    margin-top: 0;
+  }
+
+  .projects-page-content>h1 {
+    margin-top: 0;
+  }
+
+  .projects-search-box {
+    border-radius: 1.2em;
+    border: 1px solid var(--search-border-color);
+    padding: .2em .4em .2em .8em;
+    flex: 1;
+  }
+
+  .projects-search-box:focus {
+    border-color: var(--input-focus-border-color);
+    outline: none !important;
+  }
+
+  .projects-search-box:active {
+    outline: none !important;
+  }
+
+  .projects-card-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .projects-card-container>.projects-loading {
+    width: 100%;
+    text-align: center;
   }
 
   /* Filters */
