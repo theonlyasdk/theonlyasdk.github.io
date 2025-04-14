@@ -62,6 +62,7 @@
   --btn-share-color: gray;
   --btn-share-hover-color: #0d6efd;
   --card-bg: white;
+  --card-bg-active: #e7e7e7;
   --card-hovor-bg: #e2e2e2;
   --card-shadow: rgba(21, 21, 21, 0.11) 0 6px 18px 0,
     rgb(137, 135, 135, 0.24) 0 0 0 1px;
@@ -114,6 +115,15 @@
   /* Mode toggle button colors */
   --mode-toggle-glow-1: rgba(0,0,0,0.2);
   --mode-toggle-glow-2: rgba(0,0,0,0.4);
+
+  /* ASDK Projects View */
+  --active-tag: #00536e;
+  --filter-btn-shadow: rgba(21, 21, 21, 0.11) 0 4px 13px 0,
+  rgb(137, 135, 135, 0.24) 0 0 0 1px;
+  --filter-btn-shadow-hover: rgba(0, 0, 0, 0.15) 0 6px 20px 0,
+  rgba(137, 135, 135, 0.28) 0 0 0 1px;
+  --filter-btn-shadow-active: rgba(0, 0, 0, 0.2) 0 4px 15px 0,
+  rgba(137, 135, 135, 0.32) 0 0 0 1px;
 
   [class^='prompt-'] {
     --link-underline-color: rgb(219, 216, 216);

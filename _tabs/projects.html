@@ -49,11 +49,11 @@ order: 4
     border-color: var(--btn-border-color);
     box-shadow: var(--card-shadow);
     user-select: none;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease-out;
   }
 
-  .filter-tag:hover {
-    background-color: var(--card-hovor-bg);
+  .filter-tag:active {
+    background-color: var(--card-bg-active);
   }
 
   .c-pointer {
@@ -68,10 +68,6 @@ order: 4
 
   .d-pop-out {
     animation: popOut 0.3s cubic-bezier(.17, 1.34, .22, 1.26) forwards;
-  }
-
-  .filter-tag {
-    transition: all 0.3s cubic-bezier(0, -0.12, 0, 1.06);
   }
 
   @keyframes popOut {
@@ -171,7 +167,7 @@ order: 4
     flex-direction: row;
     width: 100%;
     align-items: center;
-    gap: 1em;
+    gap: .8em;
     justify-content: flex-start;
     margin-top: .8em;
     margin-bottom: 1em;
@@ -182,14 +178,23 @@ order: 4
     border-radius: 0.5em;
     padding: .2em .7em .2em .7em;
     border-color: var(--btn-border-color);
-    box-shadow: var(--card-shadow);
+    box-shadow: var(--filter-btn-shadow);
     user-select: none;
     transition: all 0.3s ease;
     outline: none;
     border: none;
   }
 
+  .btn-search-filter:active {
+    box-shadow: var(--filter-btn-shadow-active);
+    background-color: var(--card-bg-active);
+  }
+
   @media (max-width: 768px) {
+    .search-box-container {
+      margin-bottom: .8em;
+    }
+
     .project-card-title a {
       border: none !important;
     }
@@ -202,7 +207,7 @@ order: 4
       justify-content: space-evenly;
       overflow-x: scroll;
       overflow-y: visible;
-      margin-bottom: 1em;
+      margin-bottom: .5em;
     }
 
     .projects-filter::-webkit-scrollbar {
@@ -220,6 +225,10 @@ order: 4
       flex-wrap: nowrap;
       text-wrap-mode: nowrap;
       white-space: nowrap;
+    }
+
+    .filter-tags {
+      padding-bottom: .8em;
     }
   }
 </style>

@@ -66,6 +66,7 @@
   --btn-share-color: #6c757d;
   --btn-share-hover-color: #bfc1ca;
   --card-bg: #1e1e1e;
+  --card-bg-active: #0e0e0e;
   --card-hovor-bg: #464d51;
   --card-shadow: rgb(21, 21, 21, 0.72) 0 6px 18px 0,
     rgb(137, 135, 135, 0.24) 0 0 0 1px;
@@ -118,6 +119,12 @@
 
   /* ASDK Projects View */
   --active-tag: #52d4ff;
+  --filter-btn-shadow: rgb(21, 21, 21, 0.72) 0 4px 13px 0,
+  rgb(137, 135, 135, 0.24) 0 0 0 1px;
+  --filter-btn-shadow-hover: rgb(21, 21, 21, 0.72) 0 4px 13px 0,
+  rgb(137, 135, 135, 0.24) 0 0 0 1px;
+  --filter-btn-shadow-active: rgb(21, 21, 21, 0.72) 0 4px 13px 0,
+  rgb(137, 135, 135, 0.24) 0 0 0 1px;
 
   .light {
     display: none;
