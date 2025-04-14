@@ -192,8 +192,8 @@ class ProjectsLoader {
 
 try {
   // Switch to the local json to not make a load on GitHub servers while developing
-  loader = new ProjectsLoader("/assets/data/projects.json");
-  // loader = new ProjectsLoader("https://raw.githubusercontent.com/theonlyasdk/libasdk/main/web/data/projects.json");
+  // loader = new ProjectsLoader("/assets/data/projects.json");
+  loader = new ProjectsLoader("https://raw.githubusercontent.com/theonlyasdk/libasdk/main/web/data/projects.json");
   loader.load();
   loader.setFilterTagTextAndVisibility(false, '');
 } catch (e) {
