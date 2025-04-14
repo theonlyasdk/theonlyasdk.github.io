@@ -123,4 +123,16 @@
   {% endif %}
 
   {% include metadata-hook.html %}
+
+  <!-- Preload Resources -->
+  <link rel="preload" href="{{ '/assets/css/:THEME.css' | replace: ':THEME', site.theme | relative_url }}" as="style">
+  <link rel="preload" href="{{ '/assets/js/dist/theme.min.js' | relative_url }}" as="script">
+  <link rel="preload" href="{{ site.data.origin[type].webfonts | relative_url }}" as="font" type="font/woff2"
+    crossorigin="anonymous">
+  <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+  <link rel="dns-prefetch" href="//fonts.googleapis.com">
+  <link rel="dns-prefetch" href="//github.com">
+  <link rel="preconnect" href="//cdnjs.cloudflare.com" crossorigin>
+  <link rel="preconnect" href="//fonts.googleapis.com" crossorigin>
+  <link rel="preconnect" href="//github.com" crossorigin>
 </head>
