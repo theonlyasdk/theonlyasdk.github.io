@@ -46,9 +46,11 @@ order: 4
     background-color: var(--card-bg);
     border-radius: 0.5em;
     padding: .2em .7em .2em .7em;
-    margin-left: 1em;
     border-color: var(--btn-border-color);
     box-shadow: var(--card-shadow);
+    user-select: none;
+    margin-right: 1em;
+    transition: all 0.3s ease;
   }
 
   .filter-tag:hover {
@@ -58,7 +60,6 @@ order: 4
   .projects-filter {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
     align-items: center;
     margin-bottom: 1em;
   }
@@ -75,6 +76,10 @@ order: 4
 
   .d-pop-out {
     animation: popOut 0.3s cubic-bezier(.17, 1.34, .22, 1.26) forwards;
+  }
+
+  .filter-tag {
+    transition: all 0.3s cubic-bezier(0, -0.12, 0, 1.06);
   }
 
   @keyframes popOut {
@@ -108,6 +113,77 @@ order: 4
   .active-tag {
     color: var(--active-tag);
   }
+
+  .flex-wrap {
+    flex-wrap: wrap;
+  }
+
+  .filter-icon {
+    margin-right: .7em;
+  }
+
+  @media (max-width: 768px) {
+    .project-card {
+      transition: height 0.5s cubic-bezier(0, -0.12, 0, 1.06), transform 0.2s cubic-bezier(0, -0.12, 0, 1.06);
+      overflow: hidden;
+    }
+
+    .filter-icon {
+      display: none;
+    }
+
+    .filter-tag {}
+
+    .projects-filter {
+      justify-content: space-evenly;
+      overflow-x: scroll;
+      overflow-y: visible;
+    }
+
+    .filter-tags>.filter-tag:last-child {
+      margin-right: 0;
+    }
+
+    .filter-tags {
+      flex-wrap: nowrap;
+      overflow-x: scroll;
+      overflow-y: visible;
+    }
+
+    .filter-tags>.filter-tag {
+      flex-grow: 1;
+      margin-top: 0.5em;
+      text-align: center;
+      flex-wrap: nowrap;
+      text-wrap-mode: nowrap;
+      white-space: nowrap;
+    }
+
+    /* .filter-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5em;
+    }
+
+    .filter-tags>.filter-tag {
+      flex-grow: 1;
+      margin-top: 0.5em;
+      text-align: center;
+    } */
+
+    .projects-search-box {
+      margin-bottom: 1em;
+    }
+
+    .d-none {
+      display: block !important;
+      width: 0 !important;
+      height: 0 !important;
+      opacity: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+  }
 </style>
 
 <!--
@@ -126,27 +202,24 @@ order: 4
   <h1>My Projects</h1>
   <input class="projects-search-box" type="text" placeholder="Search projects..." autocomplete="off"
     id="projects-search-box">
-  <!-- Add a filter selection. Like: Filter by: [All] [Has demo] -->
   <div class="projects-filter">
-    <div class="flex-row">
-      <span>Filter by:</span>
+    <div class="flex-row filter-icon">
+      <i class="fa-solid fa-filter" title="Filter by"></i>
+      &nbsp;&nbsp;
+      <b>Filter by: </b>
+    </div>
+    <div class="flex-row filter-tags">
       <div class="filter-tag c-pointer" onclick="loader.filterByTag('')">
         <span id="current-filter-tag">All</span>
-        <!-- <i class="fa-solid fa-xmark" id="clear-filter" onclick="loader.filter('')"></i> -->
       </div>
       <div class="filter-tag c-pointer">
-        <span id=" current-filter-tag" onclick="loader.filterByDemo()">Has demo</span>
-        <!-- <i class="fa-solid fa-xmark" id="clear-filter" onclick="loader.filter('')"></i> -->
+        <span id="current-filter-tag" onclick="loader.filterByDemo()">Has demo</span>
       </div>
       <div class="filter-tag c-pointer" id="filter-by-tag" onclick="loader.filterByTag('')">
         <span class="category project-tag">Tag</span>
         <i class="fa-solid fa-xmark" id="clear-filter"></i>
       </div>
     </div>
-    <!-- <div class="filter-tag clear-filter-tag c-pointer" onclick="loader.filterByTag('')">
-      <span id="clear-filter-tag" class="category project-tag">Clear filters</span>
-      <i class="fa-solid fa-xmark"></i>
-    </div> -->
   </div>
   <br>
   <div class="projects-card-container" id="projects-list">
@@ -284,11 +357,18 @@ order: 4
       else {
         elemFilterByTag.classList.remove('d-pop-in');
         elemFilterByTag.classList.add('d-pop-out');
-        elemFilterByTag.onanimationend = () => {
-          elemFilterByTag.classList.add('d-none');
-          elemFilterByTag.classList.remove('active-tag');
 
+        if (window.innerWidth <= 768) { // Mobile screen
+          elemFilterByTag.classList.add('d-none');
+        }
+
+        elemFilterByTag.onanimationend = () => {
+          elemFilterByTag.classList.remove('active-tag');
           elemFilterText.innerHTML = '';
+
+          if (window.innerWidth > 768) { // Desktop or tablet screen
+            elemFilterByTag.classList.add('d-none');
+          }
         };
       }
     }
