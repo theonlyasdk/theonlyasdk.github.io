@@ -139,6 +139,7 @@ class ProjectsLoader {
 
   filterByTag(tagName) {
     this.setFilterTagTextAndVisibility(tagName !== '', tagName);
+    if (tagName === '') this.scrollToTop();
 
     const projects = document.querySelectorAll('#projects-list .project-card')
     projects.forEach(task => {
@@ -162,13 +163,21 @@ class ProjectsLoader {
       }
     });
   }
+
+  scrollToTop() {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }
 }
 
 try {
   // Switch to the local json to not make a load on GitHub servers while developing
-  // loader = new ProjectsLoader("/assets/data/projects.json");
-  loader = new ProjectsLoader("https://raw.githubusercontent.com/theonlyasdk/libasdk/main/web/data/projects.json");
+  loader = new ProjectsLoader("/assets/data/projects.json");
+  // loader = new ProjectsLoader("https://raw.githubusercontent.com/theonlyasdk/libasdk/main/web/data/projects.json");
   loader.load();
+  loader.setFilterTagTextAndVisibility(false, '');
 } catch (e) {
   projects_list_container.innerHTML = genLoadError('ERR_LOADER_INIT: ' + e);
 }

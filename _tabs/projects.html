@@ -49,19 +49,12 @@ order: 4
     border-color: var(--btn-border-color);
     box-shadow: var(--card-shadow);
     user-select: none;
-    margin-right: 1em;
+    margin-right: .8em;
     transition: all 0.3s ease;
   }
 
   .filter-tag:hover {
     background-color: var(--card-hovor-bg);
-  }
-
-  .projects-filter {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin-bottom: 1em;
   }
 
   .c-pointer {
@@ -95,7 +88,7 @@ order: 4
   }
 
   .d-pop-in {
-    animation: popIn 0.3s cubic-bezier(.17, 1.34, .22, 1.26) forwards;
+    animation: popIn 0.2s cubic-bezier(.17, 1.34, .22, 1.26) forwards;
   }
 
   @keyframes popIn {
@@ -120,6 +113,7 @@ order: 4
 
   .filter-icon {
     margin-right: .7em;
+    user-select: none;
   }
 
   .project-card {
@@ -129,7 +123,7 @@ order: 4
 
   @media (max-width: 768px) {
     .project-card-title a {
-      text-decoration: none;
+      border: none !important;
     }
 
     .filter-icon {
@@ -143,15 +137,16 @@ order: 4
       margin-bottom: 0.5em;
     }
 
+    .projects-filter::-webkit-scrollbar {
+      display: none;
+    }
+
     .filter-tags>.filter-tag:last-child {
       margin-right: 0;
     }
 
     .filter-tags {
       flex-wrap: nowrap;
-      overflow-x: scroll;
-      overflow-y: visible;
-      padding-bottom: 1em;
       padding-left: 0.2em;
     }
 
@@ -169,6 +164,23 @@ order: 4
     }
   }
 
+  .projects-filter {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 1em;
+  }
+
+  .projects-search-box {
+    margin-bottom: 1em;
+  }
+
+  .projects-top-bar {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
   .d-none {
     display: block !important;
     opacity: 0 !important;
@@ -180,6 +192,14 @@ order: 4
 
   .error-loading-projects>h1 {
     margin-bottom: 0.2em;
+  }
+
+  .projects-top-bar-title {
+    margin-top: 0;
+  }
+
+  .projects-page-content {
+    width: 100%;
   }
 </style>
 
@@ -195,30 +215,31 @@ order: 4
   </div>
 </div>
  -->
-<div class="projects-page-content align-center">
-  <h1>My Projects</h1>
-  <input class="projects-search-box" type="text" placeholder="Search projects..." autocomplete="off"
-    id="projects-search-box">
-  <div class="projects-filter">
-    <div class="flex-row filter-icon">
-      <i class="fa-solid fa-filter" title="Filter by"></i>
-      &nbsp;&nbsp;
-      <b>Filter by: </b>
-    </div>
-    <div class="flex-row filter-tags">
-      <div class="filter-tag c-pointer" onclick="loader.filterByTag('')">
-        <span id="current-filter-tag">All</span>
+<div class="projects-page-content">
+  <div class="projects-top-bar">
+    <h1 class="projects-top-bar-title">My Projects</h1>
+    <input class="projects-search-box" type="text" placeholder="Search projects..." autocomplete="off"
+      id="projects-search-box">
+    <div class="projects-filter">
+      <div class="flex-row filter-icon">
+        <i class="fa-solid fa-filter" title="Filter by"></i>
+        &nbsp;&nbsp;
+        <b>Filter by: </b>
       </div>
-      <div class="filter-tag c-pointer">
-        <span id="current-filter-tag" onclick="loader.filterByDemo()">Has demo</span>
-      </div>
-      <div class="filter-tag c-pointer d-none" id="filter-by-tag" onclick="loader.filterByTag('')">
-        <span class="category project-tag">Tag</span>
-        <i class="fa-solid fa-xmark" id="clear-filter"></i>
+      <div class="flex-row filter-tags">
+        <div class="filter-tag c-pointer" onclick="loader.filterByTag('')">
+          <span id="current-filter-tag">All</span>
+        </div>
+        <div class="filter-tag c-pointer">
+          <span id="current-filter-tag" onclick="loader.filterByDemo()">Has demo</span>
+        </div>
+        <div class="filter-tag c-pointer d-none" id="filter-by-tag" onclick="loader.filterByTag('')">
+          <span class="category project-tag">Tag</span>
+          <i class="fa-solid fa-xmark" id="clear-filter"></i>
+        </div>
       </div>
     </div>
   </div>
-  <br>
   <div class="projects-card-container" id="projects-list">
     <!-- Content will be filled by projects loader script -->
     <div class="projects-loading"><i>Loading projects...</i></div>
