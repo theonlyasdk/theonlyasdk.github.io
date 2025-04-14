@@ -90,9 +90,12 @@ class ProjectsLoader {
     });
 
     document.querySelector(".projects-loading").style.display = "none";
-    document.querySelector("#projects-search-box").addEventListener("keydown", () => {
+    let searchBoxFilterEvent = () => {
       this.filter(document.querySelector("#projects-search-box").value);
-    });
+    };
+    let projectSearchBox = document.querySelector("#projects-search-box");
+    projectSearchBox.onkeydown = searchBoxFilterEvent;
+    projectSearchBox.onchange = searchBoxFilterEvent;
   }
 
   filter(filter) {
