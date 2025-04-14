@@ -26,7 +26,7 @@ When you're dualbooting, you usually use a boot manager like GRUB which shows a 
 When you remove Linux, there is not really a need for this boot manager anymore. So in this step we're going to replace it with the default Windows bootloader.
 
 To do this, run the following command in an elevated cmd or powershell.
-```sh
+```
 bcdboot C:\Windows /l en-us /s S: /f UEFI
 ```
 This will install Windows boot manager into `S:`, i.e your EFI partition.
