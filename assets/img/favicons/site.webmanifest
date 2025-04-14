@@ -15,14 +15,14 @@ layout: compress
             "type": "image/png"
         },
         {
-            "src": "{{ favicon_path }}/android-chrome-512x512.png",
+            "src": "{{ favicon_path }}/android-chrome-512x512.webp",
             "sizes": "512x512",
-            "type": "image/png"
+            "type": "image/webp"
         }
     ],
     "screenshots": [
         {
-            "src": "{{ favicon_path }}/android-chrome-512x512.png",
+            "src": "{{ favicon_path }}/android-chrome-512x512.webp",
             "sizes": "512x512",
             "type": "image/webp",
             "form_factor": "wide"
