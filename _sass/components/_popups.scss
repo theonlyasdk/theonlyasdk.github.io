@@ -54,8 +54,8 @@
 }
 
 #toc-popup {
-  $slide-in: slide-in 0.3s ease-out;
-  $slide-out: slide-out 0.3s ease-out;
+  $slide-in: slide-in 0.3s cubic-bezier(0.05, 0.6, 0.15, 1.41);
+  $slide-out: slide-out 0.3s cubic-bezier(0.05, 0.6, 0.15, 1.41);
   $curtain-height: 2rem;
   $backdrop: blur(5px);
 
@@ -153,6 +153,7 @@
   &::backdrop {
     -webkit-backdrop-filter: $backdrop;
     backdrop-filter: $backdrop;
+    transition: $backdrop 500ms cubic-bezier(0.05, 0.6, 0.15, 1.41);
   }
 
   &::after {
