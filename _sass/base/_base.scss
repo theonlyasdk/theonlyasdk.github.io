@@ -44,6 +44,7 @@ body {
   color: var(--text-color);
   -webkit-font-smoothing: antialiased;
   font-family: v.$font-family-base;
+  transition: background-color 200ms cubic-bezier(0.39, 0.575, 0.565, 1);
 }
 
 h1.dynamic-title {
@@ -118,6 +119,7 @@ main {
     &::before {
       opacity: 0.1;
     }
+    background-color: var(--card-bg-active);
   }
 }
 
@@ -399,13 +401,12 @@ mjx-container {
     transition: top 0.3 cubic-bezier(.17,.67,.2,.99);
   }
 
-  .nav-link {
-    transition: background-color 0.2s cubic-bezier(.17,.67,.2,.99);
+  .nav-link, .post-preview {
+    transition: background-color 300ms cubic-bezier(0,.36,.52,.98);
   }
 
-  .post-preview {
-    // Not needed
-    // transition: background-color 0.2s cubic-bezier(.17,.67,.2,.99);
+  .nav-link:hover {
+    transition: none;
   }
 }
 

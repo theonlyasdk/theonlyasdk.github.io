@@ -159,6 +159,10 @@ header {
   .btn {
     @extend %-btn-post-nav;
 
+    &:active {
+      background-color: #0144a7;
+    }
+
     &:not(:hover) {
       color: var(--link-color);
     }
@@ -212,7 +216,7 @@ header {
   .post-navigation {
     .btn,
     .btn::before {
-      transition: all 0.35s ease-in-out;
+      transition: all 150ms ease-out;
     }
   }
 }
