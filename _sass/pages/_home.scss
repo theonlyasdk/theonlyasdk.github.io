@@ -22,7 +22,12 @@
   .card {
     border: 0;
     background: none;
+    transition: all 200ms ease-out;
 
+    :active {
+      background-color: var(--card-bg-active);
+    }
+    
     %img-radius {
       border-radius: v.$radius-lg v.$radius-lg 0 0;
 

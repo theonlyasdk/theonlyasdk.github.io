@@ -2,6 +2,7 @@
   Jekyll Simple Search loader
   See: <https://github.com/christian-fei/Simple-Jekyll-Search>
 -->
+<!-- ASDK Note: Do not format this document using a formatter, it will mess up the Liquid syntax -->
 
 {% capture result_elem %}
   <article class="px-1 px-sm-2 px-lg-4 px-xl-0">
@@ -18,32 +19,44 @@
 
 {% capture not_found %}<p class="mt-5">{{ site.data.locales[include.lang].search.no_results }}</p>{% endcapture %}
 
-<script>
-  {% comment %} Note: dependent library will be loaded in `js-selector.html` {% endcomment %}
-  document.addEventListener('DOMContentLoaded', () => {
+<!-- ASDK Note: Modified the script below so SJS will only load when user interacts
+     with the searchbar. This will ensure that search.json load request will not happen
+     every time and will only happen when the user moves the mouse over the search box -->
+<script defer>
+  let loaded = false;
+  function loadSimpleJekyllSearch() {
+    if (loaded) return;
     SimpleJekyllSearch({
-      searchInput: document.getElementById('search-input'),
-      resultsContainer: document.getElementById('search-results'),
-      json: '{{ '/assets/js/data/search.json' | relative_url }}',
-      searchResultTemplate: '{{ result_elem | strip_newlines }}',
-      noResultsText: '{{ not_found }}',
-      templateMiddleware: function(prop, value, template) {
-        if (prop === 'categories') {
-          if (value === '') {
-            return `${value}`;
-          } else {
-            return `<div class="me-sm-4"><i class="far fa-folder fa-fw"></i>${value}</div>`;
+        searchInput: document.getElementById('search-input'),
+        resultsContainer: document.getElementById('search-results'),
+        json: '{{ '/assets/js/data/search.json' | relative_url }}',
+        searchResultTemplate: '{{ result_elem | strip_newlines }}',
+        noResultsText: '{{ not_found }}',
+        templateMiddleware: function(prop, value, template) {
+          if (prop === 'categories') {
+            if (value === '') {
+              return `${value}`;
+            } else {
+              return `<div class="me-sm-4"><i class="far fa-folder fa-fw"></i>${value}</div>`;
+            }
+          }
+          if (prop === 'tags') {
+            if (value === '') {
+              return `${value}`;
+            } else {
+              return `<div><i class="fa fa-tag fa-fw"></i>${value}</div>`;
+            }
           }
         }
-
-        if (prop === 'tags') {
-          if (value === '') {
-            return `${value}`;
-          } else {
-            return `<div><i class="fa fa-tag fa-fw"></i>${value}</div>`;
-          }
-        }
-      }
-    });
-  });
+      });
+      loaded = true;
+  }
+  // Note: dependent library will be loaded in `js-selector.html`
+  window.onload = () => {
+    document.getElementById("search").onmouseover = loadSimpleJekyllSearch;
+    if (window.matchMedia("(max-width: 768px)").matches) {
+       // Load library when the user is on mobile and types in the search box
+      document.getElementById("search").onkeydown = loadSimpleJekyllSearch;
+    }
+  };
 </script>
