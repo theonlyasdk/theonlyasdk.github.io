@@ -195,6 +195,7 @@ class ProjectsLoader {
 
 try {
   // Switch to the local json to not make a load on GitHub servers while developing
+  // Just gonna let it stay like this for a while so GitHub servers can rest :)
   loader = new ProjectsLoader("/assets/data/projects.json");
   // loader = new ProjectsLoader("https://raw.githubusercontent.com/theonlyasdk/libasdk/main/web/data/projects.json");
   loader.load();
