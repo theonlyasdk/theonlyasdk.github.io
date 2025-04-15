@@ -9,6 +9,8 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
 
 #sidebar {
   @include mx.pl-pr(0);
+  
+  transition: background-color 300ms cubic-bezier(.17,.67,.2,.99);
 
   position: fixed;
   top: 0;

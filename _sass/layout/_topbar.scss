@@ -17,6 +17,7 @@
 #topbar {
   @extend %btn-color;
   margin-top: .5em;
+  transition: background-color 300ms cubic-bezier(.17,.67,.2,.99);
 
   #breadcrumb {
     font-size: 1rem;

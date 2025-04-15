@@ -398,7 +398,7 @@ mjx-container {
 
 @media (hover: hover) {
   #sidebar ul > li:last-child::after {
-    transition: top 0.3 cubic-bezier(.17,.67,.2,.99);
+    transition: top 0.3s cubic-bezier(.17,.67,.2,.99);
   }
 
   .nav-link, .post-preview {
