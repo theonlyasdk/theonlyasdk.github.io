@@ -7,14 +7,15 @@
   data-bs-animation="true"
   data-bs-autohide="false"
 >
-  <div class="toast-header">
+  <!-- ASDK Note: Let's just make sure the user updates no matter what ;) -->
+  <!-- <div class="toast-header">
     <button
       type="button"
       class="btn-close ms-auto"
       data-bs-dismiss="toast"
       aria-label="Close"
     ></button>
-  </div> 
+  </div>  -->
   <div class="toast-body text-center pt-0">
     <h1>{{ site.data.locales[include.lang].notification.update_available }}</h1>
     <p class="px-2 mb-3">{{ site.data.locales[include.lang].notification.update_found }}</p>
