@@ -8,7 +8,7 @@ tags: ["graphics", "processing-4", "programming", "code", "snippets"]
 
 Here are some Processing 4 code snippets:
 
-# Find pixel width of a string
+## Find pixel width of a string
 If you have a string `text` and you want to find the width of it in pixels, use:
 ```java
 textWidth(text); // Where text is a string
