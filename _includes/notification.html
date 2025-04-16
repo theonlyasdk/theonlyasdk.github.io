@@ -6,6 +6,7 @@
   aria-atomic="true"
   data-bs-animation="true"
   data-bs-autohide="false"
+  style="background-color: var(--card-bg-translucent) !important;"
 >
   <!-- ASDK Note: Let's just make sure the user updates no matter what ;) -->
   <!-- <div class="toast-header">
@@ -16,9 +17,11 @@
       aria-label="Close"
     ></button>
   </div>  -->
+  <br>
+  <br>
   <div class="toast-body text-center pt-0">
-    <h1>{{ site.data.locales[include.lang].notification.update_available }}</h1>
-    <p class="px-2 mb-3">{{ site.data.locales[include.lang].notification.update_found }}</p>
+    <h1 class="toast-title">{{ site.data.locales[include.lang].notification.update_available }}</h1>
+    <p class="px-2 mb-3 toast-text">{{ site.data.locales[include.lang].notification.update_found }}</p>
     <button type="button" class="btn btn-primary" aria-label="Update">
       {{ site.data.locales[include.lang].notification.update }}
     </button>

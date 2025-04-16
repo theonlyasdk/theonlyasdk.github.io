@@ -11,7 +11,6 @@ if ('serviceWorker' in navigator) {
     const notification = document.getElementById('notification');
     const btnRefresh = notification.querySelector('.toast-body>button');
     const popupWindow = Toast.getOrCreateInstance(notification);
-    popupWindow.show();
 
     navigator.serviceWorker.register(swUrl).then((registration) => {
       // Restore the update window that was last manually closed by the user
