@@ -51,11 +51,11 @@
       });
       loaded = true;
   }
-  // Note: dependent library will be loaded in `js-selector.html`
+  /* Note: dependent library will be loaded in `js-selector.html` */
   window.onload = () => {
     document.getElementById("search").onmouseover = loadSimpleJekyllSearch;
     if (window.matchMedia("(max-width: 768px)").matches) {
-       // Load library when the user is on mobile and types in the search box
+       /* Load library when the user is on mobile and types in the search box */
       document.getElementById("search").onkeydown = loadSimpleJekyllSearch;
     }
   };
