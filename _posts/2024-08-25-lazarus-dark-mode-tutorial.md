@@ -21,7 +21,7 @@ Make sure that:
 ## Installing dark mode
 
 1. Open Lazarus IDE
-2. Go to https://github.com/zamtmn/metadarkstyle/ and follow the instructions there on installing the `metadarkstyle` package
+2. Go to <https://github.com/zamtmn/metadarkstyle/> and follow the instructions there on installing the `metadarkstyle` package
 3. After you've installed it, rebuild the IDE
 
 ## Final checks
