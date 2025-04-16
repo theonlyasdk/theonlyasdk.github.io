@@ -54,8 +54,12 @@
 }
 
 #toc-popup {
-  $slide-in: slide-in 0.3s cubic-bezier(0.05, 0.6, 0.15, 1.41);
-  $slide-out: slide-out 0.3s cubic-bezier(0.05, 0.6, 0.15, 1.41);
+  // ASDK Note: Easing function generated from https://easingwizard.com/
+  $easing-func: linear(0, 0.011 1%, 0.046 2.2%, 0.383 10.3%, 0.486 13.3%, 0.575 16.4%, 0.658 19.9%, 0.727 23.6%, 0.788 27.7%, 0.839 32.1%, 0.881 37%, 0.915 42.5%, 0.962 55.6%, 0.987 73%, 1);
+  $slide-in: slide-in 0.6s $easing-func;
+  $slide-out: slide-out 0.4s $easing-func;
+  $fade-in: fade-in 0.6s $easing-func;
+  $fade-out: fade-out 0.4s $easing-func;
   $curtain-height: 2rem;
   $backdrop: blur(5px);
   
@@ -68,6 +72,7 @@
   margin-top: v.$topbar-height;
   min-width: 20rem;
   font-size: 1.05rem;
+  transition: all 100ms linear;
 
   @include bp.sm {
     max-width: 32rem;
@@ -154,7 +159,13 @@
   &::backdrop {
     -webkit-backdrop-filter: $backdrop;
     backdrop-filter: $backdrop;
-    transition: $backdrop 500ms cubic-bezier(0.05, 0.6, 0.15, 1.41);
+    -webkit-animation: $fade-in;
+    animation: $fade-in;
+  }
+  
+  &[closing]::backdrop {
+    -webkit-animation: $fade-out;
+    animation: $fade-out;
   }
 
   &::after {
