@@ -3,6 +3,7 @@ layout: post
 title: Lazarus Dark Mode Tutorial (Windows Only)
 date: 2024-08-25
 categories: ["lazarus", "dark-mode", "tutorial", "pascal", "fpc", "windows", "ide"]
+tags: ["lazarus", "dark-mode", "tutorial", "pascal", "fpc", "windows", "ide"]
 ---
 
 In this article, I'm going to show you how to add dark mode to your Lazarus LCL application on Windows (and Lazarus IDE as well!)

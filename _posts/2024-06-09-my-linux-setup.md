@@ -2,7 +2,8 @@
 layout: post
 title: My Linux Setup
 date: 2024-06-03
-categories: ["setup", "gnome", "desktop", "linux", "customization"]
+categories: ["customisation", "gnome", "desktop", "linux"]
+tags: ["setup", "gnome", "desktop", "linux", "customisation"]
 ---
 
 Here's a quick overview of my Linux (Gnome) setup:

@@ -2,7 +2,8 @@
 layout: post
 title: Useful Windows tweak tools
 date: 2024-08-15
-categories: ["windows", "mods", "tweaks", "utilities", "customization"]
+categories: ["windows", "mods", "tweaks", "customization"]
+tags: ["windows", "mods", "tweaks", "utilities", "customization"]
 ---
 
 Windows kinda sucks by default... Here are some tools and mods that allow you to tweak various Windows settings to hopefully make your Windows experience better:
