@@ -1,5 +1,4 @@
 ---
-layout: post
 title: My Linux Setup
 date: 2024-06-03
 categories: ["customization", "gnome", "desktop", "linux"]

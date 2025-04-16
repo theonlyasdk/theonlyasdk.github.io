@@ -1,5 +1,4 @@
 ---
-layout: post
 title: Lazarus Dark Mode Tutorial (Windows Only)
 date: 2024-08-25
 categories: ["lazarus", "dark-mode", "tutorial", "pascal", "fpc", "windows", "ide"]

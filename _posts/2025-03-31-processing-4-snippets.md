@@ -1,5 +1,4 @@
 ---
-layout: post
 title: Some Processing 4 Snippets
 date: 2025-03-31
 categories: ["graphics", "processing-4", "programming", "code", "snippets"]
