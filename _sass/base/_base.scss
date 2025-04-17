@@ -397,11 +397,11 @@ mjx-container {
 
 @media (hover: hover) {
   #sidebar ul > li:last-child::after {
-    transition: top 0.3s cubic-bezier(.17,.67,.2,.99);
+    transition: top 0.3s v.$easing-func;
   }
 
   .nav-link, .post-preview {
-    transition: background-color 300ms cubic-bezier(0,.36,.52,.98);
+    transition: background-color 300ms v.$easing-func;
   }
 
   .nav-link:hover {

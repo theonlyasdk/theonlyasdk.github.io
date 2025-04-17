@@ -9,8 +9,6 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
 
 #sidebar {
   @include mx.pl-pr(0);
-  
-  transition: background-color 300ms cubic-bezier(.17,.67,.2,.99);
 
   position: fixed;
   top: 0;
@@ -78,7 +76,7 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
     }
 
     img {
-      transition: transform 0.5s cubic-bezier(0,-0.02,0,1.25);
+      transition: transform 0.5s v.$easing-func;
 
       &:hover {
         transform: scale(1.1);

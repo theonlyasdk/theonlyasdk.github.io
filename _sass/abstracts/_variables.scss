@@ -30,3 +30,7 @@ $font-family-base: 'Source Sans Pro', 'Microsoft Yahei', sans-serif !default;
 $font-family-heading: Lato, 'Microsoft Yahei', sans-serif !default;
 // $font-family-base: "Roboto Flex", sans-serif !default;
 // $font-family-heading: "Roboto Flex", sans-serif !default;
+
+/* Easing functions */
+/* ASDK Note: Easing function generated from https://easingwizard.com/ */
+$easing-func: linear(0, 0.011 1%, 0.046 2.2%, 0.383 10.3%, 0.486 13.3%, 0.575 16.4%, 0.658 19.9%, 0.727 23.6%, 0.788 27.7%, 0.839 32.1%, 0.881 37%, 0.915 42.5%, 0.962 55.6%, 0.987 73%, 1);

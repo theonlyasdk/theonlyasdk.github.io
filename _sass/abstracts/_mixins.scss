@@ -1,3 +1,5 @@
+@use '../abstracts/variables' as v;
+
 @mixin text-ellipsis {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -66,7 +68,7 @@
 }
 
 @mixin slide($append: null) {
-  $basic: transform 0.4s ease;
+  $basic: transform 0.4s v.$easing-func;
 
   @if $append {
     transition: $basic, $append;
