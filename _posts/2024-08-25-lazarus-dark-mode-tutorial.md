@@ -47,9 +47,9 @@ uses
   uMetaDarkStyle,
   uDarkStyleSchemes,
 ```
-- Under the `begin` section, add:
+9. Under the `begin` section, add:
 ```pascal
 PreferredAppMode := pamAllowDark;
 uMetaDarkStyle.ApplyMetaDarkStyle(DefaultDark);
 ```
-- Now run your application and it should have dark mode!
+10. Now run your application and it should have dark mode!
