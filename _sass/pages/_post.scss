@@ -296,6 +296,10 @@ header {
       &::before {
         display: none;
       }
+
+      &:active {
+        color: var(--toc-highlight-active);
+      }
     }
 
     .is-active-link {
