@@ -391,13 +391,17 @@ header {
     box-shadow: none;
     background: none;
   }
+
+  &:active {
+    background-color: var(--card-bg-active);
+  }
 }
 
 @mixin slide-in {
   0% {
     // opacity: 0.7;
-    transform: translateY(calc(-#{v.$topbar-height} * 6));
-    scale: 0.7;
+    transform: translateY(calc(-#{v.$topbar-height} * 8));
+    scale: 0.8;
   }
 
   100% {
@@ -415,7 +419,7 @@ header {
   }
   
   100% {
-    transform: translateY(calc(-#{v.$topbar-height} * 6));
+    transform: translateY(calc(-#{v.$topbar-height} * 8));
     // opacity: 0;
     scale: 0.9;
   }
