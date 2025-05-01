@@ -27,19 +27,49 @@ function checkNotNullOrEmpty(string) {
 }
 
 class ProjectsLoader {
-  constructor(url) { this.url = url; }
+  constructor(url) {
+    this.url = url;
+    this.cacheKey = "projects_cache";
+    this.loadCountKey = "projects_load_count";
+  }
 
   load() {
+    const loadCount = parseInt(localStorage.getItem(this.loadCountKey) || "0", 10);
+    const useCache = loadCount % 10 !== 0;
+
+    if (useCache) {
+      const cachedData = localStorage.getItem(this.cacheKey);
+      if (cachedData) {
+        logger.info("Loading projects from cache...");
+        this.propogate(JSON.parse(cachedData));
+        this.incrementLoadCount();
+        return;
+      }
+    }
+
+    logger.info("Fetching projects from GitHub...");
     fetch(this.url)
-      .then((response) => {
-        return response.json();
-      }).then((json) => {
+      .then((response) => response.json())
+      .then((json) => {
+        localStorage.setItem(this.cacheKey, JSON.stringify(json));
         this.propogate(json);
+        this.incrementLoadCount();
       })
       .catch((error) => {
         logger.error(`Unable to fetch ${this.url}: ${error}`);
-        this.propogate(null);
+        const cachedData = localStorage.getItem(this.cacheKey);
+        if (cachedData) {
+          logger.warn("Falling back to cached data...");
+          this.propogate(JSON.parse(cachedData));
+        } else {
+          this.propogate(null);
+        }
       });
+  }
+
+  incrementLoadCount() {
+    const loadCount = parseInt(localStorage.getItem(this.loadCountKey) || "0", 10);
+    localStorage.setItem(this.loadCountKey, (loadCount + 1).toString());
   }
 
   propogate(projects_list) {
@@ -194,10 +224,7 @@ class ProjectsLoader {
 }
 
 try {
-  // Switch to the local json to not make a load on GitHub servers while developing
-  // Just gonna let it stay like this for a while so GitHub servers can rest :)
-  loader = new ProjectsLoader("/assets/data/projects.json");
-  // loader = new ProjectsLoader("https://raw.githubusercontent.com/theonlyasdk/libasdk/main/web/data/projects.json");
+  loader = new ProjectsLoader("https://raw.githubusercontent.com/theonlyasdk/libasdk/main/web/data/projects.json");
   loader.load();
   loader.setFilterTagTextAndVisibility(false, '');
 } catch (e) {
