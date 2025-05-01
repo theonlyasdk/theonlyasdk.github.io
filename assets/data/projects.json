@@ -61,12 +61,6 @@
     "demo_url": "https://theonlyasdk.github.io/base64-tools-html/"
   },
   {
-    "name": "Toolbox",
-    "description": "Small scripts and utilities that I use to increase my productivity and workflow speed.",
-    "url": "https://github.com/theonlyasdk/toolbox",
-    "tags": "scripts,utility,python,productivity"
-  },
-  {
     "name": "Backsolate (for Windows)",
     "description": "Image subject isolation/background removal using CNNs on device (WinForms frontend)",
     "url": "https://github.com/theonlyasdk/backsolate-win",
