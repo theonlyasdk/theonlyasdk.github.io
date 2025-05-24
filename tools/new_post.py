@@ -39,7 +39,6 @@ def create_new_post(title: str):
 	tags_list = ', '.join(f'"{tag}"' for tag in tags_list)
 
 	content = f"""---
-layout: post
 title: "{title}"
 date: {date_str} {time_str}
 categories: [{categories_list}]
