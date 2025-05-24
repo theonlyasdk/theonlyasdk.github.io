@@ -1,7 +1,7 @@
 ---
 title: Useful Windows tweak tools
 date: 2024-08-15
-categories: ["windows", "mods", "tweaks", "customization"]
+categories: ["Windows", "Mods", "Tweaks", "Customisation"]
 tags: ["windows", "mods", "tweaks", "utilities", "customization"]
 ---
 

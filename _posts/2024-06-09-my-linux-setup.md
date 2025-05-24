@@ -1,7 +1,7 @@
 ---
 title: My Linux Setup
 date: 2024-06-03
-categories: ["customization", "gnome", "desktop", "linux"]
+categories: ["Customisation", "Gnome", "Desktop", "Linux"]
 tags: ["setup", "gnome", "desktop", "linux", "customization"]
 ---
 
