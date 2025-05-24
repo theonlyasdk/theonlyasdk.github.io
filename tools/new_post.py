@@ -1,4 +1,6 @@
 # Creates a new post in project_root/_posts/
+# I know jekyll-compose exists, but I just made this script for this website
+
 import os
 from datetime import datetime
 import sys
@@ -40,7 +42,7 @@ def create_new_post(title: str):
 
 	content = f"""---
 title: "{title}"
-date: {date_str} {time_str}
+date: {date_str} {time_str} +0530
 categories: [{categories_list}]
 tags: [{tags_list}]
 ---
