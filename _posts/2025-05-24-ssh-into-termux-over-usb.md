@@ -1,8 +1,8 @@
 ---
 title: "SSH into Termux over USB"
 date: 2025-05-24
-categories: ["SerenityOS", "Termux", "SSH", "OS Development"]
-tags: ["serenityos", "termux", "ssh", "os-development", "android", "arch-linux", "experimental"]
+categories: ["Android", "Termux", "SSH", "OS Development"]
+tags: ["termux", "ssh", "os-development", "android", "arch-linux", "experimental"]
 ---
 In this tutorial, I'm going to provide a step-by-step tutorial on connecting to a Termux shell through SSH by a USB connection.
 
