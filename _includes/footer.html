@@ -1,6 +1,9 @@
 <!-- ASDK note: I like to load my styles and scripts in the footer -->
 <!-- 3rd-party Dependencies -->
 
+<!-- Page Preloader Script -->
+<script src="{{ '/assets/js/instantpage-5.2.0.js' | relative_url }}"></script>
+
 {% if site.toc and page.toc %}
   <link rel="stylesheet" href="{{ site.data.origin[type].toc.css | relative_url }}">
 {% endif %}
