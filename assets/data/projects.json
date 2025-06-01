@@ -65,5 +65,12 @@
     "description": "Image subject isolation/background removal using CNNs on device (WinForms frontend)",
     "url": "https://github.com/theonlyasdk/backsolate-win",
     "tags": "background-removal,ai,cnn,winforms,windows,c#,image"
+  },
+  {
+    "name": "Kwizbus",
+    "description": "A simple tool for creating and taking multiple-choice quizzes.",
+    "url": "https://github.com/theonlyasdk/kwizbus/",
+    "tags": "quiz,mcq,ai,gemini",
+    "demo_url": "https://theonlyasdk.github.io/kwizbus/"
   }
 ]
