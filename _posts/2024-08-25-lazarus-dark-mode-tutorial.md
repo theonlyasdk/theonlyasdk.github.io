@@ -6,7 +6,7 @@ tags: ["lazarus", "dark-mode", "tutorial", "pascal", "fpc", "windows", "ide"]
 ---
 
 In this article, I'm going to show you how to add dark mode to your Lazarus LCL application on Windows (and Lazarus IDE as well!)
-> **PS:** This method is **Windows only**. Other platforms do not need this method, as setting the system theme to dark is enough for LCL applications to switch to dark mode in those enviornments.
+> **PS:** This method is for **Windows only**. Other platforms do not need this method, as setting the system theme to dark is enough for LCL applications to switch to dark mode in those enviornments.
 {: .prompt-info }
 
 # Adding dark mode to Lazarus IDE
