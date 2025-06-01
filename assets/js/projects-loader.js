@@ -22,6 +22,9 @@ const genLoadError = (msg) => `
     </div>
 `;
 
+// FIXME: Is this check really needed? I assume empty strings, 
+// undefined and null strings are falsy so we can just do if (string)
+// wherever this is called
 function checkNotNullOrEmpty(string) {
   return string !== undefined && string !== null && string !== "";
 }
@@ -90,11 +93,12 @@ class ProjectsLoader {
     });
 
     document.querySelector(".projects-loading").style.display = "none";
-    let searchBoxFilterEvent = () => {
-      this.filter(document.querySelector("#projects-search-box").value);
-    };
+
+    let searchBoxFilterEvent = () => this.filter(document.querySelector("#projects-search-box").value);;
     let projectSearchBox = document.querySelector("#projects-search-box");
+
     projectSearchBox.onkeydown = searchBoxFilterEvent;
+    projectSearchBox.onkeyup = searchBoxFilterEvent;
     projectSearchBox.onchange = searchBoxFilterEvent;
   }
 
