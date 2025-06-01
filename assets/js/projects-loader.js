@@ -4,14 +4,9 @@ let currentFilterTag = "";
 let elemFilterByTag = document.getElementById("filter-by-tag");
 var loader = null;
 
-if (projects_list_container === null ||
-  projects_list_container === undefined ||
-  projects_list_container === "" ||
-  projects_list_container.innerHTML === null ||
-  projects_list_container.innerHTML === undefined ||
-  projects_list_container.innerHTML === "") {
-  logger.error("Unable to find projects list container!");
-  window.alert("Unable to find projects list container!");
+if (!projects_list_container || !projects_list_container.innerHTML) {
+  logger.error("Fatal error: Unable to find projects list container!");
+  window.alert("Oopsies! Unable to find projects list container!");
 }
 
 const genLoadError = (msg) => `
@@ -21,13 +16,6 @@ const genLoadError = (msg) => `
         <i><b>Reason</b>: <code>${msg}</code></i>
     </div>
 `;
-
-// FIXME: Is this check really needed? I assume empty strings, 
-// undefined and null strings are falsy so we can just do if (string)
-// wherever this is called
-function checkNotNullOrEmpty(string) {
-  return string !== undefined && string !== null && string !== "";
-}
 
 class ProjectsLoader {
   constructor(url) { this.url = url; }
@@ -65,10 +53,7 @@ class ProjectsLoader {
         tag_elements += `<a href="#${tag}" onclick="loader.filterByTag('${tag}')" class="category project-tag">${tag}</a>`
       }
 
-      if (!checkNotNullOrEmpty(name) ||
-        !checkNotNullOrEmpty(description) ||
-        !checkNotNullOrEmpty(url) ||
-        !checkNotNullOrEmpty(tags)) {
+      if (!name || !description || !url || !tags) {
         logger.warn(`Skipping project due to missing fields: ${JSON.stringify(element)}`);
         return;
       }
@@ -97,8 +82,7 @@ class ProjectsLoader {
     let searchBoxFilterEvent = () => this.filter(document.querySelector("#projects-search-box").value);;
     let projectSearchBox = document.querySelector("#projects-search-box");
 
-    projectSearchBox.onkeydown = searchBoxFilterEvent;
-    projectSearchBox.onkeyup = searchBoxFilterEvent;
+    projectSearchBox.oninput = searchBoxFilterEvent;
     projectSearchBox.onchange = searchBoxFilterEvent;
   }
 
@@ -146,8 +130,11 @@ class ProjectsLoader {
     if (document.querySelector('.projects-filter').classList.contains('d-none')) {
       this.toggleProjectsFilter();
     }
+  
     this.setFilterTagTextAndVisibility(tagName !== '', tagName);
-    if (tagName === '') this.scrollToTop();
+  
+    if (tagName === '') 
+      this.scrollToTop();
 
     const projects = document.querySelectorAll('#projects-list .project-card')
     projects.forEach(task => {
@@ -156,7 +143,7 @@ class ProjectsLoader {
       if (!tags.includes(tagName)) {
         task.classList.add('d-none')
       }
-    })
+    });
   }
 
   filterByDemo() {
