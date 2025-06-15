@@ -72,5 +72,12 @@
     "url": "https://github.com/theonlyasdk/kwizbus/",
     "tags": "quiz,mcq,ai,gemini",
     "demo_url": "https://theonlyasdk.github.io/kwizbus/"
+  },
+  {
+    "name": "MySQL Table Formatter",
+    "description": "Convert MySQL-like table text to HTML or formatted text",
+    "url": "https://github.com/theonlyasdk/mysql-table-formatter",
+    "tags": "mysql,formatter,document,ms-word,tables",
+    "demo_url": "https://theonlyasdk.github.io/mysql-table-formatter/"
   }
 ]
