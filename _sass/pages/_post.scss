@@ -24,7 +24,7 @@ header {
   }
 
   .post-meta {
-    span + span::before {
+    span+span::before {
       @include -dot;
     }
 
@@ -40,7 +40,7 @@ header {
     }
   }
 
-  h1 + .post-meta {
+  h1+.post-meta {
     margin-top: 1.5rem;
   }
 }
@@ -54,7 +54,7 @@ header {
   .license-wrapper {
     line-height: 1.2rem;
 
-    > a {
+    >a {
       @extend %text-highlight;
 
       &:hover {
@@ -65,7 +65,9 @@ header {
     span:last-child {
       @extend %text-sm;
     }
-  } /* .license-wrapper */
+  }
+
+  /* .license-wrapper */
 
   .post-meta a:not(:hover) {
     @extend %link-underline;
@@ -91,7 +93,7 @@ header {
         @extend %icon-size;
       }
 
-      > * {
+      >* {
         @extend %icon-size;
 
         margin-left: 0.5rem;
@@ -110,15 +112,19 @@ header {
 
         @extend %cursor-pointer;
       }
-    } /* .share-icons */
-  } /* .share-wrapper */
+    }
+
+    /* .share-icons */
+  }
+
+  /* .share-wrapper */
 }
 
 .post-tail-bottom {
   @include bp.lte(bp.get(sm)) {
     flex-wrap: wrap-reverse !important;
 
-    > div:first-child {
+    >div:first-child {
       width: 100%;
       margin-top: 1rem;
     }
@@ -210,10 +216,13 @@ header {
     margin-top: 0.3rem;
     white-space: normal;
   }
-} /* .post-navigation */
+}
+
+/* .post-navigation */
 
 @media (hover: hover) {
   .post-navigation {
+
     .btn,
     .btn::before {
       transition: all 150ms ease-out;
@@ -339,7 +348,7 @@ header {
     background: linear-gradient(transparent, var(--main-bg) 70%);
   }
 
-  > * {
+  >* {
     @extend %panel-border;
   }
 }
@@ -349,12 +358,28 @@ header {
 #toc-bar {
   position: -webkit-sticky;
   position: sticky;
-  top: 0;
+  top: calc(v.$topbar-height + 1rem);
+  right: 1rem;
+  float: right;
   z-index: 1;
-  margin: 0 -1rem;
+
+  // margin: 0 -1rem;
+  border-radius: 40px;
+  box-shadow: var(--toc-bar-shadow);
   height: v.$topbar-height;
-  background: var(--main-bg);
+  background: var(--toc-bar-bg);
+  backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--main-border-color);
+  transition: padding 300ms v.$easing-func, transform 300ms v.$easing-func;
+  user-select: none;
+  opacity: 1;
+  width: fit-content;
+
+  &:active {
+    padding: 0 0.5rem;
+    transform: scale(0.95);
+    opacity: 0.9;
+  }
 
   @extend %btn-color;
 
@@ -373,6 +398,15 @@ header {
   &.invisible {
     top: -#{v.$topbar-height};
     transition: none;
+  }
+
+  button {
+    &:active, &:focus {
+      outline: none !important;
+      border: none !important;
+    }
+    outline: none !important;
+    border: none !important;
   }
 }
 
@@ -420,7 +454,7 @@ header {
     // opacity: 1;
     scale: 1;
   }
-  
+
   100% {
     transform: translateY(calc(-#{v.$topbar-height} * 8));
     // opacity: 0;
@@ -432,7 +466,7 @@ header {
   from {
     opacity: 0;
   }
-  
+
   to {
     opacity: 1;
   }
@@ -442,7 +476,7 @@ header {
   from {
     opacity: 1;
   }
-  
+
   to {
     opacity: 0;
   }
@@ -475,7 +509,7 @@ header {
 /* --- Related Posts --- */
 
 #related-posts {
-  > h3 {
+  >h3 {
     @include mx.label(1.1rem, 600);
   }
 
@@ -494,6 +528,7 @@ header {
     white-space: break-spaces;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
   }
 
@@ -526,7 +561,7 @@ header {
   }
 }
 
-.content > p > img {
+.content>p>img {
   @include bp.lte(bp.get(md)) {
     max-width: calc(100% + 1rem);
   }

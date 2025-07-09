@@ -5,12 +5,21 @@
 
 #topbar-wrapper {
   height: v.$topbar-height;
-  background-color: var(--topbar-bg);
+  padding-bottom: 1em;
+  z-index: 100;
+  background-image: linear-gradient(to bottom,
+      var(--topbar-bg),
+      rgba(0, 0, 0, 0));
+
+  backdrop-filter: blur(10px);
 
   @include bp.lt(bp.get(lg)) {
     @include mx.slide(top 0.2s ease);
 
     left: 0;
+    box-shadow: var(--topbar-shadow);
+    position: sticky;
+    top: 0;
   }
 }
 

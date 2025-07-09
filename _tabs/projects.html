@@ -222,6 +222,13 @@ order: 4
   /* Error States */
   .error-loading-projects>h1 {
     margin-bottom: 0.2em;
+    margin-top: 0.5em;
+  }
+  .error-loading-projects {
+    width: 100%;
+    text-align: center;
+    margin-top: 2em;
+    color: var(--error-color);
   }
 
   /* Media Queries */
@@ -273,7 +280,7 @@ order: 4
     <h1 class="projects-top-bar-title">My Projects</h1>
     <div class="search-box-container">
       <input class="projects-search-box" type="text" placeholder="Search projects..." autocomplete="off"
-        id="projects-search-box">
+        id="projects-search-box" autocorrect="off" autocapitalize="off" spellcheck="false" autofocus>
       <button class="btn-search-filter" onclick="loader.toggleProjectsFilter()" title="Filter by"><i
           class="fa-solid fa-filter" id="clear-filter"></i></button>
     </div>

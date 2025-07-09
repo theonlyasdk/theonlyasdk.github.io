@@ -16,7 +16,7 @@
   --blockquote-text-color: #868686;
   --link-color: rgb(138, 180, 248);
   --link-underline-color: rgb(82, 108, 150);
-  --button-bg: #1e1e1e;
+  --button-bg: #1e1e1e77;
   --btn-border-color: #2e2f31;
   --btn-backtotop-color: var(--text-color);
   --btn-backtotop-border-color: #212122;
@@ -45,8 +45,9 @@
   --avatar-border-color: rgb(206, 206, 206, 0.9);
 
   /* Topbar */
-  --topbar-bg: rgb(27, 27, 30, 0.64);
+  --topbar-bg: rgb(27, 27, 30);
   --topbar-text-color: var(--text-color);
+  --topbar-shadow: rgba(0, 0, 0, 0.1) 0 2px 15px 0;
   --search-border-color: rgb(55, 55, 55);
   --search-icon-color: rgb(100, 102, 105);
   --input-focus-border-color: rgb(112, 114, 115);
@@ -60,6 +61,8 @@
   --toc-highlight: rgb(116, 178, 243);
   --toc-highlight-active: #308ced;
   --toc-popup-border-color: #373737;
+  --toc-bar-bg: #1e1e1e77;
+  --toc-bar-shadow: rgba(0, 0, 0, 0.1) 0 2px 15px 0;
   --tag-hover: rgb(43, 56, 62);
   --tb-odd-bg: #252526; /* odd rows of the posts' table */
   --tb-even-bg: rgb(31, 31, 34); /* even rows of the posts' table */
@@ -73,6 +76,7 @@
   --card-hovor-bg: #464d51;
   --card-shadow: rgb(21, 21, 21, 0.72) 0 6px 18px 0,
     rgb(137, 135, 135, 0.24) 0 0 0 1px;
+  --error-card-shadow: rgb(137, 135, 135, 0.24) 0 0 0 1px;
   --kbd-wrap-color: #6a6a6a;
   --kbd-text-color: #d3d3d3;
   --kbd-bg-color: #242424;

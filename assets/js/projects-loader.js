@@ -11,10 +11,22 @@ if (!projects_list_container || !projects_list_container.innerHTML) {
 
 const genLoadError = (msg) => `
   <div class="error-loading-projects">
-        <h1>Oops! Unable to load projects!</h1>
-        <p>Please check the console and report the error in the issues tab of the GitHub repository for this website!</p>
-        <i><b>Reason</b>: <code>${msg}</code></i>
+    <div class="error-loading-projects-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 512 512"><path fill="currentColor" d="m119.75 21.125l46.313 85.97L19.53 77.904l110.595 88.22l-95.53 21.906l118.81 32.532l-54.218 49.032l89.876-7.22a148 148 0 0 1-2.938-29.405c0-33.145 10.464-63.34 27.875-85.595c17.41-22.254 42.197-36.688 69.813-36.688c.447 0 .898.024 1.343.032L258.25 26.312L234.78 93.72L119.75 21.124zm164.063 108.25c-21.154 0-40.524 10.877-55.094 29.5c-14.572 18.623-23.907 44.906-23.907 74.094c0 30.247 10.36 57.38 25.937 76.155l10.125 12.22l-15.594 2.936c-44.37 8.354-65.334 25.41-77.5 54.033c-11.426 26.885-13.802 65.837-14.06 115.625h46.186v-50.75h18.688v50.75h167.53v-50.75h18.72v50.75h50.53c-.03-50.187-.558-90.043-10.937-117.282c-11.042-28.982-31.384-46.105-79.75-53.72l-15.875-2.498l10.032-12.532c14.82-18.577 23.97-45.282 23.97-74.937c-.002-29.19-9.337-55.472-23.908-74.095c-14.57-18.623-33.94-29.5-55.094-29.5zM251.905 193.5c12.803 0 23.188 17.03 23.188 38.063c0 21.035-10.385 38.093-23.188 38.093s-23.187-17.058-23.187-38.094c0-21.035 10.384-38.062 23.186-38.062zm64.406 0c12.803 0 23.188 17.03 23.188 38.063c0 21.035-10.385 38.093-23.188 38.093s-23.187-17.058-23.187-38.094c0-21.035 10.385-38.062 23.188-38.062z"/></svg>
     </div>
+    <h1>Oops! Couldn't load projects</h1>
+    <p>Sorry, the project showcase did not load properly.<br>
+      This could be due to a network issue or a problem with the server.<br>
+      Please <a href="#" onclick="location.reload()" title="Click here to refresh the page">refresh the page</a>, or come back later.
+    </p>
+    <details style="margin-top:1em;">
+      <summary style="cursor:pointer;">Show technical details</summary>
+      <pre class="error-message" style="padding:0.5em;border-radius:4px;"><code>${msg}</code></pre>
+    </details>
+    <p style="margin-top:1em;">
+      If this keeps happening, please <a href="https://github.com/theonlyasdk/theonlyasdk.github.io/issues" target="_blank" rel="noopener">report the issue on GitHub</a>.
+    </p>
+  </div>
 `;
 
 class ProjectsLoader {
@@ -28,7 +40,7 @@ class ProjectsLoader {
         this.propogate(json);
       })
       .catch((error) => {
-        logger.error(`Unable to fetch ${this.url}: ${error}`);
+        logger.error(`Couldn't fetch ${this.url}: ${error}`);
         this.propogate(null);
       });
   }
@@ -36,7 +48,7 @@ class ProjectsLoader {
   propogate(projects_list) {
     if (projects_list === null) {
       projects_list_container.innerHTML = genLoadError("ERR_NULL_LIST");
-      logger.error("Skipping more apps list propogation because projects list is empty...");;
+      logger.error("Skipping more apps list propogation because projects list is empty...");
       return;
     }
 
@@ -167,17 +179,17 @@ class ProjectsLoader {
   }
 
   toggleProjectsFilter() {
-    const filterElement = document.querySelector('.projects-filter');
-    if (filterElement) {
-      if (filterElement.classList.contains('d-none')) {
-        filterElement.classList.remove('d-none', 'd-pop-out');
-        filterElement.classList.add('d-pop-in');
+    const filter_element = document.querySelector('.projects-filter');
+    if (filter_element) {
+      if (filter_element.classList.contains('d-none')) {
+        filter_element.classList.remove('d-none', 'd-pop-out');
+        filter_element.classList.add('d-pop-in');
       } else {
-        filterElement.classList.remove('d-pop-in');
-        filterElement.classList.add('d-pop-out');
-        filterElement.onanimationend = () => {
-          filterElement.classList.add('d-none');
-          filterElement.onanimationend = null;
+        filter_element.classList.remove('d-pop-in');
+        filter_element.classList.add('d-pop-out');
+        filter_element.onanimationend = () => {
+          filter_element.classList.add('d-none');
+          filter_element.onanimationend = null;
         };
       }
     }
@@ -190,8 +202,10 @@ try {
   // or just run tools/update_projects.ps1
   loader = new ProjectsLoader("/assets/data/projects.json");
   // loader = new ProjectsLoader("https://raw.githubusercontent.com/theonlyasdk/libasdk/main/web/data/projects.json");
+  // Uncomment this to show the error message with a dummy error
+  // throw new Error("Dummy Error");
   loader.load();
   loader.setFilterTagTextAndVisibility(false, '');
 } catch (e) {
-  projects_list_container.innerHTML = genLoadError('ERR_LOADER_INIT: ' + e);
+  projects_list_container.innerHTML = genLoadError('(In initialization): ' + e);
 }
