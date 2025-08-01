@@ -79,5 +79,12 @@
     "url": "https://github.com/theonlyasdk/mysql-table-formatter",
     "tags": "mysql,formatter,document,ms-word,tables",
     "demo_url": "https://theonlyasdk.github.io/mysql-table-formatter/"
+  },
+  {
+    "name": "Character Picker",
+    "description": "An easy to use character picker",
+    "url": "https://github.com/theonlyasdk/character-picker",
+    "tags": "character-picker,ai,gemini,web,unicode",
+    "demo_url": "https://theonlyasdk.github.io/character-picker/"
   }
 ]
