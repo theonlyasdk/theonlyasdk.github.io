@@ -5,16 +5,16 @@
 <!-- ASDK Note: Do not format this document using a formatter, it will mess up the Liquid syntax -->
 
 {% capture result_elem %}
-  <article class="px-1 px-sm-2 px-lg-4 px-xl-0">
-    <header>
-      <h2><a href="{url}">{title}</a></h2>
-      <div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1">
-        {categories}
-        {tags}
-      </div>
-    </header>
-    <p>{content}</p>
-  </article>
+<article class="px-1 px-sm-2 px-lg-4 px-xl-0">
+  <header>
+    <h2><a href="{url}">{title}</a></h2>
+    <div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1">
+      {categories}
+      {tags}
+    </div>
+  </header>
+  <p>{content}</p>
+</article>
 {% endcapture %}
 
 {% capture not_found %}<p class="mt-5">{{ site.data.locales[include.lang].search.no_results }}</p>{% endcapture %}
@@ -26,7 +26,8 @@
   let loaded = false;
   function loadSimpleJekyllSearch() {
     if (loaded) return;
-    SimpleJekyllSearch({
+    try {
+      SimpleJekyllSearch({
         searchInput: document.getElementById('search-input'),
         resultsContainer: document.getElementById('search-results'),
         json: "{{ '/assets/js/data/search.json' | relative_url }}",
@@ -48,14 +49,19 @@
             }
           }
         }
-    });
+      });
+    } catch (err) {
+      console.error("Error while trying to load search data using SimpleJekyllSearch: " + err);
+      return;
+    }
     loaded = true;
   }
+
   /* Note: dependent library will be loaded in `js-selector.html` */
   window.onload = () => {
     document.getElementById("search").onmouseover = loadSimpleJekyllSearch;
     if (window.matchMedia("(max-width: 768px)").matches) {
-       /* Load library when the user is on mobile and types in the search box */
+      /* Load library when the user is on mobile and types in the search box */
       document.getElementById("search").onkeydown = loadSimpleJekyllSearch;
     }
   };
