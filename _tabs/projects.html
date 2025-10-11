@@ -59,6 +59,19 @@ order: 4
     box-shadow: var(--card-shadow);
     border: 0;
     overflow: hidden;
+    animation: fadeIn 500ms ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      filter: blur(5px);
+    }
+
+    to {
+      opacity: 1;
+      filter: blur(0px);
+    }
   }
 
   .project-card>h1 {
@@ -90,9 +103,19 @@ order: 4
 
   .projects-search-box {
     border-radius: 1.2em;
-    border: 1px solid var(--search-border-color);
+    border: none;
     padding: .2em .4em .2em .8em;
     flex: 1;
+    box-shadow: var(--filter-btn-shadow);
+    transition: box-shadow 0.3s ease;
+    position: relative;
+    background: radial-gradient(circle 300px at var(--mouse-x) var(--mouse-y),
+        var(--card-header-bg),
+        transparent 40%);
+  }
+
+  .projects-search-box:hover {
+    box-shadow: var(--filter-btn-shadow);
   }
 
   .projects-search-box:focus {
@@ -224,11 +247,40 @@ order: 4
     margin-bottom: 0.2em;
     margin-top: 0.5em;
   }
+
   .error-loading-projects {
     width: 100%;
     text-align: center;
     margin-top: 2em;
     color: var(--error-color);
+  }
+
+  /* Loading indicator */
+  .loader {
+    color: #fff;
+    font-family: Consolas, Menlo, Monaco, monospace;
+    font-weight: bold;
+    font-size: 78px;
+    opacity: 0.8;
+  }
+
+  .loader:before {
+    content: "{";
+    display: inline-block;
+    animation: pulse 0.4s alternate infinite ease-in-out;
+  }
+
+  .loader:after {
+    content: "}";
+    display: inline-block;
+    animation: pulse 0.4s 0.3s alternate infinite ease-in-out;
+  }
+
+  @keyframes pulse {
+    to {
+      transform: scale(0.8);
+      opacity: 0.5;
+    }
   }
 
   /* Media Queries */
@@ -272,6 +324,10 @@ order: 4
     .filter-tags {
       padding-bottom: .8em;
     }
+
+    .projects-search-box {
+      background: none !important;
+    }
   }
 </style>
 
@@ -281,23 +337,23 @@ order: 4
     <div class="search-box-container">
       <input class="projects-search-box" type="text" placeholder="Search projects..." autocomplete="off"
         id="projects-search-box" autocorrect="off" autocapitalize="off" spellcheck="false" autofocus>
-      <button class="btn-search-filter" onclick="loader.toggleProjectsFilter()" title="Filter by"><i
+      <button class="btn-search-filter" onclick="toggle_projects_filter()" title="Filter by"><i
           class="fa-solid fa-filter" id="clear-filter"></i></button>
     </div>
-    <div class="projects-filter d-none">
+    <div class="projects-filter d-none w-100 d-flex align-items-center justify-content-between">
       <div class="flex-row filter-icon">
         <i class="fa-solid fa-filter"></i>
         &nbsp;&nbsp;
-        <b>Filter by: </b>
+        <b>Filter by</b>
       </div>
       <div class="flex-row filter-tags">
-        <div class="filter-tag c-pointer" onclick="loader.filterByTag('')">
+        <div class="filter-tag c-pointer" onclick="filter_by_tag('')">
           <span id="current-filter-tag">All</span>
         </div>
         <div class="filter-tag c-pointer">
-          <span id="current-filter-tag" onclick="loader.filterByDemo()">Has demo</span>
+          <span id="current-filter-tag" onclick="filter_by_demo()">Has demo</span>
         </div>
-        <div class="filter-tag c-pointer d-none" id="filter-by-tag" onclick="loader.filterByTag('')">
+        <div class="filter-tag c-pointer d-none" id="filter-by-tag" onclick="filter_by_tag('')">
           <span class="category project-tag">Tag</span>
           <i class="fa-solid fa-xmark" id="clear-filter"></i>
         </div>
@@ -306,7 +362,11 @@ order: 4
   </div>
   <div class="projects-card-container" id="projects-list">
     <!-- Content will be filled by projects loader script -->
-    <div class="projects-loading"><i>Loading projects...</i></div>
+    <div class="projects-loading d-flex flex-column align-items-center justify-content-center">
+      <!-- Loading indicator: https://cssloaders.github.io/ -->
+      <span class="loader"></span>
+      <i>Loading projects...</i>
+    </div>
   </div>
 </div>
 
