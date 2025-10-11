@@ -2,7 +2,7 @@
 title: "PNPM for NPM Users"
 date: 2025-10-11 19:08:50 +0530
 categories: ["JavaScript", "NodeJS", "NPM", "PNPM", "Package Managers"]
-tags: ["javascript", "nodejs", "npm", "pnpm", "package-managers", "", "cheatsheet"]
+tags: ["javascript", "nodejs", "npm", "pnpm", "package-managers", "cheatsheet"]
 ---
 If you've ever tried to make a web app using NodeJS, you might recall using something called `npm`. It is the package manager for NodeJS, and it allows you to install NodeJS packages quite easily without much effort. Installing a package is as simple as running `npm install <package_name>`. But sometimes, it can be quite slow and will get stuck in the install process. So I have decided to use an alternative to `npm` called `pnpm`. Although the name might sound similar (it does use `npm` under the hood), it's much much faster than `npm` at installing packages and other package-related operations.
 
