@@ -134,5 +134,11 @@
     "url": "https://github.com/theonlyasdk/webdev-toolkit-react",
     "tags": "css,toolkit,reactjs,webdev,css-generator,vite",
     "demo_url": "https://theonlyasdk.github.io/webdev-toolkit-react/"
+  },
+  {
+    "name": "Quick Media Converter",
+    "description": "Quickly convert between different audio formats",
+    "url": "https://github.com/theonlyasdk/QuickMediaConverter",
+    "tags": "ffmpeg,media-converter,format-conversion,media-extraction"
   }
 ]
