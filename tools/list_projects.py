@@ -37,7 +37,7 @@ for project in data:
 	print("-----------------------")
 	print(f"Name: {name}")
 	print(f"Desc: {desc}")
-	print(f"URL: {url}")
+	print(f"GitHub Repository URL: {url}")
 	print(f"Demo URL: {demo_url}")
 	print(f"Tags: {tags}")
 	print("-----------------------")

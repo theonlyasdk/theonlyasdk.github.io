@@ -35,7 +35,7 @@ desc = input("Project description: ").strip()
 if not desc:
     raise ValueError("Project description cannot be empty.")
 
-url = input("Project URL: ").strip()
+url = input("Project URL (GitHub repository URL): ").strip()
 validate_url(url)
 
 demo_url = input("Demo URL (default none): ").strip()
