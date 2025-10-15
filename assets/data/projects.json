@@ -93,5 +93,46 @@
     "url": "https://github.com/theonlyasdk/electronics-toolkit",
     "tags": "electronics,toolkit,bootstrap,jquery,calculator",
     "demo_url": "https://theonlyasdk.github.io/electronics-toolkit/"
+  },
+  {
+    "name": "Calkulator",
+    "description": "Simple calculator/mathematical expression evaluator written in JS",
+    "url": "https://github.com/theonlyasdk/calkulator",
+    "tags": "calculator,parser,expression-eval,javascript",
+    "demo_url": "https://theonlyasdk.github.io/calkulator/"
+  },
+  {
+    "name": "JPEG Artifact Remover",
+    "description": "Frontend for jpeg2png written using Lazarus/FreePascal",
+    "url": "https://github.com/theonlyasdk/jpeg-artifact-remover",
+    "tags": "windows,lazarus,gui,image-processing,freepascal,jpeg2png,artifact-remover"
+  },
+  {
+    "name": "Bootstrap Scratchpad",
+    "description": "A scratchpad for mocking up Bootstrap user interfaces",
+    "url": "https://github.com/theonlyasdk/bs-scratchpad",
+    "tags": "bootstrap,ui,mockup,scratchpad",
+    "demo_url": "https://theonlyasdk.github.io/bs-scratchpad/"
+  },
+  {
+    "name": "Monitor Size Tool",
+    "description": "Compare monitor sizes",
+    "url": "https://github.com/theonlyasdk/monitor-size-compare",
+    "tags": "css,html,bootstrap,monitor,js,tool,compare,size",
+    "demo_url": "https://theonlyasdk.github.io/monitor-size-compare/"
+  },
+  {
+    "name": "Thumbman",
+    "description": "Grab YouTube thumbnails",
+    "url": "https://github.com/theonlyasdk/thumbman",
+    "tags": "youtube,download,thumbnail",
+    "demo_url": "https://theonlyasdk.github.io/thumbman/"
+  },
+  {
+    "name": "Webdev Toolkit",
+    "description": "A set of tools for making web development easy",
+    "url": "https://github.com/theonlyasdk/webdev-toolkit-react",
+    "tags": "css,toolkit,reactjs,webdev,css-generator,vite",
+    "demo_url": "https://theonlyasdk.github.io/webdev-toolkit-react/"
   }
 ]
