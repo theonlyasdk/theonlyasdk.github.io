@@ -86,5 +86,12 @@
     "url": "https://github.com/theonlyasdk/character-picker",
     "tags": "character-picker,ai,gemini,web,unicode",
     "demo_url": "https://theonlyasdk.github.io/character-picker/"
+  },
+  {
+    "name": "Electronics Toolkit",
+    "description": "Set of simple tools and calculators for electronics tinkerers",
+    "url": "https://github.com/theonlyasdk/electronics-toolkit",
+    "tags": "electronics,toolkit,bootstrap,jquery,calculator",
+    "demo_url": "https://theonlyasdk.github.io/electronics-toolkit/"
   }
 ]
