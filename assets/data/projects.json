@@ -34,13 +34,6 @@
     "demo_url": "https://theonlyasdk.github.io/fake-engine"
   },
   {
-    "name": "Random Number Generator",
-    "description": "Press a key to generate a random number",
-    "url": "https://github.com/theonlyasdk/random-number-generator",
-    "tags": "random-number-generator,utility",
-    "demo_url": "https://theonlyasdk.github.io/random-number-generator"
-  },
-  {
     "name": "Word Counter",
     "description": "Simple webpage that allows you to count the number of words in a given block of text.",
     "url": "https://github.com/theonlyasdk/word-counter-html",
@@ -79,13 +72,6 @@
     "url": "https://github.com/theonlyasdk/mysql-table-formatter",
     "tags": "mysql,formatter,document,ms-word,tables",
     "demo_url": "https://theonlyasdk.github.io/mysql-table-formatter/"
-  },
-  {
-    "name": "Character Picker",
-    "description": "An easy to use character picker",
-    "url": "https://github.com/theonlyasdk/character-picker",
-    "tags": "character-picker,ai,gemini,web,unicode",
-    "demo_url": "https://theonlyasdk.github.io/character-picker/"
   },
   {
     "name": "Electronics Toolkit",
@@ -140,5 +126,12 @@
     "description": "Quickly convert between different audio formats",
     "url": "https://github.com/theonlyasdk/QuickMediaConverter",
     "tags": "ffmpeg,media-converter,format-conversion,media-extraction"
+  },
+  {
+    "name": "ASDK Toolkit",
+    "description": "Handy tools such as converters, calculators, encoders, etc. to make your life easier",
+    "url": "https://github.com/theonlyasdk/asdk-toolkit",
+    "tags": "tools,toolkit,converters,calculators,encoders",
+    "demo_url": "https://theonlyasdk.github.io/asdk-toolkit/"
   }
 ]
