@@ -4,15 +4,16 @@
 
 /* Define slide-in / slide-out animations */
 ::view-transition-old(root) {
-  animation: slide-out-left 0.6s var(--spring-ease) forwards;
+  animation: slide-out-left 1s var(--spring-ease) forwards;
 }
 ::view-transition-new(root) {
-  animation: slide-in-right 0.4s var(--spring-ease) forwards;
+  animation: slide-in-right 0.8s var(--spring-ease) forwards;
+  box-shadow: 0px 8px 32px 0px rgba(0,0,0,0.4);
 }
 
 @keyframes slide-in-right {
   from {
-    transform: translateX(100%) scale(1.1);
+    transform: translateX(100%);
   }
   to {
     transform: translateX(0);
@@ -22,8 +23,10 @@
 @keyframes slide-out-left {
   from {
     transform: translateX(0);
+    filter: blur(0px);
   }
   to {
     transform: translateX(-100%) scale(0.8);
+    filter: blur(4px);
   }
 }
