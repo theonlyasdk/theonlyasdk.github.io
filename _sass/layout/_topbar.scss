@@ -12,6 +12,7 @@
       rgba(0, 0, 0, 0));
 
   backdrop-filter: blur(10px);
+  view-transition-name: topbar;
 
   @include bp.lt(bp.get(lg)) {
     @include mx.slide(top 0.2s ease);
