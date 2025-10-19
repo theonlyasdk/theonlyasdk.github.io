@@ -5,7 +5,6 @@ let logger = new Logger("LibASDK Projects Loader");
 let current_filter_tag = "";
 let projects_data_url = "/assets/data/projects.json";
 
-
 document.addEventListener('mousemove', (e) => {
   const rect = searchBox.getBoundingClientRect();
   searchBox.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
@@ -52,41 +51,53 @@ function render_projects(projects_list) {
     return;
   }
 
-  projects_list.forEach(element => {
-    let name = element['name'];
-    let description = element['description'];
-    let url = element['url'];
-    let tags = element['tags'].split(",");
-    let demo_url = ('demo_url' in element) ? element['demo_url'] : "";
-    let should_show_demo_btn = ('demo_url' in element);
-    let tag_elements = "";
+  /* Since the projects list has the last item as the most recent item, we need
+     to reverse the list so our CSS fade in animation works properly. */
+  projects_list.reverse();
 
-    for (let tag of tags) {
-      tag_elements += `<a href="#${tag}" onclick="filter_by_tag('${tag}')" class="category project-tag">${tag}</a>`;
+  (async function render_each_item() {
+    let i = 0;
+    for (let element of projects_list) {
+      i++;
+      let name = element['name'];
+      let description = element['description'];
+      let url = element['url'];
+      let tags = element['tags'].split(",");
+      let demo_url = ('demo_url' in element) ? element['demo_url'] : "";
+      let should_show_demo_btn = ('demo_url' in element);
+
+      if (!name || !description || !url || !tags) {
+        logger.warn(`Skipping project due to missing fields: ${JSON.stringify(element)}`);
+        continue;
+      }
+
+      const projectCard = document.createElement('div');
+      projectCard.classList.add('project-card', 'fade-in');
+      projectCard.style.setProperty('--anim-delay', `${i * 0.1}s`);
+
+      let tag_elements = tags.map(tag => 
+        `<a href="#${tag}" onclick="filter_by_tag('${tag}')" class="category project-tag">${tag}</a>`
+      ).join('');
+
+      let btn_demo = should_show_demo_btn 
+        ? `<a href="${demo_url}" target="_blank" class="button demo-button" title="Click to see a demo of this project (usually a web app)">Demo</a>` 
+        : "";
+
+      projectCard.innerHTML = `
+      <h1 class="project-card-title"><a href="${url}">${name}</a></h1>
+      <p class="project-card-content">${description}</p>
+      <div class="project-card-bottom">
+        <div class="project-card-tags categories">
+          <i class="fa-solid fa-tag category project-tag project-tag-icon" title="Project tags"></i>
+          ${tag_elements}
+        </div>
+        ${btn_demo}
+      </div>
+    `;
+
+      projects_list_container.append(projectCard);
     }
-
-    if (!name || !description || !url || !tags) {
-      logger.warn(`Skipping project due to missing fields: ${JSON.stringify(element)}`);
-      return;
-    }
-
-    let btn_demo = `<a href="${demo_url}" target="_blank" class="button demo-button" title="Click to see a demo of this project (usually a web app)">Demo</a>`;
-    let project_card_template = `
-          <div class="project-card">
-            <h1 class="project-card-title"><a href="${url}">${name}</a></h1>
-            <p class="project-card-content">${description}</p>
-            <div class="project-card-bottom">
-                <div class="project-card-tags categories ">
-                  <i class="fa-solid fa-tag category project-tag project-tag-icon" title="Project tags"></i>
-                  ${tag_elements}
-                </div>
-                ${should_show_demo_btn ? btn_demo : ""}
-            </div>
-          </div>
-      `;
-
-    projects_list_container.innerHTML = project_card_template + projects_list_container.innerHTML;
-  });
+  })();
 
   document.querySelector(".projects-loading").remove();
 

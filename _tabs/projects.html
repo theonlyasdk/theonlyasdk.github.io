@@ -58,19 +58,20 @@ order: 4
     margin-bottom: 1.2em;
     box-shadow: var(--card-shadow);
     border: 0;
+    opacity: 0;
     overflow: hidden;
-    animation: fadeIn 500ms ease-in-out;
+    animation: slideIn 2s var(--spring-ease) var(--anim-delay, 0s) forwards;
   }
 
-  @keyframes fadeIn {
+  @keyframes slideIn {
     from {
       opacity: 0;
-      filter: blur(5px);
+      transform: scale(1.05);
     }
 
     to {
       opacity: 1;
-      filter: blur(0px);
+      transform: scale(1);
     }
   }
 
@@ -109,8 +110,9 @@ order: 4
     box-shadow: var(--filter-btn-shadow);
     transition: box-shadow 0.3s ease;
     position: relative;
-    background: radial-gradient(circle 300px at var(--mouse-x) var(--mouse-y),
-        var(--card-header-bg),
+    --gradient-size: 300px;
+    background: radial-gradient(circle var(--gradient-size) at var(--mouse-x) var(--mouse-y),
+        var(--sidebar-border-color),
         transparent 40%);
   }
 
@@ -124,6 +126,8 @@ order: 4
   }
 
   .projects-search-box:active {
+    --gradient-size: 200px;
+    animation: bgRadialGradientGrow 1s ease-out;
     outline: none !important;
   }
 
@@ -257,7 +261,7 @@ order: 4
 
   /* Loading indicator */
   .loader {
-    color: #fff;
+    color: var(--topbar-shadow);
     font-family: Consolas, Menlo, Monaco, monospace;
     font-weight: bold;
     font-size: 78px;
@@ -278,8 +282,8 @@ order: 4
 
   @keyframes pulse {
     to {
-      transform: scale(0.8);
-      opacity: 0.5;
+      transform: scale(0.9);
+      opacity: 0.6;
     }
   }
 
@@ -362,13 +366,14 @@ order: 4
   </div>
   <div class="projects-card-container" id="projects-list">
     <!-- Content will be filled by projects loader script -->
-    <div class="projects-loading d-flex flex-column align-items-center justify-content-center">
+    <div class="projects-loading mt-4 d-flex flex-column align-items-center justify-content-center">
       <!-- Loading indicator: https://cssloaders.github.io/ -->
       <span class="loader"></span>
-      <i>Loading projects...</i>
+      <small>Loading projects...</small>
     </div>
   </div>
 </div>
 
 <script src="{{ '/assets/js/logger.js' | relative_url }}"></script>
+<script src="{{ '/assets/js/projects-loader.js' | relative_url }}" defer></script>
 <script src="{{ '/assets/js/projects-loader.js' | relative_url }}" defer></script>
