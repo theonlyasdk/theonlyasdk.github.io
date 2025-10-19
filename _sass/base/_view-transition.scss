@@ -1,3 +1,13 @@
+/* I was watching a video related to Firefox getting a new update which implements
+  the view-transition API, so I decided to know more about this API which I've never heard about
+  before. After reading the docs for some time and seeing the demos, I was convinced and I wanted to 
+  implement it into this blog, and I did.
+  For now, the animation only shows up in mobile devices as my potato can't handle it in desktop 
+  resolution.
+
+  See: https://developer.chrome.com/docs/web-platform/view-transitions/cross-document
+*/
+
 @view-transition {
   navigation: none;
 }
