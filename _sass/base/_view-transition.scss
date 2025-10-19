@@ -1,32 +1,41 @@
 @view-transition {
-  navigation: auto;
+  navigation: none;
 }
 
-/* Define slide-in / slide-out animations */
-::view-transition-old(root) {
-  animation: slide-out-left 1s var(--spring-ease) forwards;
-}
-::view-transition-new(root) {
-  animation: slide-in-right 0.8s var(--spring-ease) forwards;
-  box-shadow: 0px 8px 32px 0px rgba(0,0,0,0.4);
-}
+@media (max-width: 768px) {
+  @view-transition {
+    navigation: auto;
+  }
 
-@keyframes slide-in-right {
-  from {
-    transform: translateX(100%);
+  ::view-transition-old(root) {
+    animation: slide-out-left 0.4s var(--spring-ease) forwards;
   }
-  to {
-    transform: translateX(0);
-  }
-}
 
-@keyframes slide-out-left {
-  from {
-    transform: translateX(0);
-    filter: blur(0px);
+  ::view-transition-new(root) {
+    animation: slide-in-right 0.4s var(--spring-ease) forwards;
   }
-  to {
-    transform: translateX(-100%) scale(0.8);
-    filter: blur(4px);
+
+  @keyframes slide-in-right {
+    from {
+      transform: translateX(100%) scale(1.1);
+    }
+
+    to {
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes slide-out-left {
+    from {
+      transform: translateX(0);
+      // Disabled this coz it's causing some lag on my potato laptop
+      // Btw this blur effect should work fine on most modern Android phones
+      // filter: blur(0px);
+    }
+
+    to {
+      transform: translateX(-100%) scale(0.8);
+      // filter: blur(4px);
+    }
   }
 }
