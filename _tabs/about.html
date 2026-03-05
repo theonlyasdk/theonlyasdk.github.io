@@ -1,0 +1,278 @@
+---
+# the default layout is 'page'
+icon: fas fa-info-circle
+order: 5
+---
+
+<style>
+  .waving-hand {
+    transform-origin: 70% 70%;
+    transition: transform 0.2s;
+  }
+  .wave-effect {
+    animation: wave 0.4s ease-in-out 4;
+  }
+  @keyframes wave {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-15deg); }
+    75% { transform: rotate(15deg); }
+  }
+
+  /* Project Cards Style applied to Goodies */
+  .goodie-card {
+    background-color: var(--card-bg);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    padding: 0 0 1.5rem 0; /* Adjusted padding to accommodate image */
+    width: 100%;
+    margin-bottom: 1.2em;
+    box-shadow: var(--card-shadow);
+    border: 0;
+    opacity: 0;
+    overflow: hidden;
+    animation: slideIn 1.5s var(--spring-ease, ease-out) var(--anim-delay, 0s) forwards;
+    cursor: pointer;
+    transition: transform 0.3s var(--spring-ease, ease-out), box-shadow 0.3s ease;
+  }
+
+  .goodie-card h5 {
+    padding: 0 2rem;
+    margin-top: 1.5rem;
+  }
+
+  .goodie-card p {
+    padding: 0 2rem;
+    margin-bottom: 0;
+  }
+  .goodie-card:active {
+    filter: brightness(90%);
+  }
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: scale(1.05);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .card-cover {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+    margin: 0; /* flush to card edges */
+    flex-shrink: 0;
+  }
+
+  .card-cover::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60%;
+    background: linear-gradient(to bottom, transparent, var(--card-bg));
+    pointer-events: none;
+  }
+
+  .card-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transform: scale(1.2);
+  }
+
+  /* Custom Modal System */
+  .custom-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    z-index: 9999;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    justify-content: center;
+  }
+
+  .custom-modal-overlay.active {
+    display: flex;
+    opacity: 1;
+  }
+
+  .custom-modal-content {
+    background: var(--main-bg);
+    width: 95%;
+    height: 95%;
+    max-width: 1200px;
+    border-radius: 20px;
+    position: relative;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform: translateY(20px);
+    transition: transform 0.3s var(--spring-ease, ease-out);
+  }
+
+  @media (max-width: 768px) {
+    .custom-modal-content {
+      width: 100%;
+      height: 100%;
+      border-radius: 0;
+      max-width: none;
+      transform: translateY(0) scale(0.95);
+    }
+    .custom-modal-overlay.active .custom-modal-content {
+      transform: scale(1);
+    }
+  }
+
+  .custom-modal-header {
+    padding: 0.5rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--sidebar-border-color);
+  }
+
+  .modal-close-btn {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: var(--text-color);
+    cursor: pointer;
+    line-height: 1;
+    transition: opacity 0.2s;
+  }
+
+  .modal-close-btn:hover {
+    opacity: 0.6;
+  }
+
+  .custom-modal-body {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+</style>
+
+<div style="text-align: center; margin-bottom: 2rem;">
+  <svg id="wave-svg" class="waving-hand" xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" ondblclick="this.classList.add('wave-effect')" onanimationend="this.classList.remove('wave-effect')">
+    <g fill="none">
+      <path d="m12.594 23.258l-.012.002l-.071.035l-.02.004l-.014-.004l-.071-.036q-.016-.004-.024.006l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.016-.018m.264-.113l-.014.002l-.184.093l-.01.01l-.003.011l.018.43l.005.012l.008.008l.201.092q.019.005.029-.008l.004-.014l-.034-.614q-.005-.019-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.003-.011l.018-.43l-.003-.012l-.01-.01z"/>
+      <path fill="currentColor" d="m10.71 2.888l4.724 4.724c0-.394.018-.766.066-1.107c.153-1.095.623-2.113 1.78-2.597l.156-.055c.735-.216 1.462.184 1.75.822l.055.14l2.01 6.027a8 8 0 0 1-1.933 8.187l-.476.477a8 8 0 0 1-11.314 0l-4.596-4.597a1.5 1.5 0 0 1 0-2.121l.114-.103a1.5 1.5 0 0 1 2.007.104l1.796 1.797a.25.25 0 0 0 .354-.354l-3.919-3.919a1.5 1.5 0 0 1 0-2.12l.114-.103a1.5 1.5 0 0 1 2.008.102l3.256 3.256a.25.25 0 0 0 .354 0a.25.25 0 0 0 0-.354L4.522 6.6a1.75 1.75 0 0 1 0-2.474l.133-.121a1.75 1.75 0 0 1 2.342.12l5.156 5.157a.25.25 0 0 0 .354-.354L8.587 5.01a1.5 1.5 0 0 1 .002-2.123l.113-.102a1.5 1.5 0 0 1 2.008.102M4.006 17.234l.054.255c.18.711.74 1.273 1.452 1.451l.254.054a1 1 0 0 1-.33 1.963l-.41-.077a4 4 0 0 1-2.906-2.905l-.076-.412a1 1 0 0 1 1.962-.329m9.16-16.179a4 4 0 0 1 2.685 1.758l.16.278a1.001 1.001 0 0 1-1.722.996l-.176-.27a2 2 0 0 0-1.107-.752l-.171-.037a1 1 0 0 1 .33-1.973"/>
+    </g>
+  </svg>
+</div>
+
+<p><strong>Hello!</strong> I'm <strong>TheOnlyASDK</strong>. Nothing special about me, just another CS student.</p>
+<p>I make stuff and post them here in my freetime. Feel free to contribute to any of my repositories if you find silly bugs in them!</p>
+
+<h2 class="mt-5 mb-4">Goodies</h2>
+
+<div class="row row-cols-1 row-cols-md-2 g-4 mt-2" id="goodies-grid">
+  <!-- Cellular automaton -->
+  <div class="col">
+    <div class="goodie-card" style="--anim-delay: 0.1s;" onclick="openMinigame('Cellular automaton')">
+      <div class="card-cover"><img src="https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=600&h=350&q=80" alt="Cellular automaton"></div>
+      <h5 class="card-title"><b>Cellular automaton</b></h5>
+      <p class="text-muted small">Explore complex patterns emerging from simple rules in a grid-based universe.</p>
+    </div>
+  </div>
+
+  <!-- Procedural terrain -->
+  <div class="col">
+    <div class="goodie-card" style="--anim-delay: 0.2s;" onclick="openMinigame('Procedural terrain')">
+      <div class="card-cover"><img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&h=350&q=80" alt="Procedural terrain"></div>
+      <h5 class="card-title"><b>Procedural terrain</b></h5>
+      <p class="text-muted small">Procedurally generated landscapes using Perlin noise and heightmaps.</p>
+    </div>
+  </div>
+
+  <!-- Sorting visualizer -->
+  <div class="col">
+    <div class="goodie-card" style="--anim-delay: 0.3s;" onclick="openMinigame('Sorting visualizer')">
+      <div class="card-cover"><img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&h=350&q=80" alt="Sorting visualizer"></div>
+      <h5 class="card-title"><b>Sorting visualizer</b></h5>
+      <p class="text-muted small">Watch sorting algorithms organize data in a beautiful visual performance.</p>
+    </div>
+  </div>
+
+  <!-- Fractal viewer -->
+  <div class="col">
+    <div class="goodie-card" style="--anim-delay: 0.4s;" onclick="openMinigame('Fractal viewer')">
+      <div class="card-cover"><img src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&w=600&h=350&q=80" alt="Fractal viewer"></div>
+      <h5 class="card-title"><b>Fractal viewer</b></h5>
+      <p class="text-muted small">Dive deep into the infinite complexity of Mandelbrot and Julia sets.</p>
+    </div>
+  </div>
+
+  <!-- Terminal emulator -->
+  <div class="col">
+    <div class="goodie-card" style="--anim-delay: 0.5s;" onclick="openMinigame('Terminal emulator')">
+      <div class="card-cover"><img src="https://images.unsplash.com/photo-1629654297299-c8506221ca97?auto=format&fit=crop&w=600&h=350&q=80" alt="Terminal emulator"></div>
+      <h5 class="card-title"><b>Terminal emulator</b></h5>
+      <p class="text-muted small">A retro-style command line interface running directly in your browser.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Custom Mini-game Modal -->
+<div id="custom-minigame-modal" class="custom-modal-overlay" onclick="closeMinigame(event)">
+  <div class="custom-modal-content">
+    <div class="custom-modal-header">
+      <h3 id="custom-modal-title" style="margin: 0;">Mini-game</h3>
+      <button class="modal-close-btn" onclick="closeMinigame(event, true)">&times;</button>
+    </div>
+    <div class="custom-modal-body">
+      <div class="text-center">
+        <h1 id="custom-modal-game-name" class="display-3">Loading...</h1>
+        <p class="text-muted italic">Stay tuned, the engine is charging up!</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openMinigame(gameName) {
+    const modal = document.getElementById('custom-minigame-modal');
+    document.getElementById('custom-modal-title').textContent = gameName;
+    document.getElementById('custom-modal-game-name').textContent = gameName;
+    
+    modal.style.display = 'flex';
+    // Trick to trigger CSS transition
+    setTimeout(() => {
+      modal.classList.add('active');
+    }, 10);
+    
+    // Prevent background scrolling
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeMinigame(event, force = false) {
+    const modal = document.getElementById('custom-minigame-modal');
+    const content = modal.querySelector('.custom-modal-content');
+    
+    // Only close if clicking overlay or close button
+    if (force || event.target === modal) {
+      modal.classList.remove('active');
+      
+      // Wait for transition before hiding
+      setTimeout(() => {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+      }, 300);
+    }
+  }
+</script>
+

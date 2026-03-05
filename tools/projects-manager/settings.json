@@ -1,9 +1,0 @@
-{
-  "gemini": {
-    "enabled": true,
-    "api_key": "AIzaSyCCdKWZ3sfKK-Z3cZMBUPGOL-zd5vyd5Eg"
-  },
-  "projects": {
-    "file_path": "/home/user/Documents/GitHub/theonlyasdk.github.io/assets/data/projects.json"
-  }
-}
