@@ -101,11 +101,34 @@ order: 5
     opacity: 0;
     transition: opacity 0.3s ease;
     justify-content: center;
+    align-items: center;
   }
 
   .custom-modal-overlay.active {
     display: flex;
     opacity: 1;
+  }
+
+  @keyframes modalZoomIn {
+    from {
+      opacity: 0;
+      transform: scale(0.85);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes modalZoomOut {
+    from {
+      opacity: 1;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(0.85);
+    }
   }
 
   .custom-modal-content {
@@ -119,8 +142,12 @@ order: 5
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    transform: translateY(20px);
-    transition: transform 0.3s var(--spring-ease, ease-out);
+    /* zoom-in plays when the overlay becomes .active */
+    animation: modalZoomIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  .custom-modal-overlay.closing .custom-modal-content {
+    animation: modalZoomOut 0.25s ease-in both;
   }
 
   @media (max-width: 768px) {
@@ -129,10 +156,6 @@ order: 5
       height: 100%;
       border-radius: 0;
       max-width: none;
-      transform: translateY(0) scale(0.95);
-    }
-    .custom-modal-overlay.active .custom-modal-content {
-      transform: scale(1);
     }
   }
 
@@ -163,6 +186,18 @@ order: 5
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
+  }
+
+  .modal-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+
+  .modal-placeholder {
+    text-align: center;
   }
 </style>
 
@@ -180,52 +215,7 @@ order: 5
 
 <h2 class="mt-5 mb-4">Goodies</h2>
 
-<div class="row row-cols-1 row-cols-md-2 g-4 mt-2" id="goodies-grid">
-  <!-- Cellular automaton -->
-  <div class="col">
-    <div class="goodie-card" style="--anim-delay: 0.1s;" onclick="openMinigame('Cellular automaton')">
-      <div class="card-cover"><img src="https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=600&h=350&q=80" alt="Cellular automaton"></div>
-      <h5 class="card-title"><b>Cellular automaton</b></h5>
-      <p class="text-muted small">Explore complex patterns emerging from simple rules in a grid-based universe.</p>
-    </div>
-  </div>
-
-  <!-- Procedural terrain -->
-  <div class="col">
-    <div class="goodie-card" style="--anim-delay: 0.2s;" onclick="openMinigame('Procedural terrain')">
-      <div class="card-cover"><img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&h=350&q=80" alt="Procedural terrain"></div>
-      <h5 class="card-title"><b>Procedural terrain</b></h5>
-      <p class="text-muted small">Procedurally generated landscapes using Perlin noise and heightmaps.</p>
-    </div>
-  </div>
-
-  <!-- Sorting visualizer -->
-  <div class="col">
-    <div class="goodie-card" style="--anim-delay: 0.3s;" onclick="openMinigame('Sorting visualizer')">
-      <div class="card-cover"><img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&h=350&q=80" alt="Sorting visualizer"></div>
-      <h5 class="card-title"><b>Sorting visualizer</b></h5>
-      <p class="text-muted small">Watch sorting algorithms organize data in a beautiful visual performance.</p>
-    </div>
-  </div>
-
-  <!-- Fractal viewer -->
-  <div class="col">
-    <div class="goodie-card" style="--anim-delay: 0.4s;" onclick="openMinigame('Fractal viewer')">
-      <div class="card-cover"><img src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&w=600&h=350&q=80" alt="Fractal viewer"></div>
-      <h5 class="card-title"><b>Fractal viewer</b></h5>
-      <p class="text-muted small">Dive deep into the infinite complexity of Mandelbrot and Julia sets.</p>
-    </div>
-  </div>
-
-  <!-- Terminal emulator -->
-  <div class="col">
-    <div class="goodie-card" style="--anim-delay: 0.5s;" onclick="openMinigame('Terminal emulator')">
-      <div class="card-cover"><img src="https://images.unsplash.com/photo-1629654297299-c8506221ca97?auto=format&fit=crop&w=600&h=350&q=80" alt="Terminal emulator"></div>
-      <h5 class="card-title"><b>Terminal emulator</b></h5>
-      <p class="text-muted small">A retro-style command line interface running directly in your browser.</p>
-    </div>
-  </div>
-</div>
+<div class="row row-cols-1 row-cols-md-2 g-4 mt-2" id="goodies-grid"></div>
 
 <!-- Custom Mini-game Modal -->
 <div id="custom-minigame-modal" class="custom-modal-overlay" onclick="closeMinigame(event)">
@@ -235,7 +225,7 @@ order: 5
       <button class="modal-close-btn" onclick="closeMinigame(event, true)">&times;</button>
     </div>
     <div class="custom-modal-body">
-      <div class="text-center">
+      <div id="modal-body-content" class="modal-placeholder">
         <h1 id="custom-modal-game-name" class="display-3">Loading...</h1>
         <p class="text-muted italic">Stay tuned, the engine is charging up!</p>
       </div>
@@ -244,35 +234,118 @@ order: 5
 </div>
 
 <script>
+  // ─── Goodies data ────────────────────────────────────────────────────────────
+  const GOODIES = [
+    {
+      name: 'Cellular automaton',
+      description: 'Explore complex patterns emerging from simple rules in a grid-based universe.',
+      image: '{{ "/assets/img/goodies/cellular_automaton.png" | relative_url }}',
+    },
+    {
+      name: 'Procedural terrain',
+      description: 'Procedurally generated landscapes using Perlin noise and heightmaps.',
+      image: '{{ "/assets/img/goodies/procedural_terrain.png" | relative_url }}',
+    },
+    {
+      name: 'Sorting visualizer',
+      description: 'Watch sorting algorithms organize data in a beautiful visual performance.',
+      image: '{{ "/assets/img/goodies/sorting_visualizer.png" | relative_url }}',
+    },
+    {
+      name: 'Fractal viewer',
+      description: 'Dive deep into the infinite complexity of Mandelbrot and Julia sets.',
+      image: '{{ "/assets/img/goodies/fractal_viewer.png" | relative_url }}',
+    },
+    {
+      name: 'Terminal emulator',
+      description: 'A retro-style command line interface running directly in your browser.',
+      image: '{{ "/assets/img/goodies/terminal_emulator.png" | relative_url }}',
+      iframeUrl: 'https://theonlyasdk.github.io/blockterm/',
+    },
+  ];
+
+  // ─── Render cards ─────────────────────────────────────────────────────────────
+  (function renderGoodies() {
+    const grid = document.getElementById('goodies-grid');
+    GOODIES.forEach((goodie, index) => {
+      const delay = ((index + 1) * 0.1).toFixed(1);
+      const col = document.createElement('div');
+      col.className = 'col';
+      col.innerHTML = `
+        <div class="goodie-card" style="--anim-delay: ${delay}s;"
+             onclick="openMinigame('${goodie.name.replace(/'/g, "\\'")}')"
+             role="button" tabindex="0"
+             onkeydown="if(event.key==='Enter'||event.key===' ')openMinigame('${goodie.name.replace(/'/g, "\\'")}')"
+        >
+          <div class="card-cover">
+            <img src="${goodie.image}" alt="${goodie.name}" loading="lazy">
+          </div>
+          <h5 class="card-title"><b>${goodie.name}</b></h5>
+          <p class="text-muted small">${goodie.description}</p>
+        </div>
+      `;
+      grid.appendChild(col);
+    });
+  })();
+
+  // ─── Modal logic ──────────────────────────────────────────────────────────────
   function openMinigame(gameName) {
-    const modal = document.getElementById('custom-minigame-modal');
-    document.getElementById('custom-modal-title').textContent = gameName;
-    document.getElementById('custom-modal-game-name').textContent = gameName;
-    
+    const modal   = document.getElementById('custom-minigame-modal');
+    const bodyEl  = document.getElementById('modal-body-content');
+    const titleEl = document.getElementById('custom-modal-title');
+
+    titleEl.textContent = gameName;
+
+    // Find matching goodie
+    const goodie = GOODIES.find(g => g.name === gameName);
+
+    if (goodie && goodie.iframeUrl) {
+      // Render a full-bleed iframe
+      bodyEl.className = '';
+      bodyEl.style.cssText = 'width:100%;height:100%;';
+      bodyEl.innerHTML = `<iframe
+        class="modal-iframe"
+        src="${goodie.iframeUrl}"
+        title="${goodie.name}"
+        allow="fullscreen"
+        loading="eager"
+      ></iframe>`;
+    } else {
+      // Placeholder
+      bodyEl.className = 'modal-placeholder';
+      bodyEl.style.cssText = '';
+      bodyEl.innerHTML = `
+        <h1 class="display-3">${gameName}</h1>
+        <p class="text-muted italic">Stay tuned, the engine is charging up!</p>
+      `;
+    }
+
+    // Reset any leftover closing state & show
+    modal.classList.remove('closing');
     modal.style.display = 'flex';
-    // Trick to trigger CSS transition
-    setTimeout(() => {
-      modal.classList.add('active');
-    }, 10);
-    
-    // Prevent background scrolling
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => modal.classList.add('active'));
+    });
+
     document.body.style.overflow = 'hidden';
   }
 
   function closeMinigame(event, force = false) {
-    const modal = document.getElementById('custom-minigame-modal');
-    const content = modal.querySelector('.custom-modal-content');
-    
-    // Only close if clicking overlay or close button
-    if (force || event.target === modal) {
-      modal.classList.remove('active');
-      
-      // Wait for transition before hiding
-      setTimeout(() => {
-        modal.style.display = 'none';
-        document.body.style.overflow = '';
-      }, 300);
-    }
+    const modal  = document.getElementById('custom-minigame-modal');
+    const bodyEl = document.getElementById('modal-body-content');
+
+    if (!force && event.target !== modal) return;
+
+    modal.classList.add('closing');
+
+    setTimeout(() => {
+      modal.classList.remove('active', 'closing');
+      modal.style.display = 'none';
+      document.body.style.overflow = '';
+      // Destroy iframe so it stops running in the background
+      bodyEl.innerHTML = '';
+    }, 260);
   }
 </script>
 
