@@ -1,0 +1,12 @@
+# ASDK Projects List Manager – Python dependencies
+#
+# Core runtime (tkinter is part of the Python standard library;
+# install the system package if it is missing):
+#   Debian/Ubuntu : sudo apt install python3-tk
+#   Fedora/RHEL   : sudo dnf install python3-tkinter
+#   Arch          : sudo pacman -S tk
+#   macOS (brew)  : brew install python-tk
+#   Windows       : bundled with the official python.org installer
+#
+# Optional – required for the ✨ Gemini tag-suggestion feature:
+google-genai>=1.0.0

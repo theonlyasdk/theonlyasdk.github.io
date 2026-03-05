@@ -1,19 +1,5 @@
 [
   {
-    "name": "Ormali",
-    "description": "Tasks/Schedule manager/Todo List",
-    "url": "https://github.com/theonlyasdk/ormali",
-    "tags": "todo,utility",
-    "demo_url": "https://theonlyasdk.github.io/ormali/"
-  },
-  {
-    "name": "AI Code Converter",
-    "description": "Convert programming languages with the help of Google's Gemini LLM ",
-    "url": "https://github.com/theonlyasdk/ai-code-converter",
-    "tags": "ai,code,utility",
-    "demo_url": "https://theonlyasdk.github.io/ai-code-converter/"
-  },
-  {
     "name": "Blockterm",
     "description": "A small web terminal written using plain ol' HTML, CSS and JS",
     "url": "https://github.com/theonlyasdk/blockterm/",
@@ -34,24 +20,10 @@
     "demo_url": "https://theonlyasdk.github.io/fake-engine"
   },
   {
-    "name": "Word Counter",
-    "description": "Simple webpage that allows you to count the number of words in a given block of text.",
-    "url": "https://github.com/theonlyasdk/word-counter-html",
-    "tags": "web,bulma-css,utility",
-    "demo_url": "https://theonlyasdk.github.io/word-counter-html/"
-  },
-  {
     "name": "TextEditor",
     "description": "A simple text editor with syntax highlighting written in FreePascal/Lazarus",
     "url": "https://github.com/theonlyasdk/TextEditor",
     "tags": "freepascal,lazarus,text-editor,utility"
-  },
-  {
-    "name": "Base64 Tools",
-    "description": "Simple webpage that allows you to encode and decode Base64.",
-    "url": "https://github.com/theonlyasdk/base64-tools-html",
-    "tags": "base64,utility,javascript,web",
-    "demo_url": "https://theonlyasdk.github.io/base64-tools-html/"
   },
   {
     "name": "Backsolate (for Windows)",
@@ -74,18 +46,11 @@
     "demo_url": "https://theonlyasdk.github.io/mysql-table-formatter/"
   },
   {
-    "name": "Electronics Toolkit",
-    "description": "Set of simple tools and calculators for electronics tinkerers",
-    "url": "https://github.com/theonlyasdk/electronics-toolkit",
-    "tags": "electronics,toolkit,bootstrap,jquery,calculator",
-    "demo_url": "https://theonlyasdk.github.io/electronics-toolkit/"
-  },
-  {
     "name": "Calkulator",
     "description": "Simple calculator/mathematical expression evaluator written in JS",
     "url": "https://github.com/theonlyasdk/calkulator",
-    "tags": "calculator,parser,expression-eval,javascript",
-    "demo_url": "https://theonlyasdk.github.io/calkulator/"
+    "demo_url": "https://theonlyasdk.github.io/calkulator/",
+    "tags": "calculator,parser,expression-eval,javascript"
   },
   {
     "name": "JPEG Artifact Remover",
@@ -99,13 +64,6 @@
     "url": "https://github.com/theonlyasdk/bs-scratchpad",
     "tags": "bootstrap,ui,mockup,scratchpad",
     "demo_url": "https://theonlyasdk.github.io/bs-scratchpad/"
-  },
-  {
-    "name": "Monitor Size Tool",
-    "description": "Compare monitor sizes",
-    "url": "https://github.com/theonlyasdk/monitor-size-compare",
-    "tags": "css,html,bootstrap,monitor,js,tool,compare,size",
-    "demo_url": "https://theonlyasdk.github.io/monitor-size-compare/"
   },
   {
     "name": "Thumbman",
@@ -133,5 +91,42 @@
     "url": "https://github.com/theonlyasdk/asdk-toolkit",
     "tags": "tools,toolkit,converters,calculators,encoders",
     "demo_url": "https://theonlyasdk.github.io/asdk-toolkit/"
+  },
+  {
+    "name": "glitterOS",
+    "description": "Operating system simulator written in HTML, CSS and JS",
+    "url": "https://github.com/theonlyasdk/glitterOS",
+    "demo_url": "https://theonlyasdk.github.io/glitterOS/",
+    "tags": "operating-system, simulator, html, css, javascript, educational, web-demo, interactive"
+  },
+  {
+    "name": "droidmgr",
+    "description": "A GUI for scrcpy and an Android device manager written in Python using tkinter",
+    "url": "https://github.com/theonlyasdk/droidmgr",
+    "tags": "scrcpy,android,device-manager,python,tkinter,linux"
+  },
+  {
+    "name": "Gophervisor",
+    "description": "QEMU Frontend written in Golang",
+    "url": "https://github.com/theonlyasdk/Gophervisor",
+    "tags": "qemu,gui,frontend,golang,linux"
+  },
+  {
+    "name": "crayons",
+    "description": "A simple image annotator written in GTK.",
+    "url": "https://github.com/theonlyasdk/crayons",
+    "tags": "image,annotator,gtk,linux"
+  },
+  {
+    "name": "TachyonDL",
+    "description": "An easy to use download manager for Windows written in C# and WPF",
+    "url": "https://github.com/theonlyasdk/TachyonDL",
+    "tags": "download-manager,windows,wpf,csharp"
+  },
+  {
+    "name": "Sketchpens",
+    "description": "Lightweight drawing application written in FreePascal using Lazarus",
+    "url": "https://github.com/theonlyasdk/Sketchpens",
+    "tags": "drawing,freepascal,image,lazarus,cross-platform"
   }
 ]
