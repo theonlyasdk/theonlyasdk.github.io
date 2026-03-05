@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 import sys
 import json
 import time
@@ -23,7 +24,29 @@ except ImportError:
 # Constants
 # ─────────────────────────────────────────────────────────────────────────────
 
-SETTINGS_FILE = Path(__file__).resolve().parent / "settings.json"
+APP_NAME = "projects-manager"
+
+
+def get_settings_path() -> Path:
+    """Return a platform-appropriate path for settings.json.
+
+    - Windows : %APPDATA%\\projects-manager\\settings.json
+    - macOS   : ~/Library/Application Support/projects-manager/settings.json
+    - Linux   : $XDG_CONFIG_HOME/projects-manager/settings.json
+                (falls back to ~/.config/projects-manager/settings.json)
+    """
+    if sys.platform == "win32":
+        base = Path(os.environ.get("APPDATA", Path.home() / "AppData" / "Roaming"))
+    elif sys.platform == "darwin":
+        base = Path.home() / "Library" / "Application Support"
+    else:
+        # XDG Base Directory spec (Linux and other POSIX)
+        xdg = os.environ.get("XDG_CONFIG_HOME", "")
+        base = Path(xdg) if xdg else Path.home() / ".config"
+    return base / APP_NAME / "settings.json"
+
+
+SETTINGS_FILE = get_settings_path()
 DEFAULT_PROJECT_FILE = (
     Path(__file__).resolve().parent.parent.parent / "assets" / "data" / "projects.json"
 )
@@ -113,6 +136,7 @@ def load_settings() -> dict:
 
 
 def save_settings(settings: dict):
+    SETTINGS_FILE.parent.mkdir(parents=True, exist_ok=True)
     with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
         json.dump(settings, f, indent=2)
 
