@@ -234,7 +234,6 @@ order: 5
 </div>
 
 <script>
-  // ─── Goodies data ────────────────────────────────────────────────────────────
   const GOODIES = [
     {
       name: 'Cellular automaton',
@@ -264,7 +263,6 @@ order: 5
     },
   ];
 
-  // ─── Render cards ─────────────────────────────────────────────────────────────
   (function renderGoodies() {
     const grid = document.getElementById('goodies-grid');
     GOODIES.forEach((goodie, index) => {
@@ -288,19 +286,14 @@ order: 5
     });
   })();
 
-  // ─── Modal logic ──────────────────────────────────────────────────────────────
   function openMinigame(gameName) {
     const modal   = document.getElementById('custom-minigame-modal');
     const bodyEl  = document.getElementById('modal-body-content');
     const titleEl = document.getElementById('custom-modal-title');
-
     titleEl.textContent = gameName;
-
-    // Find matching goodie
     const goodie = GOODIES.find(g => g.name === gameName);
 
     if (goodie && goodie.iframeUrl) {
-      // Render a full-bleed iframe
       bodyEl.className = '';
       bodyEl.style.cssText = 'width:100%;height:100%;';
       bodyEl.innerHTML = `<iframe
@@ -311,7 +304,6 @@ order: 5
         loading="eager"
       ></iframe>`;
     } else {
-      // Placeholder
       bodyEl.className = 'modal-placeholder';
       bodyEl.style.cssText = '';
       bodyEl.innerHTML = `
@@ -320,7 +312,6 @@ order: 5
       `;
     }
 
-    // Reset any leftover closing state & show
     modal.classList.remove('closing');
     modal.style.display = 'flex';
 
@@ -343,7 +334,6 @@ order: 5
       modal.classList.remove('active', 'closing');
       modal.style.display = 'none';
       document.body.style.overflow = '';
-      // Destroy iframe so it stops running in the background
       bodyEl.innerHTML = '';
     }, 260);
   }
