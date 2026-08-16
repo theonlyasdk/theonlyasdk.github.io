@@ -5,7 +5,7 @@
 @-webkit-keyframes popup-zoom-in {
   from {
     opacity: 0;
-    transform: scale(0.85);
+    transform: scale(0.05);
   }
   to {
     opacity: 1;
@@ -16,7 +16,7 @@
 @keyframes popup-zoom-in {
   from {
     opacity: 0;
-    transform: scale(0.85);
+    transform: scale(0.05);
   }
   to {
     opacity: 1;
