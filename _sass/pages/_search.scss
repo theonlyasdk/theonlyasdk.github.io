@@ -2,14 +2,15 @@
 @use '../abstracts/variables' as v;
 @use '../abstracts/placeholders';
 
-search {
+search,
+#search {
   display: flex;
   width: 100%;
   border-radius: 1rem;
   border: 1px solid var(--search-border-color);
   background: var(--main-bg);
   padding: 0 0.5rem;
-  transition: max-width 0.25s linear, border-color 0.25s linear, box-shadow 0.25s linear, margin-right 0.25s linear;
+  transition: width 0.25s linear, max-width 0.25s linear, border-color 0.25s linear, box-shadow 0.25s linear, margin-right 0.25s linear;
 
   i {
     z-index: 2;
@@ -22,10 +23,12 @@ search {
   }
 
   @include bp.lg {
+    width: v.$search-max-width;
     max-width: v.$search-max-width;
 
     &.input-focus,
     &:focus-within {
+      width: calc(v.$search-max-width * 1.1);
       max-width: calc(v.$search-max-width * 1.1);
     }
   }
@@ -194,8 +197,4 @@ search {
 
     @extend %link-color;
   }
-}
-
-#search {
-  margin-right: 0;
 }
