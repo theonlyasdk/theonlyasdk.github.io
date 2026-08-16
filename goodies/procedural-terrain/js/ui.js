@@ -161,6 +161,44 @@ class UIManager {
       }
     };
 
+    // ── Settings Persistence Initialization ──
+    const STORAGE_KEY = 'procedural_terrain_settings';
+    const saved = window.GoodieStorage ? window.GoodieStorage.load(STORAGE_KEY, {
+      autotune: 'on',
+      vsync: 'auto',
+      renderScale: 1.0,
+      cameraMode: 'cinematic',
+      shadow: '2048',
+      time: 14.0,
+      cycle: false,
+      res: 64,
+      height: 120,
+      roughness: 1.0,
+      renderDist: 4,
+      speed: 25,
+      fov: 75,
+      fog: 50,
+      exposure: 1.0,
+      cloudSteps: 16,
+      cloudHeight: 350,
+      waterLevel: 3,
+      waves: 0.35,
+      waveSpeed: 1.0,
+      volume: 100,
+      wireframe: false,
+      ao: true,
+      clouds: true,
+      shaders: true,
+      foliage: true,
+      water: true
+    }) : {};
+
+    const saveParam = (k, v) => {
+      if (window.GoodieStorage) {
+        window.GoodieStorage.updateKey(STORAGE_KEY, k, v);
+      }
+    };
+
     // ── VSync Target & Auto Quality ──
     const autotuneBtns = document.querySelectorAll('[data-autotune]');
     autotuneBtns.forEach(btn => {
@@ -169,8 +207,13 @@ class UIManager {
         btn.classList.add('active');
         const mode = btn.getAttribute('data-autotune');
         app.setAutoQualityMode(mode);
+        saveParam('autotune', mode);
       });
     });
+    if (saved.autotune) {
+      autotuneBtns.forEach(b => b.classList.toggle('active', b.getAttribute('data-autotune') === saved.autotune));
+      app.setAutoQualityMode(saved.autotune);
+    }
 
     const vsyncBtns = document.querySelectorAll('[data-vsync]');
     const vsyncLabel = document.getElementById('label-vsync-target');
@@ -187,13 +230,33 @@ class UIManager {
           app.targetFps = parseInt(mode, 10) || 60;
           if (vsyncLabel) vsyncLabel.textContent = `${app.targetFps} FPS`;
         }
+        saveParam('vsync', mode);
       });
     });
+    if (saved.vsync) {
+      vsyncBtns.forEach(b => b.classList.toggle('active', b.getAttribute('data-vsync') === saved.vsync));
+      if (saved.vsync === 'auto') {
+        app.autoRefreshDetect = true;
+        app.detectScreenRefresh();
+      } else {
+        app.autoRefreshDetect = false;
+        app.targetFps = parseInt(saved.vsync, 10) || 60;
+        if (vsyncLabel) vsyncLabel.textContent = `${app.targetFps} FPS`;
+      }
+    }
 
     bindSlider('slider-render-scale', 'label-render-scale', v => `${v.toFixed(2)}x`, v => {
       app.setManualMode();
       app.setRenderScale(v);
+      saveParam('renderScale', v);
     });
+    if (saved.renderScale !== undefined) {
+      const slider = document.getElementById('slider-render-scale');
+      const label = document.getElementById('label-render-scale');
+      if (slider) slider.value = saved.renderScale;
+      if (label) label.textContent = `${saved.renderScale.toFixed(2)}x`;
+      app.setRenderScale(saved.renderScale);
+    }
 
     // ── Camera Mode Switcher ──
     const modeBtns = document.querySelectorAll('[data-mode]');
@@ -201,9 +264,15 @@ class UIManager {
       btn.addEventListener('click', () => {
         modeBtns.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        app.controls.setMode(btn.getAttribute('data-mode'));
+        const m = btn.getAttribute('data-mode');
+        app.controls.setMode(m);
+        saveParam('cameraMode', m);
       });
     });
+    if (saved.cameraMode) {
+      modeBtns.forEach(b => b.classList.toggle('active', b.getAttribute('data-mode') === saved.cameraMode));
+      app.controls.setMode(saved.cameraMode);
+    }
 
     // ── Shadow Quality Selector ──
     const shadowBtns = document.querySelectorAll('[data-shadow]');
@@ -219,25 +288,45 @@ class UIManager {
           const names = { off: 'Off', '1024': 'Low (1K)', '2048': 'High (2K)', '4096': 'Ultra (4K)' };
           shadowLabel.textContent = names[q] || q;
         }
+        saveParam('shadow', q);
       });
     });
+    if (saved.shadow) {
+      shadowBtns.forEach(b => b.classList.toggle('active', b.getAttribute('data-shadow') === saved.shadow));
+      app.setShadowQuality(saved.shadow);
+      if (shadowLabel) {
+        const names = { off: 'Off', '1024': 'Low (1K)', '2048': 'High (2K)', '4096': 'Ultra (4K)' };
+        shadowLabel.textContent = names[saved.shadow] || saved.shadow;
+      }
+    }
 
     // ── Time of Day & Cycle ──
     const timeSlider = document.getElementById('slider-time');
     const timeLabel = document.getElementById('label-time');
     if (timeSlider) {
+      if (saved.time !== undefined) {
+        timeSlider.value = saved.time;
+        if (timeLabel) timeLabel.textContent = this.formatTimeOfDay(saved.time);
+        app.sky.setTimeOfDay(saved.time);
+      }
       timeSlider.addEventListener('input', (e) => {
         const hours = parseFloat(e.target.value);
         app.sky.setTimeOfDay(hours);
         app.water.updateSkyUniforms(app.sky.currentPreset, app.sky.scene.fog ? app.sky.scene.fog.density : 0.003);
         if (timeLabel) timeLabel.textContent = this.formatTimeOfDay(hours);
+        saveParam('time', hours);
       });
     }
 
     const cycleToggle = document.getElementById('toggle-cycle');
     if (cycleToggle) {
+      if (saved.cycle !== undefined) {
+        cycleToggle.checked = !!saved.cycle;
+        app.sky.setDayNightCycle(!!saved.cycle);
+      }
       cycleToggle.addEventListener('change', (e) => {
         app.sky.setDayNightCycle(e.target.checked);
+        saveParam('cycle', e.target.checked);
       });
     }
 
@@ -252,26 +341,66 @@ class UIManager {
     bindSlider('slider-res', 'label-res', v => `${v}`, v => {
       app.setManualMode();
       app.terrain.setResolution(parseInt(v, 10));
+      saveParam('res', v);
     });
+    if (saved.res) {
+      const slider = document.getElementById('slider-res');
+      const label = document.getElementById('label-res');
+      if (slider) slider.value = saved.res;
+      if (label) label.textContent = `${saved.res}`;
+      app.terrain.setResolution(parseInt(saved.res, 10));
+    }
 
     bindSlider('slider-height', 'label-height', v => `${v}m`, v => {
       app.generator.setParams({ heightScale: v });
       app.terrain.clear();
+      saveParam('height', v);
     });
+    if (saved.height !== undefined) {
+      const slider = document.getElementById('slider-height');
+      const label = document.getElementById('label-height');
+      if (slider) slider.value = saved.height;
+      if (label) label.textContent = `${saved.height}m`;
+      app.generator.setParams({ heightScale: saved.height });
+    }
 
     bindSlider('slider-roughness', 'label-roughness', v => `${v.toFixed(2)}x`, v => {
       app.generator.setParams({ roughness: v });
       app.terrain.clear();
+      saveParam('roughness', v);
     });
+    if (saved.roughness !== undefined) {
+      const slider = document.getElementById('slider-roughness');
+      const label = document.getElementById('label-roughness');
+      if (slider) slider.value = saved.roughness;
+      if (label) label.textContent = `${saved.roughness.toFixed(2)}x`;
+      app.generator.setParams({ roughness: saved.roughness });
+    }
 
     bindSlider('slider-render-dist', 'label-render-dist', v => `${v} chunks`, v => {
       app.setManualMode();
       app.terrain.setViewRadius(parseInt(v, 10));
+      saveParam('renderDist', v);
     });
+    if (saved.renderDist) {
+      const slider = document.getElementById('slider-render-dist');
+      const label = document.getElementById('label-render-dist');
+      if (slider) slider.value = saved.renderDist;
+      if (label) label.textContent = `${saved.renderDist} chunks`;
+      app.terrain.setViewRadius(parseInt(saved.renderDist, 10));
+    }
 
     bindSlider('slider-speed', 'label-speed', v => `${v} m/s`, v => {
       app.controls.setSpeed(v);
+      saveParam('speed', v);
     });
+    if (saved.speed !== undefined) {
+      const slider = document.getElementById('slider-speed');
+      const label = document.getElementById('label-speed');
+      if (slider) slider.value = Math.round(saved.speed);
+      if (label) label.textContent = `${Math.round(saved.speed)} m/s`;
+      app.controls.setSpeed(saved.speed);
+    }
 
     app.controls.onSpeedChange = (v) => {
       const slider = document.getElementById('slider-speed');
@@ -283,7 +412,16 @@ class UIManager {
     bindSlider('slider-fov', 'label-fov', v => `${Math.round(v)}°`, v => {
       app.camera.fov = v;
       app.camera.updateProjectionMatrix();
+      saveParam('fov', v);
     });
+    if (saved.fov !== undefined) {
+      const slider = document.getElementById('slider-fov');
+      const label = document.getElementById('label-fov');
+      if (slider) slider.value = saved.fov;
+      if (label) label.textContent = `${Math.round(saved.fov)}°`;
+      app.camera.fov = saved.fov;
+      app.camera.updateProjectionMatrix();
+    }
 
     bindSlider('slider-fog', 'label-fog', v => `${v}%`, v => {
       const factor = v / 100.0;
@@ -291,45 +429,115 @@ class UIManager {
       if (app.sky.scene.fog) {
         app.water.updateSkyUniforms(app.sky.currentPreset, app.sky.scene.fog.density);
       }
+      saveParam('fog', v);
     });
+    if (saved.fog !== undefined) {
+      const slider = document.getElementById('slider-fog');
+      const label = document.getElementById('label-fog');
+      if (slider) slider.value = saved.fog;
+      if (label) label.textContent = `${saved.fog}%`;
+      app.sky.setFogDensityFactor(saved.fog / 100.0);
+    }
 
     bindSlider('slider-exposure', 'label-exposure', v => `${v.toFixed(2)}x`, v => {
       app.renderer.toneMappingExposure = v;
+      saveParam('exposure', v);
     });
+    if (saved.exposure !== undefined) {
+      const slider = document.getElementById('slider-exposure');
+      const label = document.getElementById('label-exposure');
+      if (slider) slider.value = saved.exposure;
+      if (label) label.textContent = `${saved.exposure.toFixed(2)}x`;
+      app.renderer.toneMappingExposure = saved.exposure;
+    }
 
     bindSlider('slider-cloud-steps', 'label-cloud-steps', v => `${v}`, v => {
       app.setManualMode();
       if (app.clouds && app.clouds.setSteps) app.clouds.setSteps(v);
+      saveParam('cloudSteps', v);
     });
+    if (saved.cloudSteps !== undefined) {
+      const slider = document.getElementById('slider-cloud-steps');
+      const label = document.getElementById('label-cloud-steps');
+      if (slider) slider.value = saved.cloudSteps;
+      if (label) label.textContent = `${saved.cloudSteps}`;
+      if (app.clouds && app.clouds.setSteps) app.clouds.setSteps(saved.cloudSteps);
+    }
 
     bindSlider('slider-cloud-height', 'label-cloud-height', v => `${v}m`, v => {
       if (app.clouds && app.clouds.setAltitude) app.clouds.setAltitude(v);
+      saveParam('cloudHeight', v);
     });
+    if (saved.cloudHeight !== undefined) {
+      const slider = document.getElementById('slider-cloud-height');
+      const label = document.getElementById('label-cloud-height');
+      if (slider) slider.value = saved.cloudHeight;
+      if (label) label.textContent = `${saved.cloudHeight}m`;
+      if (app.clouds && app.clouds.setAltitude) app.clouds.setAltitude(saved.cloudHeight);
+    }
 
     bindSlider('slider-water-level', 'label-water-level', v => `${v}m`, v => {
       app.water.setWaterLevel(v);
       app.generator.setParams({ waterLevel: v });
       app.terrain.clear();
+      saveParam('waterLevel', v);
     });
+    if (saved.waterLevel !== undefined) {
+      const slider = document.getElementById('slider-water-level');
+      const label = document.getElementById('label-water-level');
+      if (slider) slider.value = saved.waterLevel;
+      if (label) label.textContent = `${saved.waterLevel}m`;
+      app.water.setWaterLevel(saved.waterLevel);
+      app.generator.setParams({ waterLevel: saved.waterLevel });
+    }
 
     bindSlider('slider-waves', 'label-waves', v => `${v.toFixed(2)}x`, v => {
       app.water.setWaveIntensity(v);
+      saveParam('waves', v);
     });
+    if (saved.waves !== undefined) {
+      const slider = document.getElementById('slider-waves');
+      const label = document.getElementById('label-waves');
+      if (slider) slider.value = saved.waves;
+      if (label) label.textContent = `${saved.waves.toFixed(2)}x`;
+      app.water.setWaveIntensity(saved.waves);
+    }
 
     bindSlider('slider-wave-speed', 'label-wave-speed', v => `${v.toFixed(1)}x`, v => {
       app.water.setWaveSpeed(v);
+      saveParam('waveSpeed', v);
     });
+    if (saved.waveSpeed !== undefined) {
+      const slider = document.getElementById('slider-wave-speed');
+      const label = document.getElementById('label-wave-speed');
+      if (slider) slider.value = saved.waveSpeed;
+      if (label) label.textContent = `${saved.waveSpeed.toFixed(1)}x`;
+      app.water.setWaveSpeed(saved.waveSpeed);
+    }
 
     bindSlider('slider-volume', 'label-volume', v => `${Math.round(v)}%`, v => {
       app.audio.setMasterVolume(v / 100.0);
+      saveParam('volume', v);
     });
+    if (saved.volume !== undefined) {
+      const slider = document.getElementById('slider-volume');
+      const label = document.getElementById('label-volume');
+      if (slider) slider.value = saved.volume;
+      if (label) label.textContent = `${Math.round(saved.volume)}%`;
+      app.audio.setMasterVolume(saved.volume / 100.0);
+    }
 
     // ── Toggles ──
     const wireframeBtn = document.getElementById('btn-wireframe');
     if (wireframeBtn) {
+      if (saved.wireframe !== undefined) {
+        app.terrain.setWireframe(!!saved.wireframe);
+        wireframeBtn.classList.toggle('active', !!saved.wireframe);
+      }
       wireframeBtn.addEventListener('click', () => {
         app.terrain.setWireframe(!app.terrain.wireframe);
         wireframeBtn.classList.toggle('active', app.terrain.wireframe);
+        saveParam('wireframe', app.terrain.wireframe);
       });
     }
 
@@ -340,41 +548,67 @@ class UIManager {
 
     const aoToggle = document.getElementById('toggle-ao-reflections');
     if (aoToggle) {
+      if (saved.ao !== undefined) {
+        aoToggle.checked = !!saved.ao;
+        app.terrain.setAmbientOcclusionAndReflections(!!saved.ao);
+        if (app.ssao) app.ssao.setEnabled(!!saved.ao);
+      }
       aoToggle.addEventListener('change', (e) => {
         app.setManualMode();
         app.terrain.setAmbientOcclusionAndReflections(e.target.checked);
         if (app.ssao) app.ssao.setEnabled(e.target.checked);
+        saveParam('ao', e.target.checked);
       });
     }
 
     const cloudsToggle = document.getElementById('toggle-clouds');
     if (cloudsToggle) {
+      if (saved.clouds !== undefined) {
+        cloudsToggle.checked = !!saved.clouds;
+        if (app.clouds) app.clouds.setVisible(!!saved.clouds);
+      }
       cloudsToggle.addEventListener('change', (e) => {
         app.setManualMode();
         if (app.clouds) app.clouds.setVisible(e.target.checked);
+        saveParam('clouds', e.target.checked);
       });
     }
 
     const shadersToggle = document.getElementById('toggle-shaders');
     if (shadersToggle) {
+      if (saved.shaders !== undefined) {
+        shadersToggle.checked = !!saved.shaders;
+        app.water.setShaderEffects(!!saved.shaders);
+      }
       shadersToggle.addEventListener('change', (e) => {
         app.setManualMode();
         app.water.setShaderEffects(e.target.checked);
+        saveParam('shaders', e.target.checked);
       });
     }
 
     const foliageToggle = document.getElementById('toggle-foliage');
     if (foliageToggle) {
+      if (saved.foliage !== undefined) {
+        foliageToggle.checked = !!saved.foliage;
+        app.terrain.setFoliageEnabled(!!saved.foliage);
+      }
       foliageToggle.addEventListener('change', (e) => {
         app.setManualMode();
         app.terrain.setFoliageEnabled(e.target.checked);
+        saveParam('foliage', e.target.checked);
       });
     }
 
     const waterToggle = document.getElementById('toggle-water');
     if (waterToggle) {
+      if (saved.water !== undefined) {
+        waterToggle.checked = !!saved.water;
+        app.water.setVisible(!!saved.water);
+      }
       waterToggle.addEventListener('change', (e) => {
         app.water.setVisible(e.target.checked);
+        saveParam('water', e.target.checked);
       });
     }
 

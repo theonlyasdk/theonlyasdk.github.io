@@ -1,0 +1,79 @@
+/**
+ * Goodie Shared UI & Design System
+ * Universal HUD, Glassmorphism, Steppers, Modals, Segmented Controls & Scrollbars
+ */
+
+/* ── Common Design Tokens & Variables ── */
+:root {
+  --goodie-bg-space: #060913;
+  --goodie-bg-panel: rgba(10, 15, 29, 0.72);
+  --goodie-bg-subpanel: rgba(255, 255, 255, 0.05);
+  --goodie-bg-control: rgba(15, 23, 42, 0.85);
+  --goodie-accent: #38bdf8;
+  --goodie-accent-hover: #7dd3fc;
+  --goodie-accent-active: #0284c7;
+  --goodie-text-main: #f1f5f9;
+  --goodie-text-muted: #94a3b8;
+  --goodie-text-faint: #64748b;
+  --goodie-text-highlight: #38bdf8;
+}
+
+/* ── Glassmorphic Panels ── */
+.goodie-glass-panel,
+.glass-panel {
+  background: var(--goodie-bg-panel);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+}
+
+/* ── Custom Sleek Scrollbars ── */
+.goodie-custom-scroll,
+.left-hud-sidebar,
+.modal-inner,
+.table-responsive {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(56, 189, 248, 0.25) transparent;
+}
+
+.goodie-custom-scroll::-webkit-scrollbar,
+.left-hud-sidebar::-webkit-scrollbar,
+.modal-inner::-webkit-scrollbar {
+  width: 4px;
+}
+
+.table-responsive::-webkit-scrollbar {
+  height: 4px;
+}
+
+.goodie-custom-scroll::-webkit-scrollbar-button,
+.left-hud-sidebar::-webkit-scrollbar-button,
+.modal-inner::-webkit-scrollbar-button,
+.table-responsive::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.goodie-custom-scroll::-webkit-scrollbar-thumb,
+.left-hud-sidebar::-webkit-scrollbar-thumb,
+.modal-inner::-webkit-scrollbar-thumb,
+.table-responsive::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.3);
+  border-radius: 4px;
+}
+
+.goodie-custom-scroll::-webkit-scrollbar-thumb:hover,
+.left-hud-sidebar::-webkit-scrollbar-thumb:hover,
+.modal-inner::-webkit-scrollbar-thumb:hover,
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.5);
+}
+
+.goodie-custom-scroll::-webkit-scrollbar-track,
+.left-hud-sidebar::-webkit-scrollbar-track,
+.modal-inner::-webkit-scrollbar-track,
+.table-responsive::-webkit-scrollbar-track {
+  background: transparent;
+}
