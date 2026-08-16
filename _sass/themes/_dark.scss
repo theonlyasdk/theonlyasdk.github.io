@@ -30,6 +30,14 @@
     rgba(58, 55, 55, 0.4) 50%,
     rgba(255, 255, 255, 0) 100%
   );
+  --menu-bg: rgb(34, 34, 38);
+  --menu-border-color: rgba(255, 255, 255, 0.12);
+  --menu-shadow-color: rgba(0, 0, 0, 0.55);
+  --menu-active-color: #ffffff;
+  --menu-selected-bg: rgba(255, 255, 255, 0.12);
+  --menu-hover-bg: rgba(255, 255, 255, 0.06);
+  --menu-pressed-bg: rgba(255, 255, 255, 0.2);
+
 
   /* Sidebar */
   --site-title-color: #717070;

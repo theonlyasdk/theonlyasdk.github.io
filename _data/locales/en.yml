@@ -51,6 +51,11 @@ notification:
   update: Update
   update_available: Update available
 
+theme:
+  light: Light
+  dark: Dark
+  system: System
+
 # ----- Posts related labels -----
 
 post:

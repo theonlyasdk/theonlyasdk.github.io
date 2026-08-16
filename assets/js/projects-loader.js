@@ -6,6 +6,7 @@ let current_filter_tag = "";
 let projects_data_url = "/assets/data/projects.json";
 
 document.addEventListener('mousemove', (e) => {
+  if (!searchBox) return;
   const rect = searchBox.getBoundingClientRect();
   searchBox.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
   searchBox.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
@@ -97,6 +98,16 @@ function render_projects(projects_list) {
 
       projects_list_container.append(projectCard);
     }
+
+    const no_results = document.createElement('div');
+    no_results.id = 'projects-no-results';
+    no_results.className = 'projects-no-results d-none';
+    no_results.style.display = 'none';
+    no_results.innerHTML = `
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <p>No results found</p>
+    `;
+    projects_list_container.append(no_results);
   })();
 
   document.querySelector(".projects-loading").remove();
@@ -108,16 +119,39 @@ function render_projects(projects_list) {
   project_search_box.onchange = search_box_filter_event;
 }
 
-function filter_by_value_fuzzy(filter_val) {
-  const fuzzify = (text) => text.toLowerCase().replace(" ", "");
+function check_no_results() {
+  const no_results = document.getElementById('projects-no-results');
+  if (!no_results) return;
+
   const projects = document.querySelectorAll('#projects-list .project-card');
+  let has_visible = false;
+  projects.forEach(task => {
+    if (!task.classList.contains('d-none')) {
+      has_visible = true;
+    }
+  });
+
+  if (!has_visible && projects.length > 0) {
+    no_results.classList.remove('d-none');
+    no_results.style.display = 'flex';
+  } else {
+    no_results.classList.add('d-none');
+    no_results.style.display = 'none';
+  }
+}
+
+function filter_by_value_fuzzy(filter_val) {
+  const fuzzify = (text) => text.toLowerCase().replace(/\s+/g, "");
+  const projects = document.querySelectorAll('#projects-list .project-card');
+  const query = fuzzify(filter_val);
   projects.forEach(task => {
     task.classList.remove('d-none');
     const title = fuzzify(task.querySelector('.project-card-title a').innerText);
-    if (!title.includes(fuzzify(filter_val))) {
+    if (!title.includes(query)) {
       task.classList.add('d-none');
     }
   });
+  check_no_results();
 }
 
 function set_filter_tag_text_and_visibility(visible, tag_name) {
@@ -166,6 +200,7 @@ function filter_by_tag(tag_name) {
       task.classList.add('d-none');
     }
   });
+  check_no_results();
 }
 
 function filter_by_demo() {
@@ -179,6 +214,7 @@ function filter_by_demo() {
       task.classList.add('d-none');
     }
   });
+  check_no_results();
 }
 
 function window_scroll_to_top() {

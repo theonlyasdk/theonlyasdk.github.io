@@ -136,11 +136,37 @@ order: 4
     flex-direction: column;
     align-items: center;
     text-align: center;
+    width: 100%;
   }
 
   .projects-card-container>.projects-loading {
     width: 100%;
     text-align: center;
+  }
+
+  .projects-no-results {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+    padding: 3.5rem 1rem;
+    color: var(--text-muted-color);
+  }
+
+  .projects-no-results i {
+    font-size: 2.75rem;
+    margin-bottom: 0.8rem;
+    color: var(--text-muted-color);
+    opacity: 0.7;
+  }
+
+  .projects-no-results p {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin: 0;
+    color: var(--text-muted-color);
   }
 
   /* Filters */
@@ -375,5 +401,4 @@ order: 4
 </div>
 
 <script src="{{ '/assets/js/logger.js' | relative_url }}"></script>
-<script src="{{ '/assets/js/projects-loader.js' | relative_url }}" defer></script>
 <script src="{{ '/assets/js/projects-loader.js' | relative_url }}" defer></script>

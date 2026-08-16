@@ -9,6 +9,7 @@ search {
   border: 1px solid var(--search-border-color);
   background: var(--main-bg);
   padding: 0 0.5rem;
+  transition: max-width 0.25s linear, border-color 0.25s linear, box-shadow 0.25s linear, margin-right 0.25s linear;
 
   i {
     z-index: 2;
@@ -22,6 +23,11 @@ search {
 
   @include bp.lg {
     max-width: v.$search-max-width;
+
+    &.input-focus,
+    &:focus-within {
+      max-width: calc(v.$search-max-width * 1.1);
+    }
   }
 
   @include bp.xl {
@@ -32,6 +38,13 @@ search {
     margin-right: calc(
       v.$main-content-max-width / 4 - v.$search-max-width - 0.75rem
     );
+
+    &.input-focus,
+    &:focus-within {
+      margin-right: calc(
+        v.$main-content-max-width / 4 - (v.$search-max-width * 1.1) - 0.75rem
+      );
+    }
   }
 }
 
