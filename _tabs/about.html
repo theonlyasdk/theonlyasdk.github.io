@@ -96,10 +96,11 @@ order: 5
     height: 100vh;
     background: rgba(0, 0, 0, 0.85);
     backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     z-index: 9999;
     display: none;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.25s ease-out;
     justify-content: center;
     align-items: center;
   }
@@ -107,6 +108,11 @@ order: 5
   .custom-modal-overlay.active {
     display: flex;
     opacity: 1;
+  }
+
+  .custom-modal-overlay.closing {
+    opacity: 0;
+    pointer-events: none;
   }
 
   @keyframes modalZoomIn {
@@ -120,14 +126,14 @@ order: 5
     }
   }
 
-  @keyframes modalZoomOut {
+  @keyframes modalFadeOut {
     from {
       opacity: 1;
       transform: scale(1);
     }
     to {
       opacity: 0;
-      transform: scale(0.85);
+      transform: scale(0.92);
     }
   }
 
@@ -147,7 +153,7 @@ order: 5
   }
 
   .custom-modal-overlay.closing .custom-modal-content {
-    animation: modalZoomOut 0.25s ease-in both;
+    animation: modalFadeOut 0.25s ease-out both;
   }
 
   @media (max-width: 768px) {
@@ -199,6 +205,76 @@ order: 5
   .modal-placeholder {
     text-align: center;
   }
+
+  /* Goodie Info Button */
+  .goodie-info-btn {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    cursor: pointer;
+    z-index: 5;
+    transition: background-color 0.15s ease, filter 0.1s ease, transform 0.1s ease;
+  }
+
+  .goodie-info-btn:hover {
+    background: rgba(0, 0, 0, 0.85);
+    color: #ffffff;
+  }
+
+  .goodie-info-btn:active {
+    filter: brightness(60%);
+    transform: scale(0.92);
+  }
+
+  .goodie-title-link {
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+  }
+
+  .goodie-title-link:hover {
+    opacity: 0.75;
+    text-decoration: underline;
+  }
+
+  .goodie-title-link:active {
+    filter: brightness(60%);
+  }
+
+  .credits-modal-content {
+    max-width: 580px;
+    height: auto;
+    max-height: 85vh;
+    border-radius: 16px;
+  }
+
+  .credits-license-box {
+    background-color: var(--main-bg);
+    border: 1px solid var(--sidebar-border-color);
+    border-radius: 8px;
+    padding: 0.85rem 1rem;
+    font-family: monospace;
+    font-size: 0.8rem;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    max-height: 200px;
+    overflow-y: auto;
+    color: var(--text-muted-color);
+    margin-top: 0.75rem;
+  }
 </style>
 
 <div style="text-align: center; margin-bottom: 2rem;">
@@ -210,11 +286,12 @@ order: 5
   </svg>
 </div>
 
-<p><strong>Hello!</strong> I'm <strong>TheOnlyASDK</strong>. Nothing special about me, just another CS student.</p>
+<p><strong>Hello!</strong> I'm <strong>ASDK</strong>. Nothing special about me, just another guy who likes to tinker with software.</p>
 <p>I make stuff and post them here in my freetime. Feel free to contribute to any of my repositories if you find silly bugs in them!</p>
 
-<h2 class="mt-5 mb-4">Goodies</h2>
-
+<h1 class="mt-5 mb-4">Goodies</h2>
+<h3>What are Goodies? Can I eat them?</h3>
+<small>Absolutely not! Goodies include minigames, demos and experiments.</small>
 <div class="row row-cols-1 row-cols-md-2 g-4 mt-2" id="goodies-grid"></div>
 
 <!-- Custom Mini-game Modal -->
@@ -233,35 +310,66 @@ order: 5
   </div>
 </div>
 
+<!-- Custom Credits Dialog Modal -->
+<div id="custom-credits-modal" class="custom-modal-overlay" onclick="closeCreditsDialog(event)">
+  <div class="custom-modal-content credits-modal-content">
+    <div class="custom-modal-header">
+      <h4 id="credits-modal-title" style="margin: 0;">Credits & License</h4>
+      <button class="modal-close-btn" onclick="closeCreditsDialog(event, true)">&times;</button>
+    </div>
+    <div class="custom-modal-body p-4" style="flex-direction: column; align-items: stretch; justify-content: flex-start; overflow-y: auto; text-align: left;">
+      <div id="credits-modal-body-content"></div>
+    </div>
+  </div>
+</div>
+
 <script>
   const GOODIES = [
     {
+      name: 'Fluid simulation',
+      description: 'A gorgeous WebGL simulation of fluid dynamics, smoke, and particles in real-time.',
+      image: '{{ "/assets/img/goodies/fluid_simulation.png" | relative_url }}',
+      iframeUrl: 'https://paveldogreat.github.io/WebGL-Fluid-Simulation/',
+      credits: {
+        title: 'WebGL Fluid Simulation',
+        author: 'Pavel Dobryakov',
+        githubUser: 'PavelDoGreat',
+        repoUrl: 'https://github.com/PavelDoGreat/WebGL-Fluid-Simulation',
+        license: 'MIT License',
+        licenseUrl: 'https://github.com/PavelDoGreat/WebGL-Fluid-Simulation/blob/master/LICENSE',
+        description: 'Original WebGL Fluid Simulation created by Pavel Dobryakov. Licensed under the MIT License.',
+      }
+    },
+    {
       name: 'Cellular automaton',
       description: 'Explore complex patterns emerging from simple rules in a grid-based universe.',
-      image: '{{ site.url }}{{ "/assets/img/goodies/cellular_automaton.png" | relative_url }}',
+      image: '{{ "/assets/img/goodies/cellular_automaton.png" | relative_url }}',
     },
     {
       name: 'Procedural terrain',
-      description: 'Procedurally generated landscapes using Perlin noise and heightmaps.',
-      image: '{{ site.url }}{{ "/assets/img/goodies/procedural_terrain.png" | relative_url }}',
+      description: 'Infinite procedural terrain generation with dynamic biomes and atmospheric horizon fog.',
+      image: '{{ "/assets/img/goodies/procedural_terrain.png" | relative_url }}',
+      iframeUrl: '{{ "/goodies/procedural-terrain/index.html" | relative_url }}',
     },
     {
       name: 'Sorting visualizer',
       description: 'Watch sorting algorithms organize data in a beautiful visual performance.',
-      image: '{{ site.url }}{{ "/assets/img/goodies/sorting_visualizer.png" | relative_url }}',
+      image: '{{ "/assets/img/goodies/sorting_visualizer.png" | relative_url }}',
     },
     {
       name: 'Fractal viewer',
       description: 'Dive deep into the infinite complexity of Mandelbrot and Julia sets.',
-      image: '{{ site.url }}{{ "/assets/img/goodies/fractal_viewer.png" | relative_url }}',
+      image: '{{ "/assets/img/goodies/fractal_viewer.png" | relative_url }}',
     },
     {
       name: 'Terminal emulator',
       description: 'A retro-style command line interface running directly in your browser.',
-      image: '{{ site.url }}{{ "/assets/img/goodies/terminal_emulator.png" | relative_url }}',
+      image: '{{ "/assets/img/goodies/terminal_emulator.png" | relative_url }}',
       iframeUrl: 'https://theonlyasdk.github.io/blockterm/',
     },
   ];
+
+  let currentOpenGoodie = null;
 
   (function renderGoodies() {
     const grid = document.getElementById('goodies-grid');
@@ -269,46 +377,111 @@ order: 5
       const delay = ((index + 1) * 0.1).toFixed(1);
       const col = document.createElement('div');
       col.className = 'col';
-      col.innerHTML = `
-        <div class="goodie-card" style="--anim-delay: ${delay}s;"
-             onclick="openMinigame('${goodie.name.replace(/'/g, "\\'")}')"
-             role="button" tabindex="0"
-             onkeydown="if(event.key==='Enter'||event.key===' ')openMinigame('${goodie.name.replace(/'/g, "\\'")}')"
-        >
-          <div class="card-cover">
-            <img src="${goodie.image}" alt="${goodie.name}" loading="lazy">
-          </div>
-          <h5 class="card-title"><b>${goodie.name}</b></h5>
-          <p class="text-muted small">${goodie.description}</p>
-        </div>
-      `;
+
+      const card = document.createElement('div');
+      card.className = 'goodie-card';
+      card.style.setProperty('--anim-delay', `${delay}s`);
+      card.tabIndex = 0;
+      card.setAttribute('role', 'button');
+      card.onclick = () => openMinigame(goodie.name);
+      card.onkeydown = (e) => {
+        if (e.key === 'Enter' || e.key === ' ') openMinigame(goodie.name);
+      };
+
+      const cardCover = document.createElement('div');
+      cardCover.className = 'card-cover';
+
+      const img = document.createElement('img');
+      img.src = goodie.image;
+      img.alt = goodie.name;
+      img.loading = 'lazy';
+      cardCover.appendChild(img);
+
+      if (goodie.credits) {
+        const infoBtn = document.createElement('button');
+        infoBtn.type = 'button';
+        infoBtn.className = 'goodie-info-btn';
+        infoBtn.title = 'View credits & license';
+        infoBtn.innerHTML = '<i class="bi bi-info-lg"></i>';
+        infoBtn.onclick = (e) => {
+          e.stopPropagation();
+          openCreditsDialog(goodie.name);
+        };
+        cardCover.appendChild(infoBtn);
+      }
+
+      const title = document.createElement('h5');
+      title.className = 'card-title';
+      title.innerHTML = `<b>${goodie.name}</b>`;
+
+      const desc = document.createElement('p');
+      desc.className = 'text-muted small';
+      desc.textContent = goodie.description;
+
+      card.appendChild(cardCover);
+      card.appendChild(title);
+      card.appendChild(desc);
+      col.appendChild(card);
       grid.appendChild(col);
     });
   })();
+
+  const SPINNER_SVG = `
+    <svg class="goodie-spinner" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" width="60" height="60" style="shape-rendering: auto; display: block; background: transparent; color: var(--text-color);">
+      <g>
+        <g transform="rotate(0 50 50)"><rect x="49" y="24" rx="1" ry="1" width="2" height="12" fill="currentColor"><animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.9166666666666666s" repeatCount="indefinite"></animate></rect></g>
+        <g transform="rotate(30 50 50)"><rect x="49" y="24" rx="1" ry="1" width="2" height="12" fill="currentColor"><animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.8333333333333334s" repeatCount="indefinite"></animate></rect></g>
+        <g transform="rotate(60 50 50)"><rect x="49" y="24" rx="1" ry="1" width="2" height="12" fill="currentColor"><animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.75s" repeatCount="indefinite"></animate></rect></g>
+        <g transform="rotate(90 50 50)"><rect x="49" y="24" rx="1" ry="1" width="2" height="12" fill="currentColor"><animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.6666666666666666s" repeatCount="indefinite"></animate></rect></g>
+        <g transform="rotate(120 50 50)"><rect x="49" y="24" rx="1" ry="1" width="2" height="12" fill="currentColor"><animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.5833333333333334s" repeatCount="indefinite"></animate></rect></g>
+        <g transform="rotate(150 50 50)"><rect x="49" y="24" rx="1" ry="1" width="2" height="12" fill="currentColor"><animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.5s" repeatCount="indefinite"></animate></rect></g>
+        <g transform="rotate(180 50 50)"><rect x="49" y="24" rx="1" ry="1" width="2" height="12" fill="currentColor"><animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.4166666666666667s" repeatCount="indefinite"></animate></rect></g>
+        <g transform="rotate(210 50 50)"><rect x="49" y="24" rx="1" ry="1" width="2" height="12" fill="currentColor"><animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.3333333333333333s" repeatCount="indefinite"></animate></rect></g>
+        <g transform="rotate(240 50 50)"><rect x="49" y="24" rx="1" ry="1" width="2" height="12" fill="currentColor"><animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.25s" repeatCount="indefinite"></animate></rect></g>
+        <g transform="rotate(270 50 50)"><rect x="49" y="24" rx="1" ry="1" width="2" height="12" fill="currentColor"><animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.16666666666666666s" repeatCount="indefinite"></animate></rect></g>
+        <g transform="rotate(300 50 50)"><rect x="49" y="24" rx="1" ry="1" width="2" height="12" fill="currentColor"><animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.08333333333333333s" repeatCount="indefinite"></animate></rect></g>
+        <g transform="rotate(330 50 50)"><rect x="49" y="24" rx="1" ry="1" width="2" height="12" fill="currentColor"><animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="0s" repeatCount="indefinite"></animate></rect></g>
+      </g>
+    </svg>
+  `;
 
   function openMinigame(gameName) {
     const modal   = document.getElementById('custom-minigame-modal');
     const bodyEl  = document.getElementById('modal-body-content');
     const titleEl = document.getElementById('custom-modal-title');
-    titleEl.textContent = gameName;
-    const goodie = GOODIES.find(g => g.name === gameName);
+    const goodie  = GOODIES.find(g => g.name === gameName);
+    currentOpenGoodie = goodie || null;
+
+    if (goodie && goodie.credits) {
+      titleEl.innerHTML = `<a href="javascript:void(0)" onclick="openCreditsDialogCurrent()" class="goodie-title-link" title="Click to view credits & license">${gameName}</a>`;
+    } else {
+      titleEl.textContent = gameName;
+    }
 
     if (goodie && goodie.iframeUrl) {
-      bodyEl.className = '';
+      bodyEl.className = 'modal-placeholder position-relative';
       bodyEl.style.cssText = 'width:100%;height:100%;';
-      bodyEl.innerHTML = `<iframe
-        class="modal-iframe"
-        src="${goodie.iframeUrl}"
-        title="${goodie.name}"
-        allow="fullscreen"
-        loading="eager"
-      ></iframe>`;
+      bodyEl.innerHTML = `
+        <div id="modal-iframe-loader" class="d-flex flex-column align-items-center justify-content-center w-100 h-100 position-absolute top-0 start-0" style="z-index: 1;">
+          ${SPINNER_SVG}
+          <span class="text-muted small mt-2">Loading demo...</span>
+        </div>
+        <iframe
+          class="modal-iframe"
+          src="${goodie.iframeUrl}"
+          title="${goodie.name}"
+          allow="fullscreen"
+          loading="lazy"
+          style="opacity: 0; transition: opacity 0.3s ease; position: relative; z-index: 2;"
+          onload="this.style.opacity='1'; const l = document.getElementById('modal-iframe-loader'); if(l) l.style.display='none';"
+        ></iframe>`;
     } else {
-      bodyEl.className = 'modal-placeholder';
+      bodyEl.className = 'modal-placeholder d-flex flex-column align-items-center justify-content-center w-100 h-100';
       bodyEl.style.cssText = '';
       bodyEl.innerHTML = `
-        <h1 class="display-3">${gameName}</h1>
-        <p class="text-muted italic">Stay tuned, the engine is charging up!</p>
+        ${SPINNER_SVG}
+        <h2 class="h3 mt-3 mb-1 fw-bold">${gameName}</h2>
+        <p class="text-muted italic small mb-0">Stay tuned, the engine is charging up!</p>
       `;
     }
 
@@ -335,7 +508,89 @@ order: 5
       modal.style.display = 'none';
       document.body.style.overflow = '';
       bodyEl.innerHTML = '';
+      currentOpenGoodie = null;
     }, 260);
   }
+
+  function openCreditsDialogCurrent() {
+    if (currentOpenGoodie && currentOpenGoodie.name) {
+      openCreditsDialog(currentOpenGoodie.name);
+    }
+  }
+
+  function openCreditsDialog(gameName) {
+    const goodie = GOODIES.find(g => g.name === gameName);
+    if (!goodie || !goodie.credits) return;
+
+    const credits = goodie.credits;
+    const creditsModal = document.getElementById('custom-credits-modal');
+    const bodyContent = document.getElementById('credits-modal-body-content');
+
+    bodyContent.innerHTML = `
+      <div class="mb-3">
+        <h5 class="fw-bold mb-1">${credits.title}</h5>
+        <p class="text-muted small mb-0">${credits.description}</p>
+      </div>
+
+      <div class="list-group list-group-flush rounded border">
+        <div class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
+          <span class="text-muted small"><i class="bi bi-person me-2"></i>Author</span>
+          <a href="https://github.com/${credits.githubUser}" target="_blank" rel="noopener noreferrer" class="small text-decoration-none">
+            ${credits.author} (@${credits.githubUser}) <i class="bi bi-box-arrow-up-right ms-1"></i>
+          </a>
+        </div>
+        <div class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
+          <span class="text-muted small"><i class="bi bi-github me-2"></i>Repository</span>
+          <a href="${credits.repoUrl}" target="_blank" rel="noopener noreferrer" class="small text-decoration-none">
+            ${credits.githubUser}/${credits.title.replace(/\\s+/g, '-')} <i class="bi bi-box-arrow-up-right ms-1"></i>
+          </a>
+        </div>
+        <div class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
+          <span class="text-muted small"><i class="bi bi-shield-check me-2"></i>License</span>
+          <a href="${credits.licenseUrl}" target="_blank" rel="noopener noreferrer" class="small text-decoration-none">
+            ${credits.license} <i class="bi bi-box-arrow-up-right ms-1"></i>
+          </a>
+        </div>
+      </div>
+    `;
+
+    creditsModal.classList.remove('closing');
+    creditsModal.style.display = 'flex';
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => creditsModal.classList.add('active'));
+    });
+
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeCreditsDialog(event, force = false) {
+    const creditsModal = document.getElementById('custom-credits-modal');
+    if (!force && event.target !== creditsModal) return;
+
+    creditsModal.classList.add('closing');
+
+    setTimeout(() => {
+      creditsModal.classList.remove('active', 'closing');
+      creditsModal.style.display = 'none';
+      const mainModal = document.getElementById('custom-minigame-modal');
+      if (!mainModal || !mainModal.classList.contains('active')) {
+        document.body.style.overflow = '';
+      }
+    }, 260);
+  }
+
+  // Dismiss on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const creditsModal = document.getElementById('custom-credits-modal');
+      const minigameModal = document.getElementById('custom-minigame-modal');
+      if (creditsModal && creditsModal.classList.contains('active')) {
+        closeCreditsDialog(null, true);
+      } else if (minigameModal && minigameModal.classList.contains('active')) {
+        closeMinigame(null, true);
+      }
+    }
+  });
 </script>
 

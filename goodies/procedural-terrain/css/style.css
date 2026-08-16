@@ -1,0 +1,970 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+:root {
+  --bg-panel: rgba(14, 24, 18, 0.88);
+  --bg-subpanel: rgba(20, 34, 25, 0.85);
+  --bg-control: rgba(28, 48, 35, 0.9);
+  --accent: #4ade80;
+  --accent-active: #16a34a;
+  --accent-glow: rgba(74, 222, 128, 0.25);
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-faint: #64748b;
+  --text-highlight: #86efac;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #070d09;
+  font-family: 'Roboto', sans-serif;
+  color: var(--text-main);
+}
+
+#canvas-container {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  cursor: default;
+}
+
+/* Center Crosshair */
+.crosshair {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 24px;
+  height: 24px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 5;
+  mix-blend-mode: difference;
+}
+
+.crosshair-dot {
+  display: none;
+}
+
+.crosshair-line {
+  position: absolute;
+  background: #ffffff;
+}
+
+.crosshair-top {
+  top: 0;
+  left: 11px;
+  width: 2px;
+  height: 12px;
+}
+
+.crosshair-bottom {
+  bottom: 0;
+  left: 11px;
+  width: 2px;
+  height: 12px;
+}
+
+.crosshair-left {
+  left: 0;
+  top: 11px;
+  width: 12px;
+  height: 2px;
+}
+
+.crosshair-right {
+  right: 0;
+  top: 11px;
+  width: 12px;
+  height: 2px;
+}
+
+/* Linear Scale 0 -> 100 Animations */
+@keyframes linearZoomIn {
+  0% { transform: scale(0); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes linearZoomOut {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0); opacity: 0; }
+}
+
+@keyframes modalLinearZoomIn {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+@keyframes modalLinearZoomOut {
+  0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+}
+
+/* Button Pop-in continuation from 1.5 -> 1.0 */
+@keyframes btnPopInFromScale {
+  0% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1.0);
+  }
+}
+
+/* Glassmorphic Panel */
+.glass-panel {
+  background: var(--bg-panel);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: none;
+  outline: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  color: var(--text-main);
+  z-index: 10;
+}
+
+/* Left-Arranged Scrollable Master Sidebar HUD - Canonical iOS Modal Spring */
+.left-hud-sidebar {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  width: 310px;
+  height: calc(100vh - 2rem);
+  max-height: calc(100vh - 2rem);
+  max-width: calc(100vw - 2rem);
+  display: flex;
+  flex-direction: column;
+  padding: 1.1rem;
+  gap: 0.85rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(74, 222, 128, 0.25) transparent;
+  border-radius: 16px !important;
+  transform-origin: 0 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.left-hud-sidebar::-webkit-scrollbar { width: 4px; }
+.left-hud-sidebar::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+.left-hud-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(74, 222, 128, 0.3);
+  border-radius: 4px;
+}
+.left-hud-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Inner elements container for staged iOS cross-fading */
+.left-hud-sidebar .hud-title-row,
+.left-hud-sidebar .hud-section,
+.left-hud-sidebar .action-btn,
+.left-hud-sidebar .seg-control,
+.left-hud-sidebar .hud-header {
+  transition: opacity 0.22s ease-out;
+  opacity: 1;
+  min-width: 272px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.left-hud-sidebar .hud-top-actions > :not(#btn-collapse-hud) {
+  transition: opacity 0.22s ease-out;
+  opacity: 1;
+}
+
+/* ── Animation State: Disable overflow slider & scrollbars to eliminate jank ── */
+.left-hud-sidebar.animating {
+  overflow: hidden !important;
+  pointer-events: none !important;
+  user-select: none !important;
+}
+
+.left-hud-sidebar.animating * {
+  pointer-events: none !important;
+}
+
+/* ── Collapsed Button State (2.75rem x 2.75rem pill) ── */
+.left-hud-sidebar.collapsed {
+  width: 2.75rem !important;
+  height: 2.75rem !important;
+  max-height: 2.75rem !important;
+  padding: 0 !important;
+  pointer-events: auto;
+  cursor: pointer;
+  border-radius: 16px !important; /* Matches panel 16px corner radius perfectly */
+  overflow: hidden !important;
+  animation: none !important;
+  transform: none !important;
+  opacity: 0.5 !important; /* 50% opacity when unhovered */
+  box-shadow: none !important; /* No drop shadow when unhovered */
+  background: var(--bg-panel);
+  transition:
+    opacity 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.2s ease,
+    transform 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.left-hud-sidebar.collapsed:hover {
+  opacity: 1.0 !important; /* Full opacity on hover */
+  background: var(--bg-control);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important; /* Drop shadow on hover */
+  transform: none !important;
+}
+
+/* Content hidden immediately during collapse */
+.left-hud-sidebar.collapsed .hud-title-row,
+.left-hud-sidebar.collapsed .hud-section,
+.left-hud-sidebar.collapsed .action-btn,
+.left-hud-sidebar.collapsed .seg-control {
+  opacity: 0 !important;
+  pointer-events: none;
+  display: none !important;
+}
+
+/* Header collapses to fill entire button area */
+.left-hud-sidebar.collapsed .hud-header {
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  gap: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  flex-shrink: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.left-hud-sidebar.collapsed .hud-top-actions {
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  gap: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Hide all action buttons except the morph toggle button */
+.left-hud-sidebar.collapsed .hud-top-actions > :not(#btn-collapse-hud) {
+  display: none !important;
+}
+
+.left-hud-sidebar.collapsed #btn-collapse-hud {
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  border-radius: 16px !important;
+  border: none !important;
+  flex: unset !important;
+  background: transparent !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #4ade80 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* ── Morph icon cross-fade ── */
+.morph-icon-open,
+.morph-icon-closed {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--text-muted);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  pointer-events: none;
+}
+
+.morph-icon-open svg,
+.morph-icon-closed svg {
+  display: block;
+  stroke: currentColor;
+}
+
+/* Open state: show chevron, hide expand icon */
+.morph-icon-open  { opacity: 1; transform: scale(1); visibility: visible; }
+.morph-icon-closed { opacity: 0; transform: scale(0.6); visibility: hidden; }
+
+/* Collapsed state: direct static rendering to guarantee full visibility */
+.left-hud-sidebar.collapsed .morph-icon-open  { display: none !important; }
+.left-hud-sidebar.collapsed .morph-icon-closed {
+  position: static !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+  color: #4ade80 !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.left-hud-sidebar.collapsed .morph-icon-closed svg {
+  display: block !important;
+  visibility: visible !important;
+  stroke: #4ade80 !important;
+  color: #4ade80 !important;
+  width: 20px !important;
+  height: 20px !important;
+}
+
+/* The morph button needs relative positioning for absolute icon children */
+#btn-collapse-hud {
+  position: relative;
+}
+
+/* HUD Header: Two Rows (Title on top, Buttons below) */
+.hud-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+
+.hud-title-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.3rem;
+}
+
+.hud-title {
+  font-size: 1.08rem;
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  color: var(--text-main);
+  text-transform: none;
+}
+
+.hud-top-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 0.35rem;
+}
+
+.hud-top-actions .icon-btn {
+  flex: 1;
+  min-width: 0;
+  width: auto;
+  height: 2.15rem;
+}
+
+/* Sidebar Group Category Header with In-Line Rule */
+.hud-group-title {
+  font-size: 0.76rem;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0.03em;
+  color: var(--accent);
+  margin-top: 0.75rem;
+  margin-bottom: 0.2rem;
+  padding-bottom: 0;
+  border-bottom: none;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+}
+
+.hud-group-title::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.left-hud-sidebar .hud-group-title {
+  transition: opacity 0.22s ease-out;
+  opacity: 1;
+  min-width: 272px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.left-hud-sidebar.collapsed .hud-group-title {
+  display: none !important;
+}
+
+/* Perfectly Centered Icon Buttons */
+.icon-btn {
+  background: var(--bg-subpanel);
+  border: none;
+  outline: none;
+  color: var(--text-muted);
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1;
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, filter 0.1s ease;
+  flex-shrink: 0;
+}
+
+.icon-btn i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  line-height: 1;
+}
+
+.icon-btn:hover {
+  background: var(--bg-control);
+  color: var(--text-main);
+}
+
+.icon-btn:active {
+  filter: brightness(80%);
+}
+
+.icon-btn.active {
+  background: var(--accent-active);
+  color: #ffffff;
+}
+
+/* Top-Right Telemetry HUD */
+.telemetry-hud {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.85rem 1rem;
+  min-width: 210px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transform-origin: top right;
+  border-radius: 14px;
+  background: var(--bg-panel);
+  box-shadow: none !important; /* No drop shadow when unhovered */
+  opacity: 0.5; /* 50% opacity when unhovered, matching sidebar panel */
+  transition:
+    opacity 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.2s ease;
+  visibility: visible;
+  overflow: hidden;
+  will-change: transform, opacity, width, height;
+}
+
+.telemetry-hud:hover {
+  opacity: 1.0 !important; /* Full opacity on hover */
+  background: var(--bg-control);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important; /* Drop shadow on hover */
+}
+
+.telemetry-hud.hidden {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
+
+.telemetry-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.telemetry-title {
+  font-size: 0.74rem;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.telemetry-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.telemetry-item {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.telemetry-label {
+  color: var(--text-faint);
+  font-size: 0.68rem;
+  font-weight: 500;
+  text-transform: none;
+}
+
+.telemetry-val {
+  font-weight: 600;
+  color: var(--text-highlight);
+}
+
+/* HUD Form Sections */
+.hud-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.hud-section-label {
+  font-size: 0.74rem;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  color: var(--text-faint);
+  font-weight: 700;
+}
+
+/* Segmented Control Buttons */
+.seg-control {
+  display: flex;
+  background: var(--bg-subpanel);
+  padding: 3px;
+  border-radius: 8px;
+  gap: 2px;
+}
+
+.seg-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-muted);
+  padding: 0.42rem 0.4rem;
+  font-size: 0.78rem;
+  font-family: inherit;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: center;
+  text-transform: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.seg-btn:hover {
+  color: var(--text-main);
+}
+
+.seg-btn:active {
+  filter: brightness(85%);
+}
+
+.seg-btn.active {
+  background: var(--accent-active);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* Styled Select Dropdown (No borders) */
+.select-styled {
+  width: 100%;
+  background: var(--bg-subpanel);
+  border: none;
+  outline: none;
+  color: var(--text-main);
+  padding: 0.48rem 0.75rem;
+  font-size: 0.82rem;
+  font-family: inherit;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.select-styled option {
+  background: #0f1c14;
+  color: var(--text-main);
+}
+
+/* Sliders & Controls */
+.control-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-transform: none;
+}
+
+.range-slider {
+  width: 100%;
+  height: 4px;
+  background: var(--bg-control);
+  border: none;
+  outline: none;
+  border-radius: 2px;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+.range-slider::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: none;
+  cursor: pointer;
+}
+
+/* Toggle Switches */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-transform: none;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider-round {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--bg-control);
+  transition: 0.2s;
+  border-radius: 20px;
+}
+
+.slider-round:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: #ffffff;
+  transition: 0.2s;
+  border-radius: 50%;
+}
+
+input:checked + .slider-round {
+  background-color: var(--accent-active);
+}
+
+input:checked + .slider-round:before {
+  transform: translateX(16px);
+}
+
+/* Action Primary Button */
+.action-btn {
+  width: 100%;
+  background: var(--bg-subpanel);
+  border: none;
+  outline: none;
+  color: var(--accent);
+  padding: 0.55rem 1rem;
+  font-size: 0.82rem;
+  font-family: inherit;
+  font-weight: 600;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  text-transform: none;
+  transition: background 0.15s ease, color 0.15s ease;
+  flex-shrink: 0;
+  margin-top: 0.2rem;
+}
+
+.action-btn:hover {
+  background: var(--accent);
+  color: #070d09;
+}
+
+.action-btn:active {
+  filter: brightness(85%);
+}
+
+/* Instructions Modal (Linear scale 0->100, no fade) */
+.instructions-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 1.5rem;
+  max-width: 400px;
+  width: 90%;
+  display: none;
+  transform-origin: center center;
+}
+
+.instructions-overlay.show {
+  display: block;
+  animation: modalLinearZoomIn 0.22s linear forwards;
+}
+
+.instructions-overlay.hiding {
+  display: block;
+  animation: modalLinearZoomOut 0.22s linear forwards;
+}
+
+.instructions-overlay h3 {
+  margin-bottom: 0.75rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-transform: none;
+}
+
+.instructions-overlay ul {
+  list-style: none;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.key-badge {
+  display: inline-block;
+  background: var(--bg-control);
+  border-radius: 4px;
+  padding: 0.1rem 0.4rem;
+  font-family: monospace;
+  font-size: 0.76rem;
+  color: var(--accent);
+  margin-right: 0.4rem;
+}
+
+/* Floating Sidebar Toggle Button */
+.btn-open-hud {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  color: var(--text-main);
+  background: var(--bg-panel);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 10px;
+  cursor: pointer;
+  z-index: 9;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+  transform: scale(0.85);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+.btn-open-hud.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+/* Pointer Lock Warning Toast */
+.pointer-warning-toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  padding: 0.75rem 1.4rem;
+  font-size: 0.85rem;
+  color: #f87171;
+  background: rgba(30, 15, 18, 0.92);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  z-index: 100;
+  text-align: center;
+  max-width: 90vw;
+}
+
+.pointer-warning-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* F3 Minecraft-Style Debug Overlay */
+.f3-debug-overlay {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  right: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+  z-index: 20;
+  font-family: 'Roboto Mono', monospace, sans-serif;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: #ffffff;
+  text-shadow: 1px 1px 2px #000000;
+}
+
+.f3-debug-overlay.hidden {
+  display: none;
+}
+
+.f3-left, .f3-right {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: rgba(0, 0, 0, 0.45);
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+}
+
+.f3-right {
+  text-align: right;
+}
+
+.f3-debug-overlay strong {
+  color: var(--accent);
+}
+
+@media (max-width: 600px) {
+  .left-hud-sidebar {
+    width: calc(100vw - 2rem);
+    bottom: 1rem;
+    max-height: calc(100vh - 2rem);
+  }
+  .telemetry-hud {
+    right: 0.5rem;
+    top: 0.5rem;
+    min-width: 190px;
+    padding: 0.6rem 0.75rem;
+  }
+  .f3-debug-overlay {
+    font-size: 0.68rem;
+  }
+}
+
+/* Underwater Visual Effects Overlay */
+.underwater-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 4;
+  display: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  overflow: hidden;
+}
+
+.underwater-tint {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 50% 30%, rgba(10, 80, 120, 0.35) 0%, rgba(4, 25, 45, 0.72) 100%);
+  mix-blend-mode: multiply;
+}
+
+.underwater-vignette {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  box-shadow: inset 0 0 120px rgba(2, 18, 32, 0.85);
+}
+
+.underwater-caustics {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background-image: radial-gradient(ellipse at center, rgba(140, 235, 255, 0.22) 0%, transparent 65%),
+                    radial-gradient(circle at 30% 40%, rgba(100, 210, 255, 0.18) 0%, transparent 50%),
+                    radial-gradient(circle at 70% 60%, rgba(120, 230, 255, 0.2) 0%, transparent 55%);
+  background-size: 180px 180px, 240px 240px, 320px 320px;
+  background-position: var(--caustic-x, 0px) var(--caustic-y, 0px),
+                      calc(var(--caustic-x, 0px) * -0.7) calc(var(--caustic-y, 0px) * 0.8),
+                      calc(var(--caustic-x, 0px) * 0.5) calc(var(--caustic-y, 0px) * -0.6);
+  mix-blend-mode: screen;
+  filter: blur(1.5px);
+  animation: causticWobble 4s ease-in-out infinite alternate;
+}
+
+@keyframes causticWobble {
+  0% { transform: scale(1.0) rotate(0deg); }
+  100% { transform: scale(1.05) rotate(2deg); }
+}

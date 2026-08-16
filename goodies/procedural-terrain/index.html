@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Infinite Procedural Terrain</title>
+  <!-- Google Fonts: Roboto -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- WebGL Render Canvas Container -->
+  <div id="canvas-container"></div>
+
+  <!-- Center Screen Crosshair -->
+  <div class="crosshair">
+    <div class="crosshair-dot"></div>
+    <div class="crosshair-line crosshair-top"></div>
+    <div class="crosshair-line crosshair-bottom"></div>
+    <div class="crosshair-line crosshair-left"></div>
+    <div class="crosshair-line crosshair-right"></div>
+  </div>
+
+  <!-- Top-Right Live Stats HUD -->
+  <aside id="telemetry-hud" class="telemetry-hud glass-panel">
+    <div class="telemetry-grid">
+      <div class="telemetry-item">
+        <span class="telemetry-label">Position (x, z)</span>
+        <span class="telemetry-val"><span id="stat-x">0</span>, <span id="stat-z">0</span></span>
+      </div>
+      <div class="telemetry-item">
+        <span class="telemetry-label">Altitude (y)</span>
+        <span id="stat-alt" class="telemetry-val">45m</span>
+      </div>
+      <div class="telemetry-item">
+        <span class="telemetry-label">Frame rate</span>
+        <span id="stat-fps" class="telemetry-val">60 FPS</span>
+      </div>
+      <div class="telemetry-item">
+        <span class="telemetry-label">Biome</span>
+        <span id="stat-biome" class="telemetry-val">Temperate Plains</span>
+      </div>
+      <div class="telemetry-item">
+        <span class="telemetry-label">Active chunks</span>
+        <span id="stat-chunks" class="telemetry-val">121</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- F3 Advanced Debug Overlay (Minecraft Style) -->
+  <aside id="f3-debug-overlay" class="f3-debug-overlay hidden">
+    <div class="f3-left">
+      <div><strong>Procedural Engine 2.0</strong> (WebGL2 / Three.js r128)</div>
+      <div id="f3-fps">60 fps (16.6 ms)</div>
+      <div id="f3-xyz">XYZ: 0.000 / 45.000 / 0.000</div>
+      <div id="f3-block">Block: 0 45 0</div>
+      <div id="f3-chunk">Chunk: 0 0 in [0, 0]</div>
+      <div id="f3-facing">Facing: North (Towards negative Z) (0.0 / -4.5)</div>
+      <div id="f3-climate">Climate: Temp: 0.00 | Hum: 0.00 | Cont: 0.00</div>
+      <div id="f3-biome">Biome: minecraft:plains (Vast Grassy Plains)</div>
+      <div id="f3-light">Sun Elevation: 45.0° | Sky Mode: Dynamic</div>
+    </div>
+    <div class="f3-right">
+      <div id="f3-chunks">Chunks: 121 active (0 queued)</div>
+      <div id="f3-render">Draw calls: 45 | Triangles: 185k</div>
+      <div id="f3-mem">Mem: Heap 42MB / 128MB</div>
+      <div id="f3-water">Water: Collision Active | Depth Sim: On</div>
+      <div id="f3-clouds">Clouds: PBR Volumetric (18 steps)</div>
+      <div>Borders: Active (<kbd>F3</kbd> to toggle)</div>
+    </div>
+  </aside>
+
+  <!-- Left-Arranged Master Sidebar HUD -->
+  <aside id="left-hud" class="left-hud-sidebar glass-panel">
+    <!-- Header: Title on Top Row, Action Buttons on Next Row -->
+    <div class="hud-header">
+      <div class="hud-title-row">
+        <span class="hud-title">Procedural Terrain</span>
+      </div>
+      <div class="hud-top-actions">
+        <button id="btn-sound" class="icon-btn" title="Toggle 3D spatial audio (M)">
+          <i class="bi bi-volume-mute-fill"></i>
+        </button>
+        <button id="btn-telemetry-toggle" class="icon-btn active" title="Toggle live stats">
+          <i class="bi bi-activity"></i>
+        </button>
+        <button id="btn-wireframe" class="icon-btn" title="Toggle wireframe mesh">
+          <i class="bi bi-grid-3x3"></i>
+        </button>
+        <button id="btn-info" class="icon-btn" title="Controls & shortcuts (H)">
+          <i class="bi bi-question-circle"></i>
+        </button>
+        <button id="btn-collapse-hud" class="icon-btn hud-morph-btn" title="Toggle UI panel">
+          <!-- Inline SVG Vector Icons (Guarantees 100% crisp visibility across all devices) -->
+          <span class="morph-icon-open">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </span>
+          <span class="morph-icon-closed">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="3" ry="3"></rect>
+              <line x1="9" y1="3" x2="9" y2="21"></line>
+              <path d="M14 9l3 3-3 3"></path>
+            </svg>
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Performance ── -->
+    <div class="hud-group-title">Performance</div>
+    <div class="hud-section">
+      <div class="seg-control">
+        <button id="btn-autotune-on" class="seg-btn active" data-autotune="on">Auto</button>
+        <button id="btn-autotune-off" class="seg-btn" data-autotune="off">Max Quality</button>
+        <button id="btn-autotune-manual" class="seg-btn" data-autotune="manual">Manual</button>
+      </div>
+    </div>
+
+    <div class="hud-section">
+      <div class="control-row">
+        <span>VSync target</span>
+        <span id="label-vsync-target" class="telemetry-val">Auto (60 Hz)</span>
+      </div>
+      <div class="seg-control">
+        <button class="seg-btn active" data-vsync="auto">Auto</button>
+        <button class="seg-btn" data-vsync="60">60 FPS</button>
+        <button class="seg-btn" data-vsync="120">120 FPS</button>
+        <button class="seg-btn" data-vsync="144">144 FPS</button>
+      </div>
+    </div>
+
+    <div class="hud-section">
+      <div class="control-row">
+        <span>Render scale</span>
+        <span id="label-render-scale" class="telemetry-val">1.0x</span>
+      </div>
+      <input id="slider-render-scale" type="range" min="0.5" max="2.0" value="1.0" step="0.05" class="range-slider">
+    </div>
+
+    <!-- ── Navigation ── -->
+    <div class="hud-group-title">Navigation</div>
+    <div class="hud-section">
+      <span class="hud-section-label">Camera mode</span>
+      <div class="seg-control">
+        <button class="seg-btn active" data-mode="cinematic">Cinematic</button>
+        <button class="seg-btn" data-mode="free">Free cam</button>
+        <button class="seg-btn" data-mode="walk">Explore</button>
+      </div>
+    </div>
+
+    <div class="hud-section">
+      <div class="control-row">
+        <span>Flight speed</span>
+        <span id="label-speed" class="telemetry-val">35 m/s</span>
+      </div>
+      <input id="slider-speed" type="range" min="15" max="120" value="35" class="range-slider">
+    </div>
+
+    <div class="hud-section">
+      <div class="control-row">
+        <span>Field of view</span>
+        <span id="label-fov" class="telemetry-val">60°</span>
+      </div>
+      <input id="slider-fov" type="range" min="40" max="110" value="60" step="1" class="range-slider">
+    </div>
+
+    <!-- ── Terrain ── -->
+    <div class="hud-group-title">Terrain</div>
+    <div class="hud-section">
+      <div class="control-row">
+        <span>Render distance</span>
+        <span id="label-render-dist" class="telemetry-val">6 chunks</span>
+      </div>
+      <input id="slider-render-dist" type="range" min="3" max="10" value="6" class="range-slider">
+    </div>
+
+    <div class="hud-section">
+      <div class="control-row">
+        <span>Mesh tessellation</span>
+        <span id="label-res" class="telemetry-val">64</span>
+      </div>
+      <input id="slider-res" type="range" min="32" max="128" value="64" step="8" class="range-slider">
+    </div>
+
+    <div class="hud-section">
+      <div class="control-row">
+        <span>Terrain height</span>
+        <span id="label-height" class="telemetry-val">65m</span>
+      </div>
+      <input id="slider-height" type="range" min="20" max="220" value="65" class="range-slider">
+    </div>
+
+    <div class="hud-section">
+      <div class="control-row">
+        <span>Terrain roughness</span>
+        <span id="label-roughness" class="telemetry-val">0.85x</span>
+      </div>
+      <input id="slider-roughness" type="range" min="0.2" max="2.5" value="0.85" step="0.05" class="range-slider">
+    </div>
+
+    <div class="hud-section">
+      <div class="toggle-row">
+        <span>Foliage elements</span>
+        <label class="switch">
+          <input id="toggle-foliage" type="checkbox" checked>
+          <span class="slider-round"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- ── Atmosphere ── -->
+    <div class="hud-group-title">Atmosphere</div>
+    <div class="hud-section">
+      <div class="control-row">
+        <span>Time of day</span>
+        <span id="label-time" class="telemetry-val">17:30 Sunset</span>
+      </div>
+      <input id="slider-time" type="range" min="0" max="24" value="17.5" step="0.25" class="range-slider">
+    </div>
+
+    <div class="hud-section">
+      <div class="toggle-row">
+        <span>Day-night progression</span>
+        <label class="switch">
+          <input id="toggle-cycle" type="checkbox">
+          <span class="slider-round"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="hud-section">
+      <div class="control-row">
+        <span>Shadow quality</span>
+        <span id="label-shadows" class="telemetry-val">High (2K)</span>
+      </div>
+      <div class="seg-control">
+        <button class="seg-btn" data-shadow="off">Off</button>
+        <button class="seg-btn" data-shadow="1024">Low</button>
+        <button class="seg-btn active" data-shadow="2048">High</button>
+        <button class="seg-btn" data-shadow="4096">Ultra</button>
+      </div>
+    </div>
+
+    <div class="hud-section">
+      <div class="control-row">
+        <span>Atmosphere fog</span>
+        <span id="label-fog" class="telemetry-val">91%</span>
+      </div>
+      <input id="slider-fog" type="range" min="0" max="250" value="91" class="range-slider">
+    </div>
+
+    <div class="hud-section">
+      <div class="control-row">
+        <span>Exposure level</span>
+        <span id="label-exposure" class="telemetry-val">1.15x</span>
+      </div>
+      <input id="slider-exposure" type="range" min="0.4" max="2.2" value="1.15" step="0.05" class="range-slider">
+    </div>
+
+    <div class="hud-section">
+      <div class="toggle-row">
+        <span>Contact ambient shadows</span>
+        <label class="switch">
+          <input id="toggle-ao-reflections" type="checkbox">
+          <span class="slider-round"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- ── Clouds ── -->
+    <div class="hud-group-title">Clouds</div>
+    <div class="hud-section">
+      <div class="toggle-row">
+        <span>Volumetric clouds</span>
+        <label class="switch">
+          <input id="toggle-clouds" type="checkbox" checked>
+          <span class="slider-round"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="hud-section">
+      <div class="control-row">
+        <span>Cloud ray steps</span>
+        <span id="label-cloud-steps" class="telemetry-val">16</span>
+      </div>
+      <input id="slider-cloud-steps" type="range" min="6" max="24" value="16" step="2" class="range-slider">
+    </div>
+
+    <div class="hud-section">
+      <div class="control-row">
+        <span>Cloud altitude</span>
+        <span id="label-cloud-height" class="telemetry-val">220m</span>
+      </div>
+      <input id="slider-cloud-height" type="range" min="120" max="420" value="220" step="10" class="range-slider">
+    </div>
+
+    <!-- ── Water ── -->
+    <div class="hud-group-title">Water</div>
+    <div class="hud-section">
+      <div class="toggle-row">
+        <span>Water surface</span>
+        <label class="switch">
+          <input id="toggle-water" type="checkbox" checked>
+          <span class="slider-round"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="hud-section">
+      <div class="toggle-row">
+        <span>Dynamic wave displacement</span>
+        <label class="switch">
+          <input id="toggle-shaders" type="checkbox" checked>
+          <span class="slider-round"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="hud-section">
+      <div class="control-row">
+        <span>Water level</span>
+        <span id="label-water-level" class="telemetry-val">3m</span>
+      </div>
+      <input id="slider-water-level" type="range" min="-10" max="25" value="3" class="range-slider">
+    </div>
+
+    <div class="hud-section">
+      <div class="control-row">
+        <span>Wave height</span>
+        <span id="label-waves" class="telemetry-val">0.35x</span>
+      </div>
+      <input id="slider-waves" type="range" min="0.0" max="2.5" value="0.35" step="0.05" class="range-slider">
+    </div>
+
+    <div class="hud-section">
+      <div class="control-row">
+        <span>Wave speed</span>
+        <span id="label-wave-speed" class="telemetry-val">1.0x</span>
+      </div>
+      <input id="slider-wave-speed" type="range" min="0.2" max="3.0" value="1.0" step="0.1" class="range-slider">
+    </div>
+
+    <!-- ── Audio ── -->
+    <div class="hud-group-title">Audio</div>
+    <div class="hud-section">
+      <div class="control-row">
+        <span>Ambient volume</span>
+        <span id="label-volume" class="telemetry-val">100%</span>
+      </div>
+      <input id="slider-volume" type="range" min="0" max="200" value="100" class="range-slider">
+    </div>
+
+    <!-- World Generator Button -->
+    <button id="btn-seed" class="action-btn" title="Randomize world seed (R)">
+      <i class="bi bi-shuffle"></i> Generate new world
+    </button>
+  </aside>
+
+  <!-- Help & Instructions Overlay (Linear Zoom) -->
+  <div id="instructions-modal" class="instructions-overlay glass-panel">
+    <h3>
+      <span>Controls & shortcuts</span>
+      <button id="btn-close-info" class="icon-btn" style="width:1.8rem;height:1.8rem;font-size:0.8rem;">✕</button>
+    </h3>
+    <ul>
+      <li><span class="key-badge">Click</span> Lock / capture mouse cursor</li>
+      <li><span class="key-badge">Esc</span> Release mouse cursor / close modal</li>
+      <li><span class="key-badge">Mouse</span> Look around / steer camera</li>
+      <li><span class="key-badge">W A S D</span> Move forward / back / strafe</li>
+      <li><span class="key-badge">Space / C</span> Ascend / descend (or jump)</li>
+      <li><span class="key-badge">Shift</span> Turbo speed boost</li>
+      <li><span class="key-badge">F3</span> Toggle chunk borders & debug HUD</li>
+      <li><span class="key-badge">R</span> Randomize terrain seed</li>
+      <li><span class="key-badge">M</span> Toggle 3D ambient audio</li>
+      <li><span class="key-badge">H</span> Toggle this help menu</li>
+    </ul>
+  </div>
+
+  <!-- Three.js & Engine Modules -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/utils/BufferGeometryUtils.js"></script>
+  <script src="js/noise.js"></script>
+  <script src="js/sky.js"></script>
+  <script src="js/clouds.js"></script>
+  <script src="js/water.js"></script>
+  <script src="js/terrain.js"></script>
+  <script src="js/controls.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/physics.js"></script>
+  <script src="js/ssao.js"></script>
+  <script src="js/underwater.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
