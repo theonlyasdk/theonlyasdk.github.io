@@ -2,22 +2,110 @@
 @use '../abstracts/breakpoints' as bp;
 @use '../abstracts/placeholders';
 
+@-webkit-keyframes popup-zoom-in {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes popup-zoom-in {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@-webkit-keyframes popup-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes popup-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@-webkit-keyframes popup-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes popup-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@-webkit-keyframes toast-zoom-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+}
+
+@keyframes toast-zoom-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+}
+
+@-webkit-keyframes toast-fade-out {
+  from {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-50%) scale(1);
+  }
+}
+
+@keyframes toast-fade-out {
+  from {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-50%) scale(1);
+  }
+}
+
 /* PWA update popup */
 #notification {
-  @-webkit-keyframes popup {
-    from {
-      opacity: 0;
-      bottom: 0;
-    }
-  }
-
-  @keyframes popup {
-    from {
-      opacity: 0;
-      bottom: 0;
-    }
-  }
-
   .toast-header {
     background: none;
     border-bottom: none;
@@ -51,18 +139,19 @@
       left: 50%;
       bottom: 10%;
       transform: translateX(-50%);
-      -webkit-animation: popup 0.8s;
-      animation: popup 0.8s;
-      animation-timing-function: v.$easing-func;
+      -webkit-animation: toast-zoom-in 0.3s cubic-bezier(0.09, 0.11, 0, 1.14) forwards;
+      animation: toast-zoom-in 0.3s cubic-bezier(0.09, 0.11, 0, 1.14) forwards;
+    }
+
+    &.hiding,
+    &.fade:not(.show) {
+      -webkit-animation: toast-fade-out 0.2s ease-out forwards;
+      animation: toast-fade-out 0.2s ease-out forwards;
     }
   }
 }
 
 #toc-popup {
-  $slide-in: slide-in 550ms v.$easing-func;
-  $slide-out: slide-out 400ms v.$easing-func;
-  $fade-in: fade-in 550ms v.$easing-func;
-  $fade-out: fade-out 400ms v.$easing-func;
   $curtain-height: 2rem;
   $backdrop: blur(5px);
   
@@ -82,13 +171,13 @@
   }
 
   &[open] {
-    -webkit-animation: $slide-in;
-    animation: $slide-in;
+    -webkit-animation: popup-zoom-in 0.3s cubic-bezier(0.09, 0.11, 0, 1.14) forwards;
+    animation: popup-zoom-in 0.3s cubic-bezier(0.09, 0.11, 0, 1.14) forwards;
   }
 
   &[closing] {
-    -webkit-animation: $slide-out;
-    animation: $slide-out;
+    -webkit-animation: popup-fade-out 0.2s ease-out forwards;
+    animation: popup-fade-out 0.2s ease-out forwards;
   }
 
   @include bp.lg {
@@ -162,13 +251,13 @@
   &::backdrop {
     -webkit-backdrop-filter: $backdrop;
     backdrop-filter: $backdrop;
-    -webkit-animation: $fade-in;
-    animation: $fade-in;
+    -webkit-animation: popup-fade-in 0.3s cubic-bezier(0.09, 0.11, 0, 1.14) forwards;
+    animation: popup-fade-in 0.3s cubic-bezier(0.09, 0.11, 0, 1.14) forwards;
   }
   
   &[closing]::backdrop {
-    -webkit-animation: $fade-out;
-    animation: $fade-out;
+    -webkit-animation: popup-fade-out 0.2s ease-out forwards;
+    animation: popup-fade-out 0.2s ease-out forwards;
   }
 
   &::after {
