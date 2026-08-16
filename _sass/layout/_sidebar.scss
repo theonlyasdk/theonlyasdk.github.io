@@ -307,14 +307,24 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
         transform: scale(0.9);
         transition: opacity 0.2s ease-out, transform 0.2s ease-out, visibility 0s linear 0.2s;
 
-        &.show {
-          opacity: 1;
-          visibility: visible;
-          pointer-events: auto;
-          transform: scale(1);
-          transition: opacity 0.25s cubic-bezier(0.09, 0.11, 0, 1.14), transform 0.25s cubic-bezier(0.09, 0.11, 0, 1.14), visibility 0s linear 0s;
+        &.show:not(.fade-out) {
+          display: flex;
+          flex-direction: column;
+          gap: 0.2rem;
+          left: -0.25rem !important;
           -webkit-animation: ios-menu-zoom 0.25s cubic-bezier(0.09, 0.11, 0, 1.14) forwards;
           animation: ios-menu-zoom 0.25s cubic-bezier(0.09, 0.11, 0, 1.14) forwards;
+        }
+
+        &.fade-out {
+          display: flex !important;
+          flex-direction: column;
+          gap: 0.2rem;
+          left: -0.25rem !important;
+          opacity: 0 !important;
+          transform: scale(0.9) !important;
+          transition: opacity 0.2s ease-out, transform 0.2s ease-out !important;
+          pointer-events: none !important;
         }
 
         .dropdown-item {
@@ -337,10 +347,10 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
 
           &:hover:not(:active):not(.active) {
             background-color: var(--menu-hover-bg);
-            color: var(--sidebar-active-color);
+            color: var(--sidebar-muted-color);
 
             > i {
-              color: var(--sidebar-active-color);
+              color: var(--sidebar-btn-color);
             }
           }
 
