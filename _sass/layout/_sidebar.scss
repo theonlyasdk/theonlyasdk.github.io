@@ -288,6 +288,10 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
       }
 
       + .dropdown-menu {
+        display: flex !important;
+        flex-direction: column;
+        gap: 0.2rem;
+        left: -0.25rem !important;
         background-color: var(--menu-bg);
         border: 1px solid var(--menu-border-color);
         box-shadow: 0 10px 30px var(--menu-shadow-color), 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -297,12 +301,17 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
         padding: 0.35rem !important;
         min-width: 9.5rem;
         transform-origin: bottom left;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transform: scale(0.85);
+        transition: opacity 0.2s ease-out, transform 0.2s ease-out, visibility 0.2s ease-out;
 
         &.show {
-          display: flex;
-          flex-direction: column;
-          gap: 0.2rem;
-          left: -0.25rem !important;
+          opacity: 1;
+          visibility: visible;
+          pointer-events: auto;
+          transform: scale(1);
           -webkit-animation: ios-menu-zoom 0.25s cubic-bezier(0.09, 0.11, 0, 1.14) forwards;
           animation: ios-menu-zoom 0.25s cubic-bezier(0.09, 0.11, 0, 1.14) forwards;
         }
@@ -316,9 +325,22 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
           background-color: transparent;
           transition: background-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
 
+          > i {
+            color: var(--sidebar-btn-color);
+            margin-right: 0.6rem;
+            font-size: 0.95rem;
+            width: 1.1rem;
+            text-align: center;
+            transition: color 0.15s ease;
+          }
+
           &:hover:not(:active):not(.active) {
             background-color: var(--menu-hover-bg);
             color: var(--sidebar-active-color);
+
+            > i {
+              color: var(--sidebar-active-color);
+            }
           }
 
           &.active {
@@ -331,11 +353,15 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
               filter: brightness(1.05);
             }
 
+            > i,
+            &::after {
+              color: var(--menu-active-color);
+            }
+
             &::after {
               content: '\f00c';
               font: var(--fa-font-solid);
               font-size: 0.8rem;
-              color: var(--sidebar-btn-color);
               margin-left: auto;
               padding-left: 0.85rem;
             }
@@ -345,14 +371,11 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
             background-color: var(--menu-pressed-bg) !important;
             transform: scale(0.97);
             color: var(--menu-active-color);
-          }
 
-          > i {
-            color: var(--sidebar-btn-color);
-            margin-right: 0.6rem;
-            font-size: 0.95rem;
-            width: 1.1rem;
-            text-align: center;
+            > i,
+            &::after {
+              color: var(--menu-active-color);
+            }
           }
         }
       }
