@@ -96,42 +96,6 @@
           </li>
         </ul>
       </div>
-      <script>
-        (function () {
-          function initThemeFadeOut() {
-            var toggle = document.getElementById('mode-toggle');
-            var menu = document.querySelector('#mode-toggle + .dropdown-menu');
-            if (!toggle || !menu) return;
-
-            var isClosing = false;
-            toggle.addEventListener('hide.bs.dropdown', function (e) {
-              if (!isClosing) {
-                e.preventDefault();
-                isClosing = true;
-                menu.classList.add('fade-out');
-                setTimeout(function () {
-                  menu.classList.remove('fade-out');
-                  var dropdown = window.bootstrap?.Dropdown?.getInstance(toggle);
-                  if (dropdown) {
-                    dropdown.hide();
-                  } else {
-                    menu.classList.remove('show');
-                    toggle.classList.remove('show');
-                    toggle.setAttribute('aria-expanded', 'false');
-                  }
-                  isClosing = false;
-                }, 180);
-              }
-            });
-          }
-
-          if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initThemeFadeOut);
-          } else {
-            initThemeFadeOut();
-          }
-        })();
-      </script>
 
       {% if site.data.contact.size > 0 %}
         <span class="icon-border"></span>
