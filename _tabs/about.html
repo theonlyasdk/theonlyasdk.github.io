@@ -289,7 +289,7 @@ order: 5
 <p><strong>Hello!</strong> I'm <strong>ASDK</strong>. Nothing special about me, just another guy who likes to tinker with software.</p>
 <p>I make stuff and post them here in my freetime. Feel free to contribute to any of my repositories if you find silly bugs in them!</p>
 
-<h1 class="mt-5 mb-4">Goodies</h2>
+<h1 class="mt-5 mb-4">Goodies</h1>
 <h3>What are Goodies? Can I eat them?</h3>
 <small>Absolutely not! Goodies include minigames, demos and experiments.</small>
 <div class="row row-cols-1 row-cols-md-2 g-4 mt-2" id="goodies-grid"></div>
@@ -328,7 +328,7 @@ order: 5
     {
       name: 'Fluid simulation',
       description: 'A gorgeous WebGL simulation of fluid dynamics, smoke, and particles in real-time.',
-      image: '{{ "/assets/img/goodies/fluid_simulation.png" | relative_url }}',
+      image: '{{ "/assets/img/goodies/fluid_simulation.png" | absolute_url }}',
       iframeUrl: 'https://paveldogreat.github.io/WebGL-Fluid-Simulation/',
       credits: {
         title: 'WebGL Fluid Simulation',
@@ -343,29 +343,29 @@ order: 5
     {
       name: 'Cellular automaton',
       description: 'Explore complex patterns emerging from simple rules in a grid-based universe.',
-      image: '{{ "/assets/img/goodies/cellular_automaton.png" | relative_url }}',
+      image: '{{ "/assets/img/goodies/cellular_automaton.png" | absolute_url }}',
     },
     {
       name: 'Procedural terrain',
       description: 'Infinite procedural terrain generation with dynamic biomes and atmospheric horizon fog.',
-      image: '{{ "/assets/img/goodies/procedural_terrain.png" | relative_url }}',
-      iframeUrl: '{{ "/goodies/procedural-terrain/index.html" | relative_url }}',
+      image: '{{ "/assets/img/goodies/procedural_terrain.png" | absolute_url }}',
+      iframeUrl: '{{ "/goodies/procedural-terrain/index.html" | absolute_url }}',
     },
     {
       name: 'Sorting visualizer',
       description: 'Watch sorting algorithms organize data in a beautiful visual performance.',
-      image: '{{ "/assets/img/goodies/sorting_visualizer.png" | relative_url }}',
-      iframeUrl: '{{ "/goodies/sorting-visualizer/index.html" | relative_url }}',
+      image: '{{ "/assets/img/goodies/sorting_visualizer.png" | absolute_url }}',
+      iframeUrl: '{{ "/goodies/sorting-visualizer/index.html" | absolute_url }}',
     },
     {
       name: 'Fractal viewer',
       description: 'Dive deep into the infinite complexity of Mandelbrot and Julia sets.',
-      image: '{{ "/assets/img/goodies/fractal_viewer.png" | relative_url }}',
+      image: '{{ "/assets/img/goodies/fractal_viewer.png" | absolute_url }}',
     },
     {
       name: 'Terminal emulator',
       description: 'A retro-style command line interface running directly in your browser.',
-      image: '{{ "/assets/img/goodies/terminal_emulator.png" | relative_url }}',
+      image: '{{ "/assets/img/goodies/terminal_emulator.png" | absolute_url }}',
       iframeUrl: 'https://theonlyasdk.github.io/blockterm/',
     },
   ];
