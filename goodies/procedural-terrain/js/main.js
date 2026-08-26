@@ -13,6 +13,9 @@ class TerrainApp {
     this.initManagers();
 
     this.clock = new THREE.Clock();
+    this.cameraVelocity = new THREE.Vector3();
+    this.lastCamPos = this.camera.position.clone();
+    this.currentWadePos = new THREE.Vector2();
     this.animate();
 
     window.addEventListener('resize', () => this.onResize());
@@ -34,7 +37,7 @@ class TerrainApp {
       powerPreference: 'high-performance'
     });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.0));
+    this.renderer.setPixelRatio(this.getBasePixelRatio());
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.15;
     this.renderer.shadowMap.enabled = true;
@@ -86,6 +89,11 @@ class TerrainApp {
     this.detectScreenRefresh();
   }
 
+  getBasePixelRatio() {
+    // A 1.5× cap keeps high-DPI displays sharp while avoiding a 4× fill-rate cost.
+    return Math.min(window.devicePixelRatio || 1, 1.5);
+  }
+
   detectScreenRefresh() {
     let frames = 0;
     const start = performance.now();
@@ -111,7 +119,7 @@ class TerrainApp {
 
   setRenderScale(scale) {
     this.currentScale = scale;
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.0) * scale);
+    this.renderer.setPixelRatio(this.getBasePixelRatio() * scale);
   }
 
   setMaxQuality() {
@@ -120,7 +128,7 @@ class TerrainApp {
 
     // Turn all options to absolute maximum quality
     this.currentScale = 2.0;
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.0) * 1.5);
+    this.renderer.setPixelRatio(this.getBasePixelRatio() * 1.5);
     this.terrain.setViewRadius(8);
     this.terrain.setResolution(128);
     this.setShadowQuality('4096');
@@ -157,7 +165,7 @@ class TerrainApp {
 
   applyProfile(p) {
     this.currentScale = Math.min(1.0, p.scale);
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.0) * this.currentScale);
+    this.renderer.setPixelRatio(this.getBasePixelRatio() * this.currentScale);
     this.terrain.setViewRadius(p.chunks);
     this.terrain.setResolution(p.res);
     this.setShadowQuality(p.shadow);
@@ -252,7 +260,7 @@ class TerrainApp {
       this.lastQualityAdjust = elapsedTime;
       if (this.currentScale > 0.60) {
         this.currentScale = Math.max(0.60, this.currentScale - 0.08);
-        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.0) * this.currentScale);
+        this.renderer.setPixelRatio(this.getBasePixelRatio() * this.currentScale);
         if (this.ui && this.ui.syncRenderScale) this.ui.syncRenderScale(this.currentScale);
       } else if (this.terrain.viewRadius > 4) {
         this.terrain.setViewRadius(this.terrain.viewRadius - 1);
@@ -261,7 +269,7 @@ class TerrainApp {
     } else if (avgFps >= target - 0.5 && this.currentScale < 1.0) {
       this.lastQualityAdjust = elapsedTime;
       this.currentScale = Math.min(1.0, this.currentScale + 0.05);
-      this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.0) * this.currentScale);
+      this.renderer.setPixelRatio(this.getBasePixelRatio() * this.currentScale);
       if (this.ui && this.ui.syncRenderScale) this.ui.syncRenderScale(this.currentScale);
     }
   }
@@ -282,8 +290,7 @@ class TerrainApp {
     this.updateAutoQuality(delta, elapsedTime);
 
     // Calculate player 3D movement velocity vector
-    if (!this.lastCamPos) this.lastCamPos = this.camera.position.clone();
-    const vel3D = new THREE.Vector3().subVectors(this.camera.position, this.lastCamPos).multiplyScalar(delta > 0 ? (1.0 / delta) : 0);
+    const vel3D = this.cameraVelocity.subVectors(this.camera.position, this.lastCamPos).multiplyScalar(delta > 0 ? (1.0 / delta) : 0);
     const playerSpeed = vel3D.length();
     this.lastCamPos.copy(this.camera.position);
 
@@ -296,11 +303,11 @@ class TerrainApp {
       if (!this.lastWadePos) this.lastWadePos = new THREE.Vector2(this.camera.position.x, this.camera.position.z);
       if (!this.lastWadeTime) this.lastWadeTime = 0;
 
-      const curPos = new THREE.Vector2(this.camera.position.x, this.camera.position.z);
-      const movedDist = curPos.distanceTo(this.lastWadePos);
+      this.currentWadePos.set(this.camera.position.x, this.camera.position.z);
+      const movedDist = this.currentWadePos.distanceTo(this.lastWadePos);
       if (movedDist > 0.8 && (elapsedTime - this.lastWadeTime) > 0.22) {
         this.water.addRipple(this.camera.position.x, this.camera.position.z, elapsedTime);
-        this.lastWadePos.copy(curPos);
+        this.lastWadePos.copy(this.currentWadePos);
         this.lastWadeTime = elapsedTime;
       }
     }

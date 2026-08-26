@@ -2,7 +2,7 @@
 
 This document contains proposed improvements for theonlyasdk.github.io. Suggestions are grouped by impact rather than implementation order.
 
-## User experience
+## User experience - done
 
 - Add a visible fallback message when a goodie image or embedded demo fails to load.
 - Add a short “Open demo in a new tab” action for iframe-based goodies.

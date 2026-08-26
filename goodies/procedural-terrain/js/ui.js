@@ -36,6 +36,7 @@ class UIManager {
 
     this.frameCount = 0;
     this.lastFpsTime = performance.now();
+    this.lastStatsUpdate = 0;
     this.currentFps = 60;
   }
 
@@ -963,6 +964,10 @@ class UIManager {
       this.lastFpsTime = now;
       if (this.statFps) this.statFps.textContent = `${this.currentFps} FPS`;
     }
+
+    // Avoid repeated climate sampling and DOM writes on every rendered frame.
+    if (now - this.lastStatsUpdate < 100) return;
+    this.lastStatsUpdate = now;
 
     const cam = this.app.camera;
     const camPos = cam.position;

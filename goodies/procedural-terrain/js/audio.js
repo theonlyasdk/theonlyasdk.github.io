@@ -23,6 +23,13 @@ class AudioManager {
     this.shoreEmitters = [];
     this.ridgeEmitters = [];
     this.foliageEmitters = [];
+
+    // Reused per-frame vectors keep the spatial-audio update free of garbage.
+    this.listenerForward = new THREE.Vector3();
+    this.listenerUp = new THREE.Vector3();
+    this.windVector = new THREE.Vector3();
+    this.relativeAirVector = new THREE.Vector3();
+    this.apparentWindVector = new THREE.Vector3();
   }
 
   setMasterVolume(vol) {
@@ -225,8 +232,8 @@ class AudioManager {
     if (!this.audioCtx || !this.audioCtx.listener) return;
 
     const p = camera.position;
-    const f = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
-    const u = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion);
+    const f = this.listenerForward.set(0, 0, -1).applyQuaternion(camera.quaternion);
+    const u = this.listenerUp.set(0, 1, 0).applyQuaternion(camera.quaternion);
 
     const listener = this.audioCtx.listener;
     if (listener.positionX) {
@@ -256,7 +263,7 @@ class AudioManager {
     }
   }
 
-  update(time, camera, generator, waterLevel = 3.0, velocity = new THREE.Vector3()) {
+  update(time, camera, generator, waterLevel = 3.0, velocity = null) {
     if (!this.soundPlaying || !this.audioCtx) return;
 
     // 1. Update 3D Web Audio Spatial Listener
@@ -285,15 +292,15 @@ class AudioManager {
     }
 
     const localWindSpeed = this.baseWindSpeed * gustFactor * boundaryLayerProfile * slopeSpeedup;
-    const windVec = new THREE.Vector3(
+    const windVec = this.windVector.set(
       Math.cos(this.windHeading) * localWindSpeed,
       0.0,
       Math.sin(this.windHeading) * localWindSpeed
     );
 
     // Relative Airspeed Vector: V_rel = V_camera - W_wind
-    const velVec = (velocity instanceof THREE.Vector3) ? velocity : new THREE.Vector3(0, 0, velocity || 0);
-    const relAirVec = new THREE.Vector3().subVectors(velVec, windVec);
+    const velVec = (velocity instanceof THREE.Vector3) ? velocity : this.apparentWindVector.set(0, 0, velocity || 0);
+    const relAirVec = this.relativeAirVector.subVectors(velVec, windVec);
     const relAirspeed = relAirVec.length();
 
     // Barometric Air Density: rho(h) = rho_0 * exp(-h / H_b)
@@ -311,7 +318,7 @@ class AudioManager {
     this.windFilter.frequency.setTargetAtTime(aeroCutoff, this.audioCtx.currentTime, 0.08);
 
     // 3D Airflow Origin Panner (air rushes towards the camera from the apparent wind vector)
-    const apparentWindDir = relAirVec.clone().normalize();
+    const apparentWindDir = this.apparentWindVector.copy(relAirVec).normalize();
     this.set3DPosition(this.windPanner, camPos.x - apparentWindDir.x * 12.0, camPos.y - apparentWindDir.y * 12.0, camPos.z - apparentWindDir.z * 12.0);
 
     // Aeroacoustic Vortex Whistling (Strouhal shedding frequency)

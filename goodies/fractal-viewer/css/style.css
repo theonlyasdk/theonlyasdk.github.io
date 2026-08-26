@@ -1,0 +1,26 @@
+@import url('../../sorting-visualizer/css/style.css');
+
+.fractal-hint { color: var(--text-faint); font-size: 0.72rem; line-height: 1.45; padding: 0 0.15rem; }
+.custom-resolution { display: grid; grid-template-columns: 1fr 1fr auto; gap: .4rem; margin-top: .55rem; align-items: end; }
+.custom-resolution label { color: var(--text-muted); font-size: .68rem; display: grid; gap: .2rem; }
+.custom-resolution input { width: 100%; min-width: 0; border: 1px solid rgba(148, 163, 184, .28); border-radius: 6px; background: var(--bg-control); color: var(--text-main); padding: .38rem; font: inherit; }
+.custom-resolution .action-btn { padding: .43rem .55rem; min-width: auto; }
+.resolution-warning { margin: .55rem 0 0; color: #fbbf24; font-size: .7rem; line-height: 1.4; }
+
+.telemetry-hud { position: absolute; right: 1rem; top: 1rem; width: 220px; padding: 1rem; border-radius: 16px; z-index: 10; transition: opacity .2s ease, transform .2s ease; }
+.telemetry-hud.hidden { opacity: 0; pointer-events: none; transform: scale(.92); }
+.telemetry-header { display: flex; justify-content: space-between; color: var(--accent); font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: .8rem; }
+.telemetry-grid { display: grid; grid-template-columns: 1fr auto; gap: .5rem .8rem; font-size: .78rem; color: var(--text-muted); }
+.telemetry-grid b { color: var(--text-main); font-weight: 600; text-align: right; }
+
+.fractal-modal { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; padding: 1rem; background: rgba(2, 6, 23, .72); }
+.fractal-modal[hidden] { display: none; }
+.fractal-modal-card { position: relative; max-width: 440px; padding: 1.5rem; border-radius: 16px; color: var(--text-main); }
+.fractal-modal-card h2 { font-size: 1.1rem; margin-bottom: .8rem; }
+.fractal-modal-card p { color: var(--text-muted); font-size: .9rem; line-height: 1.55; margin: .6rem 0; }
+.fractal-modal-close { position: absolute; right: .7rem; top: .7rem; }
+.webgl-error { display: grid; place-content: center; width: 100%; height: 100%; padding: 2rem; text-align: center; color: var(--text-main); background: var(--bg-space); }
+.webgl-error p { max-width: 34rem; color: var(--text-muted); margin-top: .75rem; line-height: 1.5; }
+
+@media (max-width: 720px) { .telemetry-hud { top: auto; bottom: 1rem; right: 1rem; width: 190px; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
