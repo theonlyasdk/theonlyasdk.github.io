@@ -1,0 +1,42 @@
+- name: Fluid simulation
+  category: Simulations
+  description: A gorgeous WebGL simulation of fluid dynamics, smoke, and particles in real-time.
+  image: /assets/img/goodies/fluid_simulation.png
+  iframe_url: https://paveldogreat.github.io/WebGL-Fluid-Simulation/
+  credits:
+    title: WebGL Fluid Simulation
+    author: Pavel Dobryakov
+    github_user: PavelDoGreat
+    repo_url: https://github.com/PavelDoGreat/WebGL-Fluid-Simulation
+    license: MIT License
+    license_url: https://github.com/PavelDoGreat/WebGL-Fluid-Simulation/blob/master/LICENSE
+    description: Original WebGL Fluid Simulation created by Pavel Dobryakov. Licensed under the MIT License.
+
+- name: Cellular automaton
+  category: Experiments
+  description: Explore complex patterns emerging from simple rules in a grid-based universe.
+  image: /assets/img/goodies/cellular_automaton.png
+
+- name: Procedural terrain
+  category: Demos
+  description: Infinite procedural terrain generation with dynamic biomes and atmospheric horizon fog.
+  image: /assets/img/goodies/procedural_terrain.png
+  iframe_url: /goodies/procedural-terrain/index.html
+
+- name: Sorting visualizer
+  category: Tools
+  description: Watch sorting algorithms organize data in a beautiful visual performance.
+  image: /assets/img/goodies/sorting_visualizer.png
+  iframe_url: /goodies/sorting-visualizer/index.html
+
+- name: Fractal viewer
+  category: Experiments
+  description: Dive deep into the infinite complexity of Mandelbrot and Julia sets.
+  image: /assets/img/goodies/fractal_viewer.png
+  iframe_url: /goodies/fractal-viewer/index.html
+
+- name: Terminal emulator
+  category: Tools
+  description: A retro-style command line interface running directly in your browser.
+  image: /assets/img/goodies/terminal_emulator.png
+  iframe_url: https://theonlyasdk.github.io/blockterm/

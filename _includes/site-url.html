@@ -1,0 +1,8 @@
+<script>
+  window.siteUrl = function (path) {
+    const value = String(path || '/');
+    if (/^(?:[a-z]+:)?\/\//i.test(value)) return value;
+    const base = {{ site.baseurl | default: '' | jsonify }}.replace(/\/$/, '');
+    return `${base}/${value.replace(/^\//, '')}`;
+  };
+</script>
