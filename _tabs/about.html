@@ -49,6 +49,88 @@ order: 5
   .goodie-card:active {
     filter: brightness(90%);
   }
+
+  .goodie-image-fallback {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    text-align: center;
+    color: var(--text-muted-color);
+    background: var(--main-bg);
+  }
+
+  .goodie-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .goodie-filter button:focus-visible,
+  .goodie-card:focus-visible,
+  .goodie-demo-link:focus-visible {
+    outline: 3px solid var(--link-color);
+    outline-offset: 3px;
+  }
+
+  .goodie-filter-btn {
+    background-color: var(--card-bg);
+    border-radius: 0.5em;
+    padding: 0.2em 0.7em;
+    border-color: var(--btn-border-color);
+    box-shadow: var(--filter-btn-shadow);
+    color: var(--text-color);
+    user-select: none;
+    transition: all 0.3s ease;
+    outline: none;
+    border: none;
+  }
+
+  .goodie-filter-btn:hover,
+  .goodie-filter-btn:active,
+  .goodie-filter-btn.active {
+    background: var(--card-bg-active);
+    box-shadow: var(--filter-btn-shadow-active);
+  }
+
+  .goodie-demo-link {
+    align-self: flex-start;
+    margin: 1rem 2rem 0;
+  }
+
+  .goodie-modal-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .goodie-modal-demo-link {
+    white-space: nowrap;
+  }
+
+  .goodie-error-link {
+    margin-top: 0.75rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .goodie-card,
+    .custom-modal-content,
+    .custom-modal-overlay,
+    .modal-iframe {
+      animation: none;
+      transition: none;
+    }
+
+    .goodie-card {
+      opacity: 1;
+    }
+
+    .goodie-spinner {
+      display: none !important;
+    }
+  }
   @keyframes slideIn {
     from {
       opacity: 0;
@@ -292,6 +374,7 @@ order: 5
 <h1 class="mt-5 mb-4">Goodies</h1>
 <h3>What are Goodies? Can I eat them?</h3>
 <small>Absolutely not! Goodies include minigames, demos and experiments.</small>
+<div class="goodie-filter" id="goodie-filter" aria-label="Filter goodies"></div>
 <div class="row row-cols-1 row-cols-md-2 g-4 mt-2" id="goodies-grid"></div>
 
 <!-- Custom Mini-game Modal -->
@@ -299,7 +382,10 @@ order: 5
   <div class="custom-modal-content">
     <div class="custom-modal-header">
       <h3 id="custom-modal-title" style="margin: 0;">Mini-game</h3>
-      <button class="modal-close-btn" onclick="closeMinigame(event, true)">&times;</button>
+      <div class="goodie-modal-actions">
+        <a id="custom-modal-demo-link" class="goodie-modal-demo-link small" href="#" target="_blank" rel="noopener noreferrer" hidden>Open demo in a new tab</a>
+        <button class="modal-close-btn" aria-label="Close demo" onclick="closeMinigame(event, true)">&times;</button>
+      </div>
     </div>
     <div class="custom-modal-body">
       <div id="modal-body-content" class="modal-placeholder">
@@ -327,6 +413,7 @@ order: 5
   const GOODIES = [
     {
       name: 'Fluid simulation',
+      category: 'Simulations',
       description: 'A gorgeous WebGL simulation of fluid dynamics, smoke, and particles in real-time.',
       image: '{{ "/assets/img/goodies/fluid_simulation.png" | absolute_url }}',
       iframeUrl: 'https://paveldogreat.github.io/WebGL-Fluid-Simulation/',
@@ -342,28 +429,33 @@ order: 5
     },
     {
       name: 'Cellular automaton',
+      category: 'Experiments',
       description: 'Explore complex patterns emerging from simple rules in a grid-based universe.',
       image: '{{ "/assets/img/goodies/cellular_automaton.png" | absolute_url }}',
     },
     {
       name: 'Procedural terrain',
+      category: 'Demos',
       description: 'Infinite procedural terrain generation with dynamic biomes and atmospheric horizon fog.',
       image: '{{ "/assets/img/goodies/procedural_terrain.png" | absolute_url }}',
       iframeUrl: '{{ "/goodies/procedural-terrain/index.html" | absolute_url }}',
     },
     {
       name: 'Sorting visualizer',
+      category: 'Tools',
       description: 'Watch sorting algorithms organize data in a beautiful visual performance.',
       image: '{{ "/assets/img/goodies/sorting_visualizer.png" | absolute_url }}',
       iframeUrl: '{{ "/goodies/sorting-visualizer/index.html" | absolute_url }}',
     },
     {
       name: 'Fractal viewer',
+      category: 'Experiments',
       description: 'Dive deep into the infinite complexity of Mandelbrot and Julia sets.',
       image: '{{ "/assets/img/goodies/fractal_viewer.png" | absolute_url }}',
     },
     {
       name: 'Terminal emulator',
+      category: 'Tools',
       description: 'A retro-style command line interface running directly in your browser.',
       image: '{{ "/assets/img/goodies/terminal_emulator.png" | absolute_url }}',
       iframeUrl: 'https://theonlyasdk.github.io/blockterm/',
@@ -372,9 +464,19 @@ order: 5
 
   let currentOpenGoodie = null;
 
-  (function renderGoodies() {
+  function showImageFallback(img) {
+    img.style.display = 'none';
+    const fallback = document.createElement('div');
+    fallback.className = 'goodie-image-fallback';
+    fallback.textContent = 'Preview unavailable. The goodie is still available.';
+    img.parentElement.appendChild(fallback);
+  }
+
+  function renderGoodies(category = 'All') {
     const grid = document.getElementById('goodies-grid');
-    GOODIES.forEach((goodie, index) => {
+    grid.replaceChildren();
+    GOODIES.filter(goodie => category === 'All' || goodie.category === category)
+      .forEach((goodie, index) => {
       const delay = ((index + 1) * 0.1).toFixed(1);
       const col = document.createElement('div');
       col.className = 'col';
@@ -396,6 +498,7 @@ order: 5
       img.src = goodie.image;
       img.alt = goodie.name;
       img.loading = 'lazy';
+      img.addEventListener('error', () => showImageFallback(img), { once: true });
       cardCover.appendChild(img);
 
       if (goodie.credits) {
@@ -424,7 +527,29 @@ order: 5
       card.appendChild(desc);
       col.appendChild(card);
       grid.appendChild(col);
+      });
+  }
+
+  (function setupGoodieFilters() {
+    const filter = document.getElementById('goodie-filter');
+    const categories = ['All', ...new Set(GOODIES.map(goodie => goodie.category))];
+    categories.forEach(category => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = `btn-search-filter goodie-filter-btn${category === 'All' ? ' active' : ''}`;
+      button.textContent = category;
+      button.setAttribute('aria-pressed', category === 'All' ? 'true' : 'false');
+      button.addEventListener('click', () => {
+        filter.querySelectorAll('button').forEach(item => {
+          const selected = item === button;
+          item.classList.toggle('active', selected);
+          item.setAttribute('aria-pressed', selected ? 'true' : 'false');
+        });
+        renderGoodies(category);
+      });
+      filter.appendChild(button);
     });
+    renderGoodies();
   })();
 
   const SPINNER_SVG = `
@@ -450,8 +575,17 @@ order: 5
     const modal   = document.getElementById('custom-minigame-modal');
     const bodyEl  = document.getElementById('modal-body-content');
     const titleEl = document.getElementById('custom-modal-title');
+    const demoLinkEl = document.getElementById('custom-modal-demo-link');
     const goodie  = GOODIES.find(g => g.name === gameName);
     currentOpenGoodie = goodie || null;
+
+    if (goodie && goodie.iframeUrl) {
+      demoLinkEl.href = goodie.iframeUrl;
+      demoLinkEl.hidden = false;
+    } else {
+      demoLinkEl.hidden = true;
+      demoLinkEl.removeAttribute('href');
+    }
 
     if (goodie && goodie.credits) {
       titleEl.innerHTML = `<a href="javascript:void(0)" onclick="openCreditsDialogCurrent()" class="goodie-title-link" title="Click to view credits & license">${gameName}</a>`;
@@ -463,7 +597,7 @@ order: 5
       bodyEl.className = 'modal-placeholder position-relative';
       bodyEl.style.cssText = 'width:100%;height:100%;';
       bodyEl.innerHTML = `
-        <div id="modal-iframe-loader" class="d-flex flex-column align-items-center justify-content-center w-100 h-100 position-absolute top-0 start-0" style="z-index: 1;">
+        <div id="modal-iframe-loader" class="d-flex flex-column align-items-center justify-content-center w-100 h-100 position-absolute top-0 start-0" style="z-index: 1;" role="status" aria-live="polite">
           ${SPINNER_SVG}
           <span class="text-muted small mt-2">Loading demo...</span>
         </div>
@@ -476,6 +610,10 @@ order: 5
           style="opacity: 0; transition: opacity 0.3s ease; position: relative; z-index: 2;"
           onload="this.style.opacity='1'; const l = document.getElementById('modal-iframe-loader'); if(l) l.style.display='none';"
         ></iframe>`;
+      const iframe = bodyEl.querySelector('iframe');
+      iframe.addEventListener('error', () => {
+        bodyEl.innerHTML = `<div class="modal-placeholder"><h2 class="h3">Demo unavailable</h2><p class="text-muted">This demo could not be loaded here.</p><a class="goodie-error-link" href="#goodies">Back to goodies</a></div>`;
+      }, { once: true });
     } else {
       bodyEl.className = 'modal-placeholder d-flex flex-column align-items-center justify-content-center w-100 h-100';
       bodyEl.style.cssText = '';
@@ -483,6 +621,7 @@ order: 5
         ${SPINNER_SVG}
         <h2 class="h3 mt-3 mb-1 fw-bold">${gameName}</h2>
         <p class="text-muted italic small mb-0">Stay tuned, the engine is charging up!</p>
+        <a class="goodie-error-link" href="#goodies">Back to goodies</a>
       `;
     }
 
