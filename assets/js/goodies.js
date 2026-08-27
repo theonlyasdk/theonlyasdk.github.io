@@ -27,8 +27,8 @@
       card.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') openMinigame(goodie.name); });
       const cover = document.createElement('div'); cover.className = 'card-cover';
       const image = document.createElement('img'); image.src = siteUrl(goodie.image); image.alt = goodie.name; image.loading = 'lazy'; image.addEventListener('error', () => imageFallback(image), { once: true }); cover.appendChild(image);
-      if (goodie.credits) { const info = document.createElement('button'); info.type = 'button'; info.className = 'goodie-info-btn'; info.title = 'View credits & license'; info.setAttribute('aria-label', 'View credits and license'); info.innerHTML = '<i class="bi bi-info-lg"></i>'; info.addEventListener('click', event => { event.stopPropagation(); openCreditsDialog(goodie.name); }); cover.appendChild(info); }
-      const title = document.createElement('h5'); title.className = 'card-title'; title.innerHTML = `<b>${goodie.name}</b>`;
+      if (goodie.credits) { const info = document.createElement('button'); info.type = 'button'; info.className = 'goodie-info-btn'; info.title = 'View credits & license'; info.setAttribute('aria-label', 'View credits and license'); info.innerHTML = '<svg class="goodie-info-icon" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 1024 1024"><path d="M0 0h1024v1024H0z" fill="none" /><path fill="currentColor" d="M448 224a64 64 0 1 0 128 0a64 64 0 1 0-128 0m96 168h-64c-4.4 0-8 3.6-8 8v464c0 4.4 3.6 8 8 8h64c4.4 0 8-3.6 8-8V400c0-4.4-3.6-8-8-8" /></svg><span class="goodie-info-text">Credits</span>'; info.addEventListener('click', event => { event.stopPropagation(); openCreditsDialog(goodie.name); }); cover.appendChild(info); }
+      const title = document.createElement('h5'); title.className = 'card-title'; title.textContent = goodie.name;
       const description = document.createElement('p'); description.className = 'text-muted small'; description.textContent = goodie.description;
       card.append(cover, title, description); col.appendChild(card); grid.appendChild(col);
     });

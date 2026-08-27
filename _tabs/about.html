@@ -40,11 +40,14 @@ order: 5
   .goodie-card h5 {
     padding: 0 2rem;
     margin-top: 1.5rem;
+    font-size: calc(1.25rem + 16px);
+    font-weight: 300;
   }
 
   .goodie-card p {
     padding: 0 2rem;
     margin-bottom: 0;
+    line-height: calc(1.5 - 4px);
   }
   .goodie-card:active {
     filter: brightness(90%);
@@ -293,31 +296,63 @@ order: 5
     position: absolute;
     top: 0.75rem;
     right: 0.75rem;
-    width: 2.1rem;
     height: 2.1rem;
-    border-radius: 50%;
+    width: 2.1rem;
+    border-radius: 999px;
     background: rgba(0, 0, 0, 0.65);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.25);
+    border: 2px solid rgba(255, 255, 255, 0.25);
     color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0;
+    overflow: hidden;
+    cursor: pointer;
+    z-index: 5;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease, border-color 0.2s ease, filter 0.1s ease, transform 0.1s ease;
+  }
+
+  .goodie-info-icon {
+    flex-shrink: 0;
+    width: 2.1rem;
+    height: 2.1rem;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.15rem;
-    cursor: pointer;
-    z-index: 5;
-    transition: background-color 0.15s ease, filter 0.1s ease, transform 0.1s ease;
+    margin-left: -2px;
+  }
+
+  .goodie-info-text {
+    font-size: 0.85rem;
+    font-weight: 300;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateX(-6px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    padding-right: 0.85rem;
+    padding-left: 0.2rem;
+    color: #ffffff;
   }
 
   .goodie-info-btn:hover {
+    width: 6.6rem;
     background: rgba(0, 0, 0, 0.85);
+    border-color: rgba(255, 255, 255, 0.45);
     color: #ffffff;
+  }
+
+  .goodie-info-btn:hover .goodie-info-text {
+    opacity: 1;
+    transform: translateX(0);
   }
 
   .goodie-info-btn:active {
     filter: brightness(60%);
-    transform: scale(0.92);
+    transform: scale(0.95);
   }
 
   .goodie-title-link {
