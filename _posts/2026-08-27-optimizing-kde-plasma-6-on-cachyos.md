@@ -64,6 +64,8 @@ Background daemons can accumulate over time on rolling-release installs. Auditin
 
 ---
 
-For a deeper look into the underlying package optimizations and how custom kernels handle multitasking loads, check out the [CachyOS Performance Tweaks Review](https://www.youtube.com/watch?v=KiAetYZJ7IY).
+## Credits & References
+
+- [CachyOS Performance Tweaks Review](https://www.youtube.com/watch?v=KiAetYZJ7IY) — Covers underlying system optimizations, package architecture comparisons, and kernel performance benchmarks under multitasking workloads.
 
 Thanks for reading!
