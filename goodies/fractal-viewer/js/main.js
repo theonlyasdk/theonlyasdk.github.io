@@ -240,6 +240,56 @@ const BAILOUT_BIGINT = 256n << BF.PREC;
 const TWO_PREC = BF.PREC - 1n;
 const PREC_NUM = Math.pow(2, Number(BF.PREC));
 
+const mlModel = {
+  enabled: true,
+  samples: 0,
+  biasX: 0.0,
+  biasY: 0.0,
+  biasMagnitude: 0.0,
+  targetDensity: 0.70,
+  velocityWeight: 1.0,
+  confidence: 0,
+  
+  updateFromPan(deltaX, deltaY, dtMs) {
+    if (!this.enabled || dtMs <= 0) return;
+    const speed = Math.hypot(deltaX, deltaY) / (dtMs || 16);
+    if (speed < 0.01) return;
+    
+    this.samples++;
+    const lr = Math.min(0.22, 0.06 + 1.0 / (this.samples + 8));
+    
+    const len = Math.hypot(deltaX, deltaY);
+    // User drags in screen coords; camera pans in opposite direction
+    const dirX = -deltaX / len;
+    const dirY = deltaY / len;
+    
+    this.biasX = (1.0 - lr) * this.biasX + lr * dirX;
+    this.biasY = (1.0 - lr) * this.biasY + lr * dirY;
+    this.biasMagnitude = Math.min(1.0, Math.hypot(this.biasX, this.biasY));
+    this.velocityWeight = clamp((1.0 - lr) * this.velocityWeight + lr * (speed * 0.9), 0.5, 2.5);
+    this.confidence = Math.min(99, Math.round(this.biasMagnitude * Math.min(1.0, this.samples / 12) * 100));
+  },
+  
+  scoreCandidate(dx, dy, rawScore, iter, maxIter) {
+    if (!this.enabled || this.samples < 2) return rawScore;
+    const dist = Math.hypot(dx, dy);
+    if (dist < 1e-4) return rawScore;
+    
+    const dirX = dx / dist;
+    const dirY = dy / dist;
+    
+    // Directional alignment score
+    const dot = dirX * this.biasX + dirY * this.biasY;
+    const dirBoost = 1.0 + 0.6 * dot * (this.confidence / 100);
+    
+    // Filament density alignment score
+    const iterRatio = iter / maxIter;
+    const densityMatch = 1.0 - Math.abs(iterRatio - this.targetDensity) * 0.45;
+    
+    return rawScore * dirBoost * Math.max(0.2, densityMatch);
+  }
+};
+
 function generateOrbit(maxIter = state.iterations) {
   const aspect = canvas.width / canvas.height;
   
@@ -329,13 +379,14 @@ function generateOrbit(maxIter = state.iterations) {
         bestUV = [0.5 + dx, 0.5 + dy];
       }
       
-      // High-precision filament detection
+      // High-precision filament detection calibrated with ML guidance
       if (iter < maxIter && iter > 8) {
         const distSq = (dx * dx + dy * dy) / (radius * radius * 2.0);
         const centerWeight = Math.max(0.05, 1.0 - distSq);
         const edgeScore = Math.pow(iter, sensExp) * centerWeight;
-        if (edgeScore > maxEdgeScore) {
-          maxEdgeScore = edgeScore;
+        const finalScore = mlModel.scoreCandidate(dx, dy, edgeScore, iter, maxIter);
+        if (finalScore > maxEdgeScore) {
+          maxEdgeScore = finalScore;
           bestEdgeRelX = dx;
           bestEdgeRelY = dy;
         }
@@ -470,6 +521,17 @@ function render() {
   $('telemetry-zoom').textContent = zoomText;
   $('telemetry-centre').textContent = `${state.x.toNumber().toFixed(6)}, ${state.y.toNumber().toFixed(6)}`;
   $('telemetry-render').textContent = `GPU · ${canvas.width} × ${canvas.height}`;
+  const elML = $('telemetry-ml');
+  if (elML) {
+    if (!mlModel.enabled) {
+      elML.textContent = 'Disabled';
+    } else if (mlModel.samples === 0) {
+      elML.textContent = 'Active (Listening)';
+    } else {
+      const deg = Math.round((Math.atan2(mlModel.biasY, mlModel.biasX) * 180 / Math.PI + 360) % 360);
+      elML.textContent = `${mlModel.confidence}% conf · ${deg}° bias`;
+    }
+  }
   requestAnimationFrame(() => { state.slowFrameScore = clamp(state.slowFrameScore + (performance.now() - renderStarted > 45 ? 1 : -1), 0, 3); updateResolutionWarning(canvas.width, canvas.height); });
 }
 
@@ -560,6 +622,9 @@ function initControls() {
   const toggleDynamic = $('toggle-dynamic-iter');
   if (toggleDynamic) toggleDynamic.addEventListener('change', event => { state.dynamicIter = event.target.checked; scheduleRender(); });
 
+  const toggleML = $('toggle-ml-guidance');
+  if (toggleML) toggleML.addEventListener('change', event => { mlModel.enabled = event.target.checked; scheduleRender(); });
+
   $('toggle-smooth').addEventListener('change', event => { state.smooth = event.target.checked; scheduleRender(); });
   const selectAA = $('select-aa');
   if (selectAA) selectAA.addEventListener('change', event => {
@@ -575,6 +640,7 @@ function initControls() {
   $('btn-close-info').addEventListener('click', () => { $('info-modal').hidden = true; });
 }
 
+let lastPanTime = performance.now();
 function initInput() {
   canvas.addEventListener('wheel', event => {
     event.preventDefault();
@@ -596,13 +662,22 @@ function initInput() {
     state.moved = false;
     state.lastX = event.clientX;
     state.lastY = event.clientY;
+    lastPanTime = performance.now();
     canvas.setPointerCapture(event.pointerId);
   });
   canvas.addEventListener('pointermove', event => {
     if (!state.dragging) return;
     state.homing = false;
+    const now = performance.now();
+    const dt = now - lastPanTime;
+    lastPanTime = now;
+
     const deltaX = event.clientX - state.lastX, deltaY = event.clientY - state.lastY, rect = canvas.getBoundingClientRect(), aspect = canvas.width / canvas.height;
     if (Math.hypot(deltaX, deltaY) > 2) state.moved = true;
+    
+    // Feed pan physics into ML model for online adaptation
+    mlModel.updateFromPan(deltaX, deltaY, dt);
+
     state.x = state.x.sub(state.scale.mul(new BF(deltaX / rect.width * aspect)));
     state.y = state.y.add(state.scale.mul(new BF(deltaY / rect.height)));
     state.lastX = event.clientX;
@@ -637,32 +712,27 @@ function animate() {
     const currentScaleNum = Math.max(1e-75, state.scale.toNumber());
     const targetScaleNum = state.homeTargetScale.toNumber();
     const logDist = Math.max(0, Math.log10(targetScaleNum / currentScaleNum));
-    const totalLogRange = Math.max(0.1, (state.homeTargetLog || 0.5) - (state.homeStartLog || -10));
-    const currentLog = Math.log10(currentScaleNum);
-    const progress = clamp((currentLog - (state.homeStartLog || -10)) / totalLogRange, 0.0, 1.0);
     
-    // Cubic smoothstep ease for progress
-    const smoothT = progress * progress * (3.0 - 2.0 * progress);
+    const zoomMultiplier = 1.08 + Math.min(0.38, logDist * 0.022);
+    let ns = state.scale.mul(new BF(zoomMultiplier));
     
-    // Curved trajectory around the central black cardioid
     const startX = state.homeStartX || state.x;
     const startY = state.homeStartY || state.y;
     const dxBF = state.homeTargetX.sub(startX);
     const dyBF = state.homeTargetY.sub(startY);
     
-    // Arc bows outward away from center (y=0) to avoid traversing the black region
+    // Macro progress kicks in only once scale reaches visible macroscopic range (> 0.02)
+    // Holds the exact micro center during deep unwinding!
+    const macroProgress = clamp((currentScaleNum - 0.02) / (targetScaleNum - 0.02), 0.0, 1.0);
+    const smoothT = macroProgress * macroProgress * (3.0 - 2.0 * macroProgress);
+    
+    // Curved arc outward away from center (y=0) to circumvent the black cardioid
     const startYNum = startY.toNumber();
     const bowSign = startYNum >= 0 ? 1.0 : -1.0;
-    const arcHeight = Math.sin(smoothT * Math.PI) * 0.45 * bowSign;
+    const arcHeight = Math.sin(smoothT * Math.PI) * 0.55 * bowSign;
     
-    const targetX = startX.add(dxBF.mul(new BF(smoothT)));
-    const targetY = startY.add(dyBF.mul(new BF(smoothT))).add(new BF(arcHeight));
-    
-    state.x = targetX;
-    state.y = targetY;
-    
-    const zoomMultiplier = 1.08 + Math.min(0.38, logDist * 0.022);
-    let ns = state.scale.mul(new BF(zoomMultiplier));
+    state.x = startX.add(dxBF.mul(new BF(smoothT)));
+    state.y = startY.add(dyBF.mul(new BF(smoothT))).add(new BF(arcHeight));
     
     if (ns.toNumber() >= targetScaleNum * 0.98) {
       state.scale = state.homeTargetScale;
@@ -678,7 +748,7 @@ function animate() {
     }
     scheduleRender();
   } else if (state.autoZoom) {
-    const speed = state.animSpeed || 1.0;
+    const speed = (state.animSpeed || 1.0) * (mlModel.enabled ? mlModel.velocityWeight : 1.0);
     const zoomRate = 1.0 - 0.007 * speed;
     let ns = state.scale.mul(new BF(zoomRate));
     if (ns.toNumber() < 1e-75) ns = new BF(1e-75);
