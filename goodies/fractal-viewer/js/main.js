@@ -134,39 +134,14 @@ function initInput() {
   canvas.addEventListener('pointerup', event => { state.dragging = false; if (state.type === 'julia' && !state.moved) { const point = pointAt(event.clientX, event.clientY); state.juliaRe = clamp(point.x, -1, 1); state.juliaIm = clamp(point.y, -1, 1); $('slider-julia-real').value = state.juliaRe; $('slider-julia-imag').value = state.juliaIm; $('label-julia-real').textContent = state.juliaRe.toFixed(3); $('label-julia-imag').textContent = state.juliaIm.toFixed(3); scheduleRender(); } });
 }
 
-function initCollapse() {
-  const hud = $('left-hud');
-  const collapseButton = $('btn-collapse-hud');
-  let transitioning = false;
-  const easing = 'cubic-bezier(0.32, 0.72, 0, 1)';
-
-  function collapse() {
-    if (transitioning || hud.classList.contains('collapsed')) return;
-    transitioning = true;
-    hud.classList.add('animating');
-    const width = hud.offsetWidth || 310;
-    const height = hud.offsetHeight || innerHeight - 32;
-    const content = hud.querySelectorAll('.hud-title-row, .hud-section, .action-btn, .seg-control, .hud-top-actions > :not(#btn-collapse-hud)');
-    content.forEach(element => { element.style.transition = 'opacity .1s ease-out'; element.style.opacity = '0'; });
-    const animation = hud.animate([{ width: `${width}px`, height: `${height}px`, borderRadius: '16px', padding: '1.1rem' }, { width: '2.75rem', height: '2.75rem', borderRadius: '16px', padding: '0' }], { duration: 320, easing, fill: 'forwards' });
-    animation.onfinish = () => { hud.classList.add('collapsed'); hud.classList.remove('animating'); animation.cancel(); content.forEach(element => { element.style.transition = ''; element.style.opacity = ''; }); transitioning = false; };
+function initSidebar() {
+  if (typeof Sidebar !== 'undefined') {
+    new Sidebar({
+      sidebarSelector: '#left-hud',
+      collapseTriggerSelector: '#btn-collapse-hud'
+    });
   }
-
-  function expand() {
-    if (transitioning || !hud.classList.contains('collapsed')) return;
-    transitioning = true;
-    hud.classList.add('animating');
-    hud.classList.remove('collapsed');
-    const content = hud.querySelectorAll('.hud-title-row, .hud-section, .action-btn, .seg-control, .hud-top-actions > :not(#btn-collapse-hud)');
-    content.forEach(element => { element.style.opacity = '0'; element.style.transition = 'opacity .24s ease-out .16s'; });
-    const animation = hud.animate([{ width: '2.75rem', height: '2.75rem', borderRadius: '16px', padding: '0' }, { width: '310px', height: `${innerHeight - 32}px`, borderRadius: '16px', padding: '1.1rem' }], { duration: 460, easing, fill: 'forwards' });
-    requestAnimationFrame(() => content.forEach(element => { element.style.opacity = '1'; }));
-    animation.onfinish = () => { hud.classList.remove('animating'); animation.cancel(); content.forEach(element => { element.style.transition = ''; element.style.opacity = ''; }); transitioning = false; };
-  }
-
-  collapseButton.addEventListener('click', event => { event.stopPropagation(); hud.classList.contains('collapsed') ? expand() : collapse(); });
-  hud.addEventListener('click', () => { if (hud.classList.contains('collapsed')) expand(); });
 }
 function animate() { if (state.autoZoom && !state.dragging) { state.scale = Math.max(1e-12, state.scale * .992); scheduleRender(); } requestAnimationFrame(animate); }
 
-addEventListener('resize', resize); initControls(); initInput(); initCollapse(); resize(); animate();
+addEventListener('resize', resize); initControls(); initInput(); initSidebar(); resize(); animate();

@@ -6,6 +6,7 @@
   <title>Fractal Viewer — Interactive Explorer</title>
   <meta name="description" content="Explore the Mandelbrot set, Julia sets, and the Burning Ship fractal in real time.">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../sidebar-lib/sidebar.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -71,6 +72,7 @@
     <div class="fractal-modal-card glass-panel"><button id="btn-close-info" class="icon-btn fractal-modal-close" aria-label="Close help"><i class="bi bi-x-lg"></i></button><h2 id="info-title">Fractal controls</h2><p>Use the mouse wheel or trackpad to zoom at the pointer. Drag the canvas to pan. Switch to Julia mode and click the canvas to choose a new constant.</p><p>The automatic zoom button explores the current point; move or zoom manually to stop it.</p></div>
   </div>
 
+  <script src="../sidebar-lib/sidebar.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

@@ -1,0 +1,646 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+:root {
+  --bg-space: #060913;
+  --bg-panel: rgba(10, 15, 29, 0.72);
+  --bg-control: rgba(16, 24, 44, 0.85);
+  --bg-subpanel: rgba(8, 14, 28, 0.6);
+  --accent: #38bdf8;
+  --accent-glow: rgba(56, 189, 248, 0.28);
+  --accent-active: #0284c7;
+  --accent-hover: #7dd3fc;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-faint: #64748b;
+  --text-highlight: #38bdf8;
+  --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Glassmorphic Panel */
+.glass-panel {
+  background: var(--bg-panel);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: none;
+  outline: none;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  color: var(--text-main);
+  z-index: 10;
+}
+
+/* Left-Arranged Scrollable Master Sidebar HUD - Canonical iOS Modal Spring */
+.left-hud-sidebar,
+.sidebar {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  width: 310px;
+  height: calc(100vh - 2rem);
+  max-height: calc(100vh - 2rem);
+  max-width: calc(100vw - 2rem);
+  display: flex;
+  flex-direction: column;
+  padding: 1.1rem;
+  gap: 0.85rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(56, 189, 248, 0.25) transparent;
+  border-radius: 16px !important;
+  transform-origin: 0 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  z-index: 10;
+}
+
+.left-hud-sidebar::-webkit-scrollbar,
+.sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.left-hud-sidebar::-webkit-scrollbar-button,
+.sidebar::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.left-hud-sidebar::-webkit-scrollbar-thumb,
+.sidebar::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.3);
+  border-radius: 4px;
+}
+
+.left-hud-sidebar::-webkit-scrollbar-track,
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Inner elements container for staged iOS cross-fading */
+.left-hud-sidebar .hud-title-row,
+.left-hud-sidebar .hud-section,
+.left-hud-sidebar .action-btn,
+.left-hud-sidebar .seg-control,
+.left-hud-sidebar .hud-header,
+.sidebar .hud-title-row,
+.sidebar .hud-section,
+.sidebar .action-btn,
+.sidebar .seg-control,
+.sidebar .hud-header {
+  transition: opacity 0.22s ease-out;
+  opacity: 1;
+  min-width: 272px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.left-hud-sidebar .hud-top-actions > :not(#btn-collapse-hud):not([data-dismiss="sidebar"]),
+.sidebar .hud-top-actions > :not(#btn-collapse-hud):not([data-dismiss="sidebar"]) {
+  transition: opacity 0.22s ease-out;
+  opacity: 1;
+}
+
+/* ── Animation State: Disable overflow slider & scrollbars to eliminate jank ── */
+.left-hud-sidebar.animating,
+.sidebar.animating {
+  overflow: hidden !important;
+  pointer-events: none !important;
+  user-select: none !important;
+}
+
+.left-hud-sidebar.animating *,
+.sidebar.animating * {
+  pointer-events: none !important;
+}
+
+/* ── Collapsed Button State (2.75rem x 2.75rem pill) ── */
+.left-hud-sidebar.collapsed,
+.sidebar.collapsed {
+  width: 2.75rem !important;
+  height: 2.75rem !important;
+  max-height: 2.75rem !important;
+  padding: 0 !important;
+  pointer-events: auto;
+  cursor: pointer;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  animation: none !important;
+  transform: none !important;
+  opacity: 0.5 !important;
+  box-shadow: none !important;
+  background: var(--bg-panel);
+  transition:
+    opacity 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.2s ease,
+    transform 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.left-hud-sidebar.collapsed:hover,
+.sidebar.collapsed:hover {
+  opacity: 1.0 !important;
+  background: var(--bg-control);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+  transform: none !important;
+}
+
+/* Content hidden immediately during collapse */
+.left-hud-sidebar.collapsed .hud-title-row,
+.left-hud-sidebar.collapsed .hud-section,
+.left-hud-sidebar.collapsed .action-btn,
+.left-hud-sidebar.collapsed .seg-control,
+.left-hud-sidebar.collapsed .hud-group-title,
+.sidebar.collapsed .hud-title-row,
+.sidebar.collapsed .hud-section,
+.sidebar.collapsed .action-btn,
+.sidebar.collapsed .seg-control,
+.sidebar.collapsed .hud-group-title {
+  opacity: 0 !important;
+  pointer-events: none;
+  display: none !important;
+}
+
+/* Header collapses to fill entire button area */
+.left-hud-sidebar.collapsed .hud-header,
+.sidebar.collapsed .hud-header {
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  gap: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  flex-shrink: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.left-hud-sidebar.collapsed .hud-top-actions,
+.sidebar.collapsed .hud-top-actions {
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  gap: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Hide all action buttons except the morph toggle button */
+.left-hud-sidebar.collapsed .hud-top-actions > :not(#btn-collapse-hud):not([data-dismiss="sidebar"]),
+.sidebar.collapsed .hud-top-actions > :not(#btn-collapse-hud):not([data-dismiss="sidebar"]) {
+  display: none !important;
+}
+
+.left-hud-sidebar.collapsed #btn-collapse-hud,
+.left-hud-sidebar.collapsed .hud-morph-btn,
+.sidebar.collapsed #btn-collapse-hud,
+.sidebar.collapsed .hud-morph-btn {
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  border-radius: 16px !important;
+  border: none !important;
+  flex: unset !important;
+  background: transparent !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: var(--accent) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* ── Morph icon cross-fade ── */
+.morph-icon-open,
+.morph-icon-closed {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--text-muted);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  pointer-events: none;
+}
+
+.morph-icon-open svg,
+.morph-icon-closed svg {
+  display: block;
+  stroke: currentColor;
+}
+
+/* Open state: show chevron, hide expand icon */
+.morph-icon-open  { opacity: 1; transform: scale(1); visibility: visible; }
+.morph-icon-closed { opacity: 0; transform: scale(0.6); visibility: hidden; }
+
+/* Collapsed state: direct static rendering to guarantee full visibility */
+.left-hud-sidebar.collapsed .morph-icon-open,
+.sidebar.collapsed .morph-icon-open { display: none !important; }
+
+.left-hud-sidebar.collapsed .morph-icon-closed,
+.sidebar.collapsed .morph-icon-closed {
+  position: static !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+  color: var(--accent) !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.left-hud-sidebar.collapsed .morph-icon-closed svg,
+.sidebar.collapsed .morph-icon-closed svg {
+  display: block !important;
+  visibility: visible !important;
+  stroke: var(--accent) !important;
+  color: var(--accent) !important;
+  width: 20px !important;
+  height: 20px !important;
+}
+
+/* The morph button needs relative positioning for absolute icon children */
+#btn-collapse-hud,
+.hud-morph-btn {
+  position: relative;
+}
+
+/* HUD Header: Two Rows (Title on top, Buttons below) */
+.hud-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+
+.hud-title-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.3rem;
+}
+
+.hud-title {
+  font-size: 1.08rem;
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  color: var(--text-main);
+  text-transform: none;
+}
+
+.hud-top-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 0.35rem;
+}
+
+.hud-top-actions .icon-btn {
+  flex: 1;
+  min-width: 0;
+  width: auto;
+  height: 2.15rem;
+}
+
+/* Sidebar Group Category Header with In-Line Rule */
+.hud-group-title {
+  font-size: 0.76rem;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0.03em;
+  color: var(--accent);
+  margin-top: 0.75rem;
+  margin-bottom: 0.2rem;
+  padding-bottom: 0;
+  border-bottom: none;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+}
+
+.hud-group-title::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.left-hud-sidebar .hud-group-title,
+.sidebar .hud-group-title {
+  transition: opacity 0.22s ease-out;
+  opacity: 1;
+  min-width: 272px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+/* Perfectly Centered Icon Buttons */
+.icon-btn {
+  background: var(--bg-subpanel);
+  border: none;
+  outline: none;
+  color: var(--text-muted);
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1;
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, filter 0.1s ease;
+  flex-shrink: 0;
+}
+
+.icon-btn i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  line-height: 1;
+}
+
+.icon-btn:hover {
+  background: var(--bg-control);
+  color: var(--text-main);
+}
+
+.icon-btn:active {
+  filter: brightness(80%);
+}
+
+.icon-btn.active {
+  background: var(--accent-active);
+  color: #ffffff;
+}
+
+/* HUD Form Sections */
+.hud-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.hud-section-label {
+  font-size: 0.74rem;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  color: var(--text-faint);
+  font-weight: 700;
+}
+
+/* Segmented Control Buttons */
+.seg-control {
+  display: flex;
+  background: var(--bg-subpanel);
+  padding: 3px;
+  border-radius: 8px;
+  gap: 2px;
+}
+
+.seg-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-muted);
+  padding: 0.42rem 0.4rem;
+  font-size: 0.78rem;
+  font-family: inherit;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: center;
+  text-transform: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.seg-btn:hover {
+  color: var(--text-main);
+}
+
+.seg-btn:active {
+  filter: brightness(85%);
+}
+
+.seg-btn.active {
+  background: var(--accent-active);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* Styled Select Dropdown / Custom Select */
+.select-styled,
+.custom-select {
+  width: 100%;
+  background: var(--bg-subpanel);
+  border: none;
+  outline: none;
+  color: var(--text-main);
+  padding: 0.48rem 0.75rem;
+  font-size: 0.82rem;
+  font-family: inherit;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.select-styled option,
+.custom-select option {
+  background: var(--bg-control);
+  color: var(--text-main);
+}
+
+/* Stepper Select Rows */
+.select-stepper-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+}
+
+.select-stepper-row .stepper-btn {
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+}
+
+.select-stepper-row .custom-select,
+.select-stepper-row .select-styled {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Sliders & Controls */
+.control-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-transform: none;
+}
+
+.range-slider,
+.left-hud-sidebar input[type="range"],
+.sidebar input[type="range"] {
+  width: 100%;
+  height: 4px;
+  background: var(--bg-control);
+  border: none;
+  outline: none;
+  border-radius: 2px;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+.range-slider::-webkit-slider-thumb,
+.left-hud-sidebar input[type="range"]::-webkit-slider-thumb,
+.sidebar input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: none;
+  cursor: pointer;
+}
+
+/* Toggle Switches */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-transform: none;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider-round {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--bg-control);
+  transition: 0.2s;
+  border-radius: 20px;
+}
+
+.slider-round:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: #ffffff;
+  transition: 0.2s;
+  border-radius: 50%;
+}
+
+input:checked + .slider-round {
+  background-color: var(--accent-active);
+}
+
+input:checked + .slider-round:before {
+  transform: translateX(16px);
+}
+
+/* Action Primary Button & Action Button Groups */
+.action-btn {
+  width: 100%;
+  background: var(--bg-subpanel);
+  border: none;
+  outline: none;
+  color: var(--accent);
+  padding: 0.55rem 1rem;
+  font-size: 0.82rem;
+  font-family: inherit;
+  font-weight: 600;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  text-transform: none;
+  transition: background 0.15s ease, color 0.15s ease;
+  flex-shrink: 0;
+  margin-top: 0.2rem;
+}
+
+.action-btn:hover {
+  background: var(--accent);
+  color: #070d09;
+}
+
+.action-btn:active {
+  filter: brightness(85%);
+}
+
+.action-btn.primary {
+  background: var(--accent-active);
+  color: #ffffff;
+}
+
+.action-btn.primary:hover {
+  background: var(--accent);
+  color: #070d09;
+}
+
+.action-btn-group {
+  display: flex;
+  gap: 0.35rem;
+  width: 100%;
+}
+
+.action-btn-group .action-btn {
+  flex: 1;
+  margin-top: 0;
+}
