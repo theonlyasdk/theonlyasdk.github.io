@@ -76,9 +76,12 @@ float delta_abs(float X, float dX) {
 }
 
 void main() {
-  vec2 dZ = vec2((uv.x - 0.5) * uAspect, uv.y - 0.5) * uScale;
-  vec2 dC = uType == 1 ? vec2(0.0) : dZ;
-  if (uType == 1) dZ = vec2(0.0);
+  vec2 dC = vec2((uv.x - 0.5) * uAspect, uv.y - 0.5) * uScale;
+  vec2 dZ = vec2(0.0);
+  if (uType == 1) {
+    dZ = dC;
+    dC = vec2(0.0);
+  }
   
   float radius2 = 0.0;
   int iteration = 0;
