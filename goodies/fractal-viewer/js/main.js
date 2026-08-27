@@ -70,22 +70,51 @@ void main() {
   vec2 pointX_ds = ds_add(vec2(uCentreHigh.x, uCentreLow.x), offX_ds);
   vec2 pointY_ds = ds_add(vec2(uCentreHigh.y, uCentreLow.y), offY_ds);
 
-  vec2 z = uType == 1 ? vec2(pointX_ds.x, pointY_ds.x) : vec2(0.0);
-  vec2 c = uType == 1 ? uJulia : vec2(pointX_ds.x, pointY_ds.x);
-
-  // Use perturbation relative coordinate if zoomed very deep
-  vec2 deltaC = vec2(offX_ds.x + offX_ds.y, offY_ds.x + offY_ds.y);
+  vec2 zX = uType == 1 ? pointX_ds : vec2(0.0);
+  vec2 zY = uType == 1 ? pointY_ds : vec2(0.0);
+  vec2 cX = uType == 1 ? vec2(uJulia.x, 0.0) : pointX_ds;
+  vec2 cY = uType == 1 ? vec2(uJulia.y, 0.0) : pointY_ds;
 
   float radius2 = 0.0;
   int iteration = 0;
   for (int i = 0; i < 1200; i++) {
     if (i >= uIterations) break;
-    if (uType == 2) z = abs(z);
-    if (uType == 3) z = vec2(z.x*z.x - z.y*z.y, -2.0*z.x*z.y) + c;
-    else if (uType == 4) z = vec2(abs(z.x*z.x - z.y*z.y), 2.0*z.x*z.y) + c;
-    else if (uType == 5) z = vec2(z.x*z.x - z.y*z.y, 2.0*abs(z.x)*z.y) + c;
-    else z = vec2(z.x*z.x - z.y*z.y, 2.0*z.x*z.y) + c;
-    radius2 = dot(z, z);
+
+    if (uType == 2) {
+      // Burning Ship: |Re(z)| + i|Im(z)|
+      if (zX.x < 0.0) zX = -zX;
+      if (zY.x < 0.0) zY = -zY;
+    }
+
+    vec2 x2 = ds_mul(zX, zX);
+    vec2 y2 = ds_mul(zY, zY);
+    vec2 xy = ds_mul(zX, zY);
+    vec2 two_xy = ds_add(xy, xy);
+
+    if (uType == 3) {
+      // Tricorn / Mandelbar
+      zX = ds_add(ds_sub(x2, y2), cX);
+      zY = ds_sub(cY, two_xy);
+    } else if (uType == 4) {
+      // Celtic
+      vec2 diff = ds_sub(x2, y2);
+      if (diff.x < 0.0) diff = -diff;
+      zX = ds_add(diff, cX);
+      zY = ds_add(two_xy, cY);
+    } else if (uType == 5) {
+      // Perpendicular
+      vec2 absX = zX;
+      if (absX.x < 0.0) absX = -absX;
+      vec2 two_abs_xy = ds_add(ds_mul(absX, zY), ds_mul(absX, zY));
+      zX = ds_add(ds_sub(x2, y2), cX);
+      zY = ds_add(two_abs_xy, cY);
+    } else {
+      // Standard Mandelbrot / Julia
+      zX = ds_add(ds_sub(x2, y2), cX);
+      zY = ds_add(two_xy, cY);
+    }
+
+    radius2 = x2.x + y2.x;
     iteration = i;
     if (radius2 > 256.0) break;
   }
