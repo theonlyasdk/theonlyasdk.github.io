@@ -204,9 +204,12 @@ function generateOrbit() {
   let bestCx = state.x, bestCy = state.y;
   let bestIter = -1;
   let bestUV = [0.5, 0.5];
+  
+  let edgeCx = state.x, edgeCy = state.y;
+  let maxEdgeIter = -1;
 
-  for (let dy = -0.5; dy <= 0.5; dy += 0.5) {
-    for (let dx = -0.5; dx <= 0.5; dx += 0.5) {
+  for (let dy = -0.5; dy <= 0.5; dy += 0.125) {
+    for (let dx = -0.5; dx <= 0.5; dx += 0.125) {
       const testCx = state.x.add(state.scale.mul(new BF(dx * aspect)));
       const testCy = state.y.add(state.scale.mul(new BF(dy)));
       
@@ -242,7 +245,20 @@ function generateOrbit() {
         bestCy = testCy;
         bestUV = [0.5 + dx, 0.5 + dy];
       }
+      if (iter < maxIter && iter > maxEdgeIter) {
+        maxEdgeIter = iter;
+        edgeCx = testCx;
+        edgeCy = testCy;
+      }
     }
+  }
+
+  if (maxEdgeIter !== -1) {
+    state.autoZoomTargetX = edgeCx;
+    state.autoZoomTargetY = edgeCy;
+  } else {
+    state.autoZoomTargetX = null;
+    state.autoZoomTargetY = null;
   }
 
   state.refUV = bestUV;
@@ -418,6 +434,14 @@ function animate() {
     let ns = state.scale.mul(new BF(0.992));
     if (ns.toNumber() < 1e-36) ns = new BF(1e-36);
     state.scale = ns;
+    
+    if (state.autoZoomTargetX && state.autoZoomTargetY) {
+      const dx = state.autoZoomTargetX.sub(state.x);
+      const dy = state.autoZoomTargetY.sub(state.y);
+      state.x = state.x.add(dx.mul(new BF(0.015)));
+      state.y = state.y.add(dy.mul(new BF(0.015)));
+    }
+    
     scheduleRender();
   }
   requestAnimationFrame(animate);
