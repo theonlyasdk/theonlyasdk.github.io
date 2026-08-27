@@ -90,21 +90,18 @@ vec3 palette(float t) {
   return colour;
 }
 
-float delta_abs_norm(float X, float W, float s) {
-  float sW = s * W;
-  if (abs(sW) < abs(X) * 0.5) {
-    return X >= 0.0 ? W : -W;
-  }
-  if (X + sW >= 0.0) return X >= 0.0 ? W : (2.0 * X / max(s, 1e-35) + W);
-  else return X < 0.0 ? -W : (-2.0 * X / max(s, 1e-35) - W);
+float delta_abs(float X, float dX) {
+  if (X + dX >= 0.0) return X >= 0.0 ? dX : 2.0*X + dX;
+  else return X < 0.0 ? -dX : -2.0*X - dX;
 }
 
 void main() {
-  vec2 dC0 = vec2((uv.x - uRefUV.x) * uAspect, uv.y - uRefUV.y);
-  vec2 W = vec2(0.0);
+  float effectiveScale = max(uScale, 1e-32);
+  vec2 dC = vec2((uv.x - uRefUV.x) * uAspect, uv.y - uRefUV.y) * effectiveScale;
+  vec2 dZ = vec2(0.0);
   if (uType == 1) {
-    W = dC0;
-    dC0 = vec2(0.0);
+    dZ = dC;
+    dC = vec2(0.0);
   }
   
   float radius2 = 0.0;
@@ -119,35 +116,35 @@ void main() {
     if (A.x > 9999.0) perturb = false;
     
     if (perturb) {
-      Z = A + uScale * W;
+      Z = A + dZ;
       
-      float wx = W.x; float wy = W.y;
-      float wx2 = wx * wx; float wy2 = wy * wy;
+      float dx = dZ.x; float dy = dZ.y;
+      float dx2 = dx * dx; float dy2 = dy * dy;
       
       if (uType == 0 || uType == 1) {
-        W.x = 2.0 * (A.x * wx - A.y * wy) + uScale * (wx2 - wy2) + dC0.x;
-        W.y = 2.0 * (A.x * wy + A.y * wx) + 2.0 * uScale * wx * wy + dC0.y;
+        dZ.x = 2.0 * (A.x * dx - A.y * dy) + dx2 - dy2 + dC.x;
+        dZ.y = 2.0 * (A.x * dy + A.y * dx) + 2.0 * dx * dy + dC.y;
       } else if (uType == 2) {
-        float dX = delta_abs_norm(A.x, wx, uScale);
-        float dY = delta_abs_norm(A.y, wy, uScale);
+        float dX = delta_abs(A.x, dx);
+        float dY = delta_abs(A.y, dy);
         float absA = abs(A.x); float absB = abs(A.y);
-        W.x = 2.0 * (absA * dX - absB * dY) + uScale * (dX * dX - dY * dY) + dC0.x;
-        W.y = 2.0 * (absA * dY + absB * dX) + 2.0 * uScale * dX * dY + dC0.y;
+        dZ.x = 2.0 * (absA * dX - absB * dY) + dX * dX - dY * dY + dC.x;
+        dZ.y = 2.0 * (absA * dY + absB * dX) + 2.0 * dX * dY + dC.y;
       } else if (uType == 3) {
-        W.x = 2.0 * (A.x * wx - A.y * wy) + uScale * (wx2 - wy2) + dC0.x;
-        W.y = -2.0 * (A.x * wy + A.y * wx) - 2.0 * uScale * wx * wy + dC0.y;
+        dZ.x = 2.0 * (A.x * dx - A.y * dy) + dx2 - dy2 + dC.x;
+        dZ.y = -2.0 * (A.x * dy + A.y * dx) - 2.0 * dx * dy + dC.y;
       } else if (uType == 4) {
-        float dRe = 2.0 * (A.x * wx - A.y * wy) + uScale * (wx2 - wy2);
-        W.x = delta_abs_norm(A.x * A.x - A.y * A.y, dRe, uScale) + dC0.x;
-        W.y = 2.0 * (A.x * wy + A.y * wx) + 2.0 * uScale * wx * wy + dC0.y;
+        float dRe = 2.0 * (A.x * dx - A.y * dy) + dx2 - dy2;
+        dZ.x = delta_abs(A.x * A.x - A.y * A.y, dRe) + dC.x;
+        dZ.y = 2.0 * (A.x * dy + A.y * dx) + 2.0 * dx * dy + dC.y;
       } else if (uType == 5) {
-        float dX = delta_abs_norm(A.x, wx, uScale);
+        float dX = delta_abs(A.x, dx);
         float absA = abs(A.x);
-        W.x = 2.0 * (A.x * wx - A.y * wy) + uScale * (wx2 - wy2) + dC0.x;
-        W.y = 2.0 * (absA * wy + A.y * dX) + 2.0 * uScale * dX * wy + dC0.y;
+        dZ.x = 2.0 * (A.x * dx - A.y * dy) + dx2 - dy2 + dC.x;
+        dZ.y = 2.0 * (absA * dy + A.y * dX + dX * dy) + dC.y;
       }
     } else {
-      vec2 C_abs = uType == 1 ? uJulia : (uCentre + uScale * dC0);
+      vec2 C_abs = uType == 1 ? uJulia : (uCentre + dC);
       float zx = Z.x; float zy = Z.y;
       if (uType == 2) { zx = abs(zx); zy = abs(zy); }
       float zx2 = zx * zx; float zy2 = zy * zy; float zxy = zx * zy;
@@ -168,11 +165,6 @@ void main() {
     }
     
     radius2 = dot(Z, Z);
-    if (dot(W, W) > 1e16) {
-      if (radius2 <= 256.0) radius2 = 257.0;
-      iteration = i;
-      break;
-    }
     if (radius2 > 256.0) { iteration = i; break; }
   }
   
@@ -484,6 +476,11 @@ function startHoming() {
   state.homeTargetX = defaults['mandelbrot'].x;
   state.homeTargetY = defaults['mandelbrot'].y;
   state.homeTargetScale = defaults['mandelbrot'].scale;
+  state.homeStartX = state.x;
+  state.homeStartY = state.y;
+  state.homeStartScale = state.scale;
+  state.homeStartLog = Math.log10(Math.max(1e-75, state.scale.toNumber()));
+  state.homeTargetLog = Math.log10(state.homeTargetScale.toNumber());
   state.targetRelX = 0; state.targetRelY = 0;
   state.smoothRelX = 0; state.smoothRelY = 0;
   state.velRelX = 0; state.velRelY = 0;
@@ -580,19 +577,35 @@ function initSidebar() {
 }
 function animate() {
   if (state.homing && !state.dragging) {
-    const targetScaleNum = state.homeTargetScale.toNumber();
     const currentScaleNum = Math.max(1e-75, state.scale.toNumber());
+    const targetScaleNum = state.homeTargetScale.toNumber();
     const logDist = Math.max(0, Math.log10(targetScaleNum / currentScaleNum));
+    const totalLogRange = Math.max(0.1, (state.homeTargetLog || 0.5) - (state.homeStartLog || -10));
+    const currentLog = Math.log10(currentScaleNum);
+    const progress = clamp((currentLog - (state.homeStartLog || -10)) / totalLogRange, 0.0, 1.0);
     
-    // Exponential zooming out: faster when deep, smoothly slowing down as we arrive
-    const zoomMultiplier = 1.08 + Math.min(0.38, logDist * 0.02);
+    // Cubic smoothstep ease for progress
+    const smoothT = progress * progress * (3.0 - 2.0 * progress);
+    
+    // Curved trajectory around the central black cardioid
+    const startX = state.homeStartX || state.x;
+    const startY = state.homeStartY || state.y;
+    const dxBF = state.homeTargetX.sub(startX);
+    const dyBF = state.homeTargetY.sub(startY);
+    
+    // Arc bows outward away from center (y=0) to avoid traversing the black region
+    const startYNum = startY.toNumber();
+    const bowSign = startYNum >= 0 ? 1.0 : -1.0;
+    const arcHeight = Math.sin(smoothT * Math.PI) * 0.45 * bowSign;
+    
+    const targetX = startX.add(dxBF.mul(new BF(smoothT)));
+    const targetY = startY.add(dyBF.mul(new BF(smoothT))).add(new BF(arcHeight));
+    
+    state.x = targetX;
+    state.y = targetY;
+    
+    const zoomMultiplier = 1.08 + Math.min(0.38, logDist * 0.022);
     let ns = state.scale.mul(new BF(zoomMultiplier));
-    
-    // Smoothly pan camera towards home center
-    const panAlpha = Math.min(0.28, 0.08 + Math.min(0.18, logDist * 0.006));
-    const panBF = new BF(panAlpha);
-    state.x = state.x.add(state.homeTargetX.sub(state.x).mul(panBF));
-    state.y = state.y.add(state.homeTargetY.sub(state.y).mul(panBF));
     
     if (ns.toNumber() >= targetScaleNum * 0.98) {
       state.scale = state.homeTargetScale;
