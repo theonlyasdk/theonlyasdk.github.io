@@ -74,8 +74,8 @@ void main() { uv = position * .5 + .5; gl_Position = vec4(position, 0., 1.); }`;
 const fragmentSource = `#version 300 es
 precision highp float; precision highp int;
 in vec2 uv; out vec4 outputColor;
-uniform float uScale, uAspect, uCycle;
-uniform int uIterations, uType, uPalette, uAA; uniform bool uSmooth;
+uniform float uScaleMantissa, uAspect, uCycle;
+uniform int uScaleExp, uIterations, uType, uPalette, uAA; uniform bool uSmooth;
 uniform sampler2D uOrbitTex;
 uniform vec2 uJulia;
 uniform vec2 uCentre;
@@ -106,14 +106,17 @@ vec3 sampleColor(vec2 sampleUV) {
     u = vec2(0.0);
   }
   
-  float s = uScale;
+  float sMant = uScaleMantissa;
+  int sExp = uScaleExp;
+  
   vec2 dZ = vec2(0.0);
   vec2 dC = vec2(0.0);
   bool linear = true;
-  if (s >= 1.0e-5) {
+  if (sExp >= -4) {
+    float curScale = sMant * pow(10.0, float(sExp));
     linear = false;
-    dZ = s * v;
-    dC = s * u;
+    dZ = curScale * v;
+    dC = curScale * u;
   }
   
   float radius2 = 0.0;
@@ -160,16 +163,25 @@ vec3 sampleColor(vec2 sampleUV) {
         if (vNorm2 > 1.0e8) {
           v *= 1.0e-4;
           u *= 1.0e-4;
-          s *= 1.0e4;
+          sExp += 4;
         }
         
-        if (s * sqrt(vNorm2) >= 1.0e-5) {
-          dZ = s * v;
-          dC = s * u;
-          linear = false;
+        if (sExp >= -4) {
+          float curScale = sMant * pow(10.0, float(sExp));
+          if (curScale * sqrt(vNorm2) >= 1.0e-5) {
+            dZ = curScale * v;
+            dC = curScale * u;
+            linear = false;
+          }
         }
         
-        Z = A + s * v;
+        if (linear) {
+          if (sExp >= -30) {
+            Z = A + (sMant * pow(10.0, float(sExp))) * v;
+          } else {
+            Z = A;
+          }
+        }
       } else {
         Z = A + dZ;
         
@@ -200,7 +212,8 @@ vec3 sampleColor(vec2 sampleUV) {
         }
       }
     } else {
-      vec2 C_abs = uType == 1 ? uJulia : (uCentre + (linear ? (s * u) : dC));
+      vec2 effOffset = linear ? (sExp >= -30 ? (sMant * pow(10.0, float(sExp))) * u : vec2(0.0)) : dC;
+      vec2 C_abs = uType == 1 ? uJulia : (uCentre + effOffset);
       float zx = Z.x; float zy = Z.y;
       if (uType == 2) { zx = abs(zx); zy = abs(zy); }
       float zx2 = zx * zx; float zy2 = zy * zy; float zxy = zx * zy;
@@ -267,7 +280,7 @@ function createRenderer() {
   const buffer = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
   const position = gl.getAttribLocation(program, 'position'); gl.enableVertexAttribArray(position); gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
-  return { program, uniforms: Object.fromEntries(['uScale','uAspect','uIterations','uType','uPalette','uCycle','uSmooth','uJulia','uOrbitTex','uCentre','uRefUV','uAA','uPixelSize'].map(name => [name, gl.getUniformLocation(program, name)])) };
+  return { program, uniforms: Object.fromEntries(['uScaleMantissa','uScaleExp','uAspect','uIterations','uType','uPalette','uCycle','uSmooth','uJulia','uOrbitTex','uCentre','uRefUV','uAA','uPixelSize'].map(name => [name, gl.getUniformLocation(program, name)])) };
 }
 
 let renderer;
@@ -559,7 +572,12 @@ function render() {
 
   gl.uniform2f(u.uCentre, (state.refX || state.x).toNumber(), (state.refY || state.y).toNumber());
   if (state.refUV) gl.uniform2f(u.uRefUV, state.refUV[0], state.refUV[1]);
-  gl.uniform1f(u.uScale, scaleNum);
+  const scaleDbl = Math.max(1e-75, state.scale.toNumber());
+  const exp10 = Math.floor(Math.log10(scaleDbl));
+  const mantissa10 = scaleDbl / Math.pow(10, exp10);
+
+  gl.uniform1f(u.uScaleMantissa, mantissa10);
+  gl.uniform1i(u.uScaleExp, exp10);
   gl.uniform1f(u.uAspect, canvas.width / canvas.height);
   gl.uniform1i(u.uIterations, effectiveIterations);
   gl.uniform1i(u.uType, { mandelbrot: 0, julia: 1, ship: 2, tricorn: 3, celtic: 4, perpendicular: 5 }[state.type]);
