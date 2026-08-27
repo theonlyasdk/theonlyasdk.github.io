@@ -6,7 +6,7 @@
   aria-atomic="true"
   data-bs-animation="true"
   data-bs-autohide="false"
-  style="background-color: var(--card-bg-translucent) !important;"
+  style="display: none !important;"
 >
   <!-- ASDK Note: Let's just make sure the user updates no matter what ;) -->
   <!-- <div class="toast-header">
@@ -17,7 +17,7 @@
       aria-label="Close"
     ></button>
   </div>  -->
-  <br>
+  <!-- <br>
   <br>
   <div class="toast-body text-center pt-0">
     <h1 class="toast-title">{{ site.data.locales[include.lang].notification.update_available }}</h1>
@@ -25,5 +25,26 @@
     <button type="button" class="btn btn-primary" aria-label="Update">
       {{ site.data.locales[include.lang].notification.update }}
     </button>
+  </div> -->
+  
+  <!-- Minimal elements required for app.js to attach event listeners without crashing -->
+  <div class="toast-body" style="display: none;">
+    <button type="button" class="btn btn-primary" aria-label="Update"></button>
   </div>
 </aside>
+
+<!-- Instantly apply page updates by hijacking the notification dialog -->
+<script>
+  (function() {
+    const notification = document.getElementById('notification');
+    if (notification) {
+      const observer = new MutationObserver((mutations) => {
+        if (notification.classList.contains('show')) {
+          const btn = notification.querySelector('.toast-body > button');
+          if (btn) btn.click();
+        }
+      });
+      observer.observe(notification, { attributes: true, attributeFilter: ['class'] });
+    }
+  })();
+</script>
