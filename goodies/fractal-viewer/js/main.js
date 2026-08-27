@@ -33,10 +33,20 @@ vec2 ds_sub(vec2 dsa, vec2 dsb) {
   return ds_add(dsa, vec2(-dsb.x, -dsb.y));
 }
 
+// Dekker's product for precise 24-bit mantissa split without GLSL fma
 vec2 ds_mul(vec2 dsa, vec2 dsb) {
+  float conA = dsa.x * 4097.0;
+  float a1 = conA - (conA - dsa.x);
+  float a2 = dsa.x - a1;
+
+  float conB = dsb.x * 4097.0;
+  float b1 = conB - (conB - dsb.x);
+  float b2 = dsb.x - b1;
+
   float c11 = dsa.x * dsb.x;
-  float c21 = fma(dsa.x, dsb.x, -c11);
+  float c21 = a2 * b2 - (((c11 - a1 * b1) - a2 * b1) - a1 * b2);
   float c2 = dsa.x * dsb.y + dsa.y * dsb.x + c21;
+
   float high = c11 + c2;
   float low = c2 - (high - c11);
   return vec2(high, low);
