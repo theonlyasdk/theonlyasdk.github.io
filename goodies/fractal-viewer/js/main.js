@@ -58,6 +58,7 @@ uniform float uScale, uAspect, uCycle;
 uniform int uIterations, uType, uPalette; uniform bool uSmooth;
 uniform sampler2D uOrbitTex;
 uniform vec2 uJulia;
+uniform vec2 uCentre;
 
 vec3 palette(float t) {
   t = fract(t);
@@ -82,38 +83,62 @@ void main() {
   float radius2 = 0.0;
   int iteration = 0;
   vec2 Z = vec2(0.0);
+  bool perturb = true;
 
   for (int i = 0; i < 2000; i++) {
     if (i >= uIterations) break;
     
     vec2 A = texelFetch(uOrbitTex, ivec2(i, 0), 0).rg;
-    float dx = dZ.x; float dy = dZ.y;
-    float dx2 = dx * dx; float dy2 = dy * dy;
+    if (A.x > 9999.0) perturb = false;
     
-    if (uType == 0 || uType == 1) {
-      dZ.x = 2.0 * (A.x * dx - A.y * dy) + dx2 - dy2 + dC.x;
-      dZ.y = 2.0 * (A.x * dy + A.y * dx) + 2.0 * dx * dy + dC.y;
-    } else if (uType == 2) {
-      float dX = delta_abs(A.x, dx);
-      float dY = delta_abs(A.y, dy);
-      float absA = abs(A.x); float absB = abs(A.y);
-      dZ.x = 2.0 * (absA * dX - absB * dY) + dX * dX - dY * dY + dC.x;
-      dZ.y = 2.0 * (absA * dY + absB * dX) + 2.0 * dX * dY + dC.y;
-    } else if (uType == 3) {
-      dZ.x = 2.0 * (A.x * dx - A.y * dy) + dx2 - dy2 + dC.x;
-      dZ.y = -2.0 * (A.x * dy + A.y * dx) - 2.0 * dx * dy + dC.y;
-    } else if (uType == 4) {
-      float dRe = 2.0 * (A.x * dx - A.y * dy) + dx2 - dy2;
-      dZ.x = delta_abs(A.x * A.x - A.y * A.y, dRe) + dC.x;
-      dZ.y = 2.0 * (A.x * dy + A.y * dx) + 2.0 * dx * dy + dC.y;
-    } else if (uType == 5) {
-      float dX = delta_abs(A.x, dx);
-      float absA = abs(A.x);
-      dZ.x = 2.0 * (A.x * dx - A.y * dy) + dx2 - dy2 + dC.x;
-      dZ.y = 2.0 * (absA * dy + A.y * dX + dX * dy) + dC.y;
+    if (perturb) {
+      float dx = dZ.x; float dy = dZ.y;
+      float dx2 = dx * dx; float dy2 = dy * dy;
+      
+      if (uType == 0 || uType == 1) {
+        dZ.x = 2.0 * (A.x * dx - A.y * dy) + dx2 - dy2 + dC.x;
+        dZ.y = 2.0 * (A.x * dy + A.y * dx) + 2.0 * dx * dy + dC.y;
+      } else if (uType == 2) {
+        float dX = delta_abs(A.x, dx);
+        float dY = delta_abs(A.y, dy);
+        float absA = abs(A.x); float absB = abs(A.y);
+        dZ.x = 2.0 * (absA * dX - absB * dY) + dX * dX - dY * dY + dC.x;
+        dZ.y = 2.0 * (absA * dY + absB * dX) + 2.0 * dX * dY + dC.y;
+      } else if (uType == 3) {
+        dZ.x = 2.0 * (A.x * dx - A.y * dy) + dx2 - dy2 + dC.x;
+        dZ.y = -2.0 * (A.x * dy + A.y * dx) - 2.0 * dx * dy + dC.y;
+      } else if (uType == 4) {
+        float dRe = 2.0 * (A.x * dx - A.y * dy) + dx2 - dy2;
+        dZ.x = delta_abs(A.x * A.x - A.y * A.y, dRe) + dC.x;
+        dZ.y = 2.0 * (A.x * dy + A.y * dx) + 2.0 * dx * dy + dC.y;
+      } else if (uType == 5) {
+        float dX = delta_abs(A.x, dx);
+        float absA = abs(A.x);
+        dZ.x = 2.0 * (A.x * dx - A.y * dy) + dx2 - dy2 + dC.x;
+        dZ.y = 2.0 * (absA * dy + A.y * dX + dX * dy) + dC.y;
+      }
+      Z = A + dZ;
+    } else {
+      vec2 C_abs = uType == 1 ? uJulia : (uCentre + dC);
+      float zx = Z.x; float zy = Z.y;
+      if (uType == 2) { zx = abs(zx); zy = abs(zy); }
+      float zx2 = zx * zx; float zy2 = zy * zy; float zxy = zx * zy;
+      
+      if (uType == 0 || uType == 1 || uType == 2) {
+        Z.x = zx2 - zy2 + C_abs.x;
+        Z.y = 2.0 * zxy + C_abs.y;
+      } else if (uType == 3) {
+        Z.x = zx2 - zy2 + C_abs.x;
+        Z.y = -2.0 * zxy + C_abs.y;
+      } else if (uType == 4) {
+        Z.x = abs(zx2 - zy2) + C_abs.x;
+        Z.y = 2.0 * zxy + C_abs.y;
+      } else if (uType == 5) {
+        Z.x = zx2 - zy2 + C_abs.x;
+        Z.y = 2.0 * abs(zx) * zy + C_abs.y;
+      }
     }
     
-    Z = A + dZ;
     radius2 = Z.x * Z.x + Z.y * Z.y;
     if (radius2 > 256.0) { iteration = i; break; }
   }
@@ -143,7 +168,7 @@ function createRenderer() {
   const buffer = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
   const position = gl.getAttribLocation(program, 'position'); gl.enableVertexAttribArray(position); gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
-  return { program, uniforms: Object.fromEntries(['uScale','uAspect','uIterations','uType','uPalette','uCycle','uSmooth','uJulia','uOrbitTex'].map(name => [name, gl.getUniformLocation(program, name)])) };
+  return { program, uniforms: Object.fromEntries(['uScale','uAspect','uIterations','uType','uPalette','uCycle','uSmooth','uJulia','uOrbitTex','uCentre'].map(name => [name, gl.getUniformLocation(program, name)])) };
 }
 
 let renderer;
@@ -176,13 +201,23 @@ function generateOrbit() {
   
   if (state.type === 'julia') { A = state.x; B = state.y; }
 
+  let escaped = false;
   for (let i = 0; i < maxIter; i++) {
+    if (escaped) {
+      orbitData[i * 2] = 10000.0;
+      orbitData[i * 2 + 1] = 10000.0;
+      continue;
+    }
+    
     orbitData[i * 2] = A.toNumber();
     orbitData[i * 2 + 1] = B.toNumber();
     
     const A2 = A.mul(A);
     const B2 = B.mul(B);
-    if (A2.add(B2).toNumber() > 256) break;
+    if (A2.add(B2).toNumber() > 256) {
+      escaped = true;
+      continue;
+    }
     const AB = A.mul(B);
 
     if (state.type === 'mandelbrot' || state.type === 'julia') {
@@ -246,6 +281,7 @@ function render() {
   gl.bindTexture(gl.TEXTURE_2D, orbitTexture);
   gl.uniform1i(u.uOrbitTex, 0);
 
+  gl.uniform2f(u.uCentre, state.x.toNumber(), state.y.toNumber());
   gl.uniform1f(u.uScale, state.scale.toNumber());
   gl.uniform1f(u.uAspect, canvas.width / canvas.height);
   gl.uniform1i(u.uIterations, state.iterations);
