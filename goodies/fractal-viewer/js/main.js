@@ -59,6 +59,7 @@ uniform int uIterations, uType, uPalette; uniform bool uSmooth;
 uniform sampler2D uOrbitTex;
 uniform vec2 uJulia;
 uniform vec2 uCentre;
+uniform vec2 uRefUV;
 
 vec3 palette(float t) {
   t = fract(t);
@@ -76,7 +77,7 @@ float delta_abs(float X, float dX) {
 }
 
 void main() {
-  vec2 dC = vec2((uv.x - 0.5) * uAspect, uv.y - 0.5) * uScale;
+  vec2 dC = vec2((uv.x - uRefUV.x) * uAspect, uv.y - uRefUV.y) * uScale;
   vec2 dZ = vec2(0.0);
   if (uType == 1) {
     dZ = dC;
@@ -95,6 +96,8 @@ void main() {
     if (A.x > 9999.0) perturb = false;
     
     if (perturb) {
+      Z = A + dZ;
+      
       float dx = dZ.x; float dy = dZ.y;
       float dx2 = dx * dx; float dy2 = dy * dy;
       
@@ -120,7 +123,6 @@ void main() {
         dZ.x = 2.0 * (A.x * dx - A.y * dy) + dx2 - dy2 + dC.x;
         dZ.y = 2.0 * (absA * dy + A.y * dX + dX * dy) + dC.y;
       }
-      Z = A + dZ;
     } else {
       vec2 C_abs = uType == 1 ? uJulia : (uCentre + dC);
       float zx = Z.x; float zy = Z.y;
@@ -171,7 +173,7 @@ function createRenderer() {
   const buffer = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
   const position = gl.getAttribLocation(program, 'position'); gl.enableVertexAttribArray(position); gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
-  return { program, uniforms: Object.fromEntries(['uScale','uAspect','uIterations','uType','uPalette','uCycle','uSmooth','uJulia','uOrbitTex','uCentre'].map(name => [name, gl.getUniformLocation(program, name)])) };
+  return { program, uniforms: Object.fromEntries(['uScale','uAspect','uIterations','uType','uPalette','uCycle','uSmooth','uJulia','uOrbitTex','uCentre','uRefUV'].map(name => [name, gl.getUniformLocation(program, name)])) };
 }
 
 let renderer;
@@ -197,12 +199,60 @@ function updateOrbitTexture(gl, renderer, orbitData) {
 
 function generateOrbit() {
   const maxIter = state.iterations;
+  const aspect = canvas.width / canvas.height;
+  
+  let bestCx = state.x, bestCy = state.y;
+  let bestIter = -1;
+  let bestUV = [0.5, 0.5];
+
+  for (let dy = -0.5; dy <= 0.5; dy += 0.5) {
+    for (let dx = -0.5; dx <= 0.5; dx += 0.5) {
+      const testCx = state.x.add(state.scale.mul(new BF(dx * aspect)));
+      const testCy = state.y.add(state.scale.mul(new BF(dy)));
+      
+      let A = new BF(0), B = new BF(0);
+      if (state.type === 'julia') { A = testCx; B = testCy; }
+      const Cx = state.type === 'julia' ? new BF(state.juliaRe) : testCx;
+      const Cy = state.type === 'julia' ? new BF(state.juliaIm) : testCy;
+      
+      let iter = 0;
+      for (; iter < maxIter; iter++) {
+        const A2 = A.mul(A);
+        const B2 = B.mul(B);
+        if (A2.add(B2).toNumber() > 256) break;
+        const AB = A.mul(B);
+
+        if (state.type === 'mandelbrot' || state.type === 'julia') {
+          A = A2.sub(B2).add(Cx); B = AB.add(AB).add(Cy);
+        } else if (state.type === 'ship') {
+          const absA = A.abs(), absB = B.abs();
+          A = A2.sub(B2).add(Cx); B = absA.mul(absB).add(absA.mul(absB)).add(Cy);
+        } else if (state.type === 'tricorn') {
+          A = A2.sub(B2).add(Cx); B = AB.add(AB).mul(new BF(-1)).add(Cy);
+        } else if (state.type === 'celtic') {
+          A = A2.sub(B2).abs().add(Cx); B = AB.add(AB).add(Cy);
+        } else if (state.type === 'perpendicular') {
+          A = A2.sub(B2).add(Cx); B = A.abs().mul(B).add(A.abs().mul(B)).add(Cy);
+        }
+      }
+      
+      if (iter > bestIter) {
+        bestIter = iter;
+        bestCx = testCx;
+        bestCy = testCy;
+        bestUV = [0.5 + dx, 0.5 + dy];
+      }
+    }
+  }
+
+  state.refUV = bestUV;
+  state.refX = bestCx;
+  state.refY = bestCy;
   const orbitData = new Float32Array(maxIter * 2);
   let A = new BF(0), B = new BF(0);
-  const Cx = state.type === 'julia' ? new BF(state.juliaRe) : state.x;
-  const Cy = state.type === 'julia' ? new BF(state.juliaIm) : state.y;
-  
-  if (state.type === 'julia') { A = state.x; B = state.y; }
+  const Cx = state.type === 'julia' ? new BF(state.juliaRe) : bestCx;
+  const Cy = state.type === 'julia' ? new BF(state.juliaIm) : bestCy;
+  if (state.type === 'julia') { A = bestCx; B = bestCy; }
 
   let escaped = false;
   for (let i = 0; i < maxIter; i++) {
@@ -224,21 +274,16 @@ function generateOrbit() {
     const AB = A.mul(B);
 
     if (state.type === 'mandelbrot' || state.type === 'julia') {
-      A = A2.sub(B2).add(Cx);
-      B = AB.add(AB).add(Cy);
+      A = A2.sub(B2).add(Cx); B = AB.add(AB).add(Cy);
     } else if (state.type === 'ship') {
       const absA = A.abs(), absB = B.abs();
-      A = A2.sub(B2).add(Cx);
-      B = absA.mul(absB).add(absA.mul(absB)).add(Cy);
+      A = A2.sub(B2).add(Cx); B = absA.mul(absB).add(absA.mul(absB)).add(Cy);
     } else if (state.type === 'tricorn') {
-      A = A2.sub(B2).add(Cx);
-      B = AB.add(AB).mul(new BF(-1)).add(Cy);
+      A = A2.sub(B2).add(Cx); B = AB.add(AB).mul(new BF(-1)).add(Cy);
     } else if (state.type === 'celtic') {
-      A = A2.sub(B2).abs().add(Cx);
-      B = AB.add(AB).add(Cy);
+      A = A2.sub(B2).abs().add(Cx); B = AB.add(AB).add(Cy);
     } else if (state.type === 'perpendicular') {
-      A = A2.sub(B2).add(Cx);
-      B = A.abs().mul(B).add(A.abs().mul(B)).add(Cy);
+      A = A2.sub(B2).add(Cx); B = A.abs().mul(B).add(A.abs().mul(B)).add(Cy);
     }
   }
   return orbitData;
@@ -284,7 +329,8 @@ function render() {
   gl.bindTexture(gl.TEXTURE_2D, orbitTexture);
   gl.uniform1i(u.uOrbitTex, 0);
 
-  gl.uniform2f(u.uCentre, state.x.toNumber(), state.y.toNumber());
+  gl.uniform2f(u.uCentre, (state.refX || state.x).toNumber(), (state.refY || state.y).toNumber());
+  if (state.refUV) gl.uniform2f(u.uRefUV, state.refUV[0], state.refUV[1]);
   gl.uniform1f(u.uScale, state.scale.toNumber());
   gl.uniform1f(u.uAspect, canvas.width / canvas.height);
   gl.uniform1i(u.uIterations, state.iterations);
