@@ -21,7 +21,7 @@
     const grid = $('goodies-grid');
     grid.replaceChildren();
     GOODIES.filter(item => !category || item.category === category).forEach((goodie, index) => {
-      const col = document.createElement('div'); col.className = 'col';
+      const col = document.createElement('div'); col.className = 'col d-flex flex-column';
       const card = document.createElement('div'); card.className = 'goodie-card'; card.tabIndex = 0; card.setAttribute('role', 'button'); card.style.setProperty('--anim-delay', `${((index + 1) * .1).toFixed(1)}s`);
       card.addEventListener('click', () => openMinigame(goodie.name));
       card.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') openMinigame(goodie.name); });

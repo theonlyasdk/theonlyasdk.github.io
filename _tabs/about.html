@@ -27,7 +27,8 @@ order: 5
     text-align: left;
     padding: 0 0 1.5rem 0; /* Adjusted padding to accommodate image */
     width: 100%;
-    margin-bottom: 1.2em;
+    height: 100%;
+    margin-bottom: 0;
     box-shadow: var(--card-shadow);
     border: 0;
     opacity: 0;
@@ -41,13 +42,13 @@ order: 5
     padding: 0 2rem;
     margin-top: 1.5rem;
     font-size: calc(1.25rem + 16px);
-    font-weight: 300;
   }
 
   .goodie-card p {
     padding: 0 2rem;
     margin-bottom: 0;
-    line-height: calc(1.5 - 4px);
+    line-height: 1.2;
+    flex-grow: 1;
   }
   .goodie-card:active {
     filter: brightness(90%);
