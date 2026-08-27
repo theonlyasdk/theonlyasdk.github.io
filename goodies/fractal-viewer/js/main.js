@@ -240,10 +240,21 @@ function generateOrbit(maxIter = state.iterations) {
   let bestEdgeRelX = 0, bestEdgeRelY = 0;
   let maxEdgeScore = -1;
 
-  const density = state.animDensity || 7;
-  const radius = state.animRadius || 0.25;
-  const sensitivity = (state.animSensitivity !== undefined ? state.animSensitivity : 70) / 100;
-  const sensExp = 0.5 + sensitivity * 1.5;
+  const scaleNum = Math.max(1e-75, state.scale.toNumber());
+  const zoomFactor = 3.2 / scaleNum;
+  const zoomExp = Math.max(0, Math.log10(zoomFactor));
+
+  // Automatically adjust edge tracking parameters based on current zoom region
+  const baseDensity = state.animDensity || 7;
+  const adaptiveDensity = Math.min(11, Math.max(baseDensity, Math.floor(baseDensity + zoomExp * 0.15)));
+  const density = adaptiveDensity % 2 === 0 ? adaptiveDensity + 1 : adaptiveDensity;
+
+  const baseRadius = state.animRadius || 0.25;
+  const radius = clamp(baseRadius * (1.0 - Math.min(0.45, zoomExp * 0.012)), 0.12, 0.50);
+
+  const baseSens = (state.animSensitivity !== undefined ? state.animSensitivity : 70) / 100;
+  const adaptiveSens = clamp(baseSens + zoomExp * 0.008, 0.1, 1.0);
+  const sensExp = 0.5 + adaptiveSens * 1.6;
 
   const stepSize = density > 1 ? (radius * 2) / (density - 1) : 0;
 
@@ -553,7 +564,14 @@ function initInput() {
     setAutoZoom(false);
     scheduleRender();
   }, { passive: false });
-  canvas.addEventListener('pointerdown', event => { state.homing = false; state.dragging = true; state.moved = false; state.lastX = event.clientX; state.lastY = event.clientY; canvas.setPointerCapture(event.pointerId); });
+  canvas.addEventListener('pointerdown', event => {
+    state.homing = false;
+    state.dragging = true;
+    state.moved = false;
+    state.lastX = event.clientX;
+    state.lastY = event.clientY;
+    canvas.setPointerCapture(event.pointerId);
+  });
   canvas.addEventListener('pointermove', event => {
     if (!state.dragging) return;
     state.homing = false;
@@ -561,10 +579,23 @@ function initInput() {
     if (Math.hypot(deltaX, deltaY) > 2) state.moved = true;
     state.x = state.x.sub(state.scale.mul(new BF(deltaX / rect.width * aspect)));
     state.y = state.y.add(state.scale.mul(new BF(deltaY / rect.height)));
-    state.lastX = event.clientX; state.lastY = event.clientY;
-    setAutoZoom(false); scheduleRender();
+    state.lastX = event.clientX;
+    state.lastY = event.clientY;
+    scheduleRender();
   });
-  canvas.addEventListener('pointerup', event => { state.dragging = false; if (state.type === 'julia' && !state.moved) { const point = pointAt(event.clientX, event.clientY); state.juliaRe = clamp(point.x.toNumber(), -1, 1); state.juliaIm = clamp(point.y.toNumber(), -1, 1); $('slider-julia-real').value = state.juliaRe; $('slider-julia-imag').value = state.juliaIm; $('label-julia-real').textContent = state.juliaRe.toFixed(3); $('label-julia-imag').textContent = state.juliaIm.toFixed(3); scheduleRender(); } });
+  canvas.addEventListener('pointerup', event => {
+    state.dragging = false;
+    if (state.type === 'julia' && !state.moved) {
+      const point = pointAt(event.clientX, event.clientY);
+      state.juliaRe = clamp(point.x.toNumber(), -1, 1);
+      state.juliaIm = clamp(point.y.toNumber(), -1, 1);
+      $('slider-julia-real').value = state.juliaRe;
+      $('slider-julia-imag').value = state.juliaIm;
+      $('label-julia-real').textContent = state.juliaRe.toFixed(3);
+      $('label-julia-imag').textContent = state.juliaIm.toFixed(3);
+      scheduleRender();
+    }
+  });
 }
 
 function initSidebar() {
@@ -620,51 +651,60 @@ function animate() {
       state.scale = ns;
     }
     scheduleRender();
-  } else if (state.autoZoom && !state.dragging) {
+  } else if (state.autoZoom) {
     const speed = state.animSpeed || 1.0;
     const zoomRate = 1.0 - 0.007 * speed;
     let ns = state.scale.mul(new BF(zoomRate));
     if (ns.toNumber() < 1e-75) ns = new BF(1e-75);
     state.scale = ns;
     
-    const trackingWeight = (state.animTracking !== undefined ? state.animTracking : 50) / 100;
-    const targetX = (state.targetRelX || 0) * trackingWeight;
-    const targetY = (state.targetRelY || 0) * trackingWeight;
-    
-    const duration = Math.max(0.05, state.animSmoothing || 0.8);
-    const alpha = clamp(1.0 - Math.exp(-1.0 / (60.0 * duration)), 0.01, 0.99);
-    const easing = state.animEasing || 'exponential';
-    
-    if (easing === 'cubic') {
-      const diffX = targetX - (state.smoothRelX || 0);
-      const diffY = targetY - (state.smoothRelY || 0);
-      state.smoothRelX = (state.smoothRelX || 0) + Math.sign(diffX) * Math.pow(Math.abs(diffX), 0.7) * alpha * 1.5;
-      state.smoothRelY = (state.smoothRelY || 0) + Math.sign(diffY) * Math.pow(Math.abs(diffY), 0.7) * alpha * 1.5;
-    } else if (easing === 'spring') {
-      const k = 0.14 / duration;
-      const damping = 0.84;
-      state.velRelX = ((state.velRelX || 0) + (targetX - (state.smoothRelX || 0)) * k) * damping;
-      state.velRelY = ((state.velRelY || 0) + (targetY - (state.smoothRelY || 0)) * k) * damping;
-      state.smoothRelX = (state.smoothRelX || 0) + state.velRelX;
-      state.smoothRelY = (state.smoothRelY || 0) + state.velRelY;
-    } else if (easing === 'linear') {
-      const maxStep = 0.02 * (1.0 / duration);
-      const diffX = targetX - (state.smoothRelX || 0);
-      const diffY = targetY - (state.smoothRelY || 0);
-      state.smoothRelX = (state.smoothRelX || 0) + clamp(diffX, -maxStep, maxStep);
-      state.smoothRelY = (state.smoothRelY || 0) + clamp(diffY, -maxStep, maxStep);
+    // Only apply autopilot panning when user is not manually dragging
+    if (!state.dragging) {
+      const trackingWeight = (state.animTracking !== undefined ? state.animTracking : 50) / 100;
+      const targetX = (state.targetRelX || 0) * trackingWeight;
+      const targetY = (state.targetRelY || 0) * trackingWeight;
+      
+      const duration = Math.max(0.05, state.animSmoothing || 0.8);
+      const alpha = clamp(1.0 - Math.exp(-1.0 / (60.0 * duration)), 0.01, 0.99);
+      const easing = state.animEasing || 'exponential';
+      
+      if (easing === 'cubic') {
+        const diffX = targetX - (state.smoothRelX || 0);
+        const diffY = targetY - (state.smoothRelY || 0);
+        state.smoothRelX = (state.smoothRelX || 0) + Math.sign(diffX) * Math.pow(Math.abs(diffX), 0.7) * alpha * 1.5;
+        state.smoothRelY = (state.smoothRelY || 0) + Math.sign(diffY) * Math.pow(Math.abs(diffY), 0.7) * alpha * 1.5;
+      } else if (easing === 'spring') {
+        const k = 0.14 / duration;
+        const damping = 0.84;
+        state.velRelX = ((state.velRelX || 0) + (targetX - (state.smoothRelX || 0)) * k) * damping;
+        state.velRelY = ((state.velRelY || 0) + (targetY - (state.smoothRelY || 0)) * k) * damping;
+        state.smoothRelX = (state.smoothRelX || 0) + state.velRelX;
+        state.smoothRelY = (state.smoothRelY || 0) + state.velRelY;
+      } else if (easing === 'linear') {
+        const maxStep = 0.02 * (1.0 / duration);
+        const diffX = targetX - (state.smoothRelX || 0);
+        const diffY = targetY - (state.smoothRelY || 0);
+        state.smoothRelX = (state.smoothRelX || 0) + clamp(diffX, -maxStep, maxStep);
+        state.smoothRelY = (state.smoothRelY || 0) + clamp(diffY, -maxStep, maxStep);
+      } else {
+        // Exponential low-pass filter
+        state.smoothRelX = (state.smoothRelX || 0) * (1.0 - alpha) + targetX * alpha;
+        state.smoothRelY = (state.smoothRelY || 0) * (1.0 - alpha) + targetY * alpha;
+      }
+      
+      if (Math.abs(state.smoothRelX) > 1e-5 || Math.abs(state.smoothRelY) > 1e-5) {
+        const aspect = canvas.width / canvas.height;
+        const panStepX = state.scale.mul(new BF(state.smoothRelX * aspect * 0.015));
+        const panStepY = state.scale.mul(new BF(state.smoothRelY * 0.015));
+        state.x = state.x.add(panStepX);
+        state.y = state.y.add(panStepY);
+      }
     } else {
-      // Exponential low-pass filter
-      state.smoothRelX = (state.smoothRelX || 0) * (1.0 - alpha) + targetX * alpha;
-      state.smoothRelY = (state.smoothRelY || 0) * (1.0 - alpha) + targetY * alpha;
-    }
-    
-    if (Math.abs(state.smoothRelX) > 1e-5 || Math.abs(state.smoothRelY) > 1e-5) {
-      const aspect = canvas.width / canvas.height;
-      const panStepX = state.scale.mul(new BF(state.smoothRelX * aspect * 0.015));
-      const panStepY = state.scale.mul(new BF(state.smoothRelY * 0.015));
-      state.x = state.x.add(panStepX);
-      state.y = state.y.add(panStepY);
+      // While dragging, damp velocity/smoothing so it doesn't fight the user's manual drag
+      state.smoothRelX = 0;
+      state.smoothRelY = 0;
+      state.velRelX = 0;
+      state.velRelY = 0;
     }
     
     scheduleRender();
