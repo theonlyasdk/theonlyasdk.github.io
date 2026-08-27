@@ -39,6 +39,10 @@ const state = {
   customWidth: 1920,
   customHeight: 1080,
   autoZoom: false,
+  targetRelX: 0,
+  targetRelY: 0,
+  smoothRelX: 0,
+  smoothRelY: 0,
   dragging: false,
   moved: false,
   lastX: 0,
@@ -197,78 +201,112 @@ function updateOrbitTexture(gl, renderer, orbitData) {
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RG32F, orbitData.length / 2, 1, 0, gl.RG, gl.FLOAT, orbitData);
 }
 
+const BAILOUT_BIGINT = 256n << BF.PREC;
+const TWO_PREC = BF.PREC - 1n;
+const PREC_NUM = Math.pow(2, Number(BF.PREC));
+
 function generateOrbit() {
   const maxIter = state.iterations;
   const aspect = canvas.width / canvas.height;
   
-  let bestCx = state.x, bestCy = state.y;
+  const stateXv = state.x.v;
+  const stateYv = state.y.v;
+  const scaleV = state.scale.v;
+  const isJulia = state.type === 'julia';
+  const fractalType = state.type;
+  
+  const juliaRev = isJulia ? new BF(state.juliaRe).v : 0n;
+  const juliaImv = isJulia ? new BF(state.juliaIm).v : 0n;
+  
+  let bestCxV = stateXv, bestCyV = stateYv;
   let bestIter = -1;
   let bestUV = [0.5, 0.5];
   
-  let edgeCx = state.x, edgeCy = state.y;
-  let maxEdgeIter = -1;
+  let bestEdgeRelX = 0, bestEdgeRelY = 0;
+  let maxEdgeScore = -1;
 
-  for (let dy = -0.5; dy <= 0.5; dy += 0.125) {
-    for (let dx = -0.5; dx <= 0.5; dx += 0.125) {
-      const testCx = state.x.add(state.scale.mul(new BF(dx * aspect)));
-      const testCy = state.y.add(state.scale.mul(new BF(dy)));
+  // Search a focused 5x5 grid tightly centered around the middle of the viewport
+  // This keeps the zoom center-focused while detecting intricate edge paths
+  const steps = [-0.25, -0.125, 0, 0.125, 0.25];
+  for (let sY = 0; sY < steps.length; sY++) {
+    const dy = steps[sY];
+    const dyScaledV = (scaleV * BigInt(Math.round(dy * 1048576))) >> 20n;
+    const testCyV = stateYv + dyScaledV;
+
+    for (let sX = 0; sX < steps.length; sX++) {
+      const dx = steps[sX];
+      const dxScaledV = (scaleV * BigInt(Math.round(dx * aspect * 1048576))) >> 20n;
+      const testCxV = stateXv + dxScaledV;
       
-      let A = new BF(0), B = new BF(0);
-      if (state.type === 'julia') { A = testCx; B = testCy; }
-      const Cx = state.type === 'julia' ? new BF(state.juliaRe) : testCx;
-      const Cy = state.type === 'julia' ? new BF(state.juliaIm) : testCy;
+      let av = isJulia ? testCxV : 0n;
+      let bv = isJulia ? testCyV : 0n;
+      const cxV = isJulia ? juliaRev : testCxV;
+      const cyV = isJulia ? juliaImv : testCyV;
       
       let iter = 0;
       for (; iter < maxIter; iter++) {
-        const A2 = A.mul(A);
-        const B2 = B.mul(B);
-        if (A2.add(B2).toNumber() > 256) break;
-        const AB = A.mul(B);
+        const a2 = (av * av) >> BF.PREC;
+        const b2 = (bv * bv) >> BF.PREC;
+        if (a2 + b2 > BAILOUT_BIGINT) break;
+        const ab2 = (av * bv) >> TWO_PREC;
 
-        if (state.type === 'mandelbrot' || state.type === 'julia') {
-          A = A2.sub(B2).add(Cx); B = AB.add(AB).add(Cy);
-        } else if (state.type === 'ship') {
-          const absA = A.abs(), absB = B.abs();
-          A = A2.sub(B2).add(Cx); B = absA.mul(absB).add(absA.mul(absB)).add(Cy);
-        } else if (state.type === 'tricorn') {
-          A = A2.sub(B2).add(Cx); B = AB.add(AB).mul(new BF(-1)).add(Cy);
-        } else if (state.type === 'celtic') {
-          A = A2.sub(B2).abs().add(Cx); B = AB.add(AB).add(Cy);
-        } else if (state.type === 'perpendicular') {
-          A = A2.sub(B2).add(Cx); B = A.abs().mul(B).add(A.abs().mul(B)).add(Cy);
+        if (fractalType === 'mandelbrot' || fractalType === 'julia') {
+          av = a2 - b2 + cxV;
+          bv = ab2 + cyV;
+        } else if (fractalType === 'ship') {
+          const absA = av < 0n ? -av : av;
+          const absB = bv < 0n ? -bv : bv;
+          av = a2 - b2 + cxV;
+          bv = ((absA * absB) >> TWO_PREC) + cyV;
+        } else if (fractalType === 'tricorn') {
+          av = a2 - b2 + cxV;
+          bv = -ab2 + cyV;
+        } else if (fractalType === 'celtic') {
+          const diff = a2 - b2;
+          av = (diff < 0n ? -diff : diff) + cxV;
+          bv = ab2 + cyV;
+        } else if (fractalType === 'perpendicular') {
+          const absA = av < 0n ? -av : av;
+          av = a2 - b2 + cxV;
+          bv = ((absA * bv) >> TWO_PREC) + cyV;
         }
       }
       
       if (iter > bestIter) {
         bestIter = iter;
-        bestCx = testCx;
-        bestCy = testCy;
+        bestCxV = testCxV;
+        bestCyV = testCyV;
         bestUV = [0.5 + dx, 0.5 + dy];
       }
-      if (iter < maxIter && iter > maxEdgeIter) {
-        maxEdgeIter = iter;
-        edgeCx = testCx;
-        edgeCy = testCy;
+      
+      // Center-biased edge scoring: prioritizes points near screen center
+      const distSq = dx * dx + dy * dy;
+      const edgeScore = iter < maxIter ? iter * (1.0 - 2.5 * distSq) : -1;
+      if (edgeScore > maxEdgeScore) {
+        maxEdgeScore = edgeScore;
+        bestEdgeRelX = dx;
+        bestEdgeRelY = dy;
       }
     }
   }
 
-  if (maxEdgeIter !== -1) {
-    state.autoZoomTargetX = edgeCx;
-    state.autoZoomTargetY = edgeCy;
+  if (maxEdgeScore > 0) {
+    state.targetRelX = bestEdgeRelX;
+    state.targetRelY = bestEdgeRelY;
   } else {
-    state.autoZoomTargetX = null;
-    state.autoZoomTargetY = null;
+    state.targetRelX = 0;
+    state.targetRelY = 0;
   }
 
   state.refUV = bestUV;
-  state.refX = bestCx;
-  state.refY = bestCy;
+  state.refX = new BF(bestCxV);
+  state.refY = new BF(bestCyV);
+
   const orbitData = new Float32Array(maxIter * 2);
-  let A = new BF(0), B = new BF(0);
-  const Cx = state.type === 'julia' ? new BF(state.juliaRe) : bestCx;
-  const Cy = state.type === 'julia' ? new BF(state.juliaIm) : bestCy;
-  if (state.type === 'julia') { A = bestCx; B = bestCy; }
+  let av = isJulia ? bestCxV : 0n;
+  let bv = isJulia ? bestCyV : 0n;
+  const cxV = isJulia ? juliaRev : bestCxV;
+  const cyV = isJulia ? juliaImv : bestCyV;
 
   let escaped = false;
   for (let i = 0; i < maxIter; i++) {
@@ -278,28 +316,36 @@ function generateOrbit() {
       continue;
     }
     
-    orbitData[i * 2] = A.toNumber();
-    orbitData[i * 2 + 1] = B.toNumber();
+    orbitData[i * 2] = Number(av) / PREC_NUM;
+    orbitData[i * 2 + 1] = Number(bv) / PREC_NUM;
     
-    const A2 = A.mul(A);
-    const B2 = B.mul(B);
-    if (A2.add(B2).toNumber() > 256) {
+    const a2 = (av * av) >> BF.PREC;
+    const b2 = (bv * bv) >> BF.PREC;
+    if (a2 + b2 > BAILOUT_BIGINT) {
       escaped = true;
       continue;
     }
-    const AB = A.mul(B);
+    const ab2 = (av * bv) >> TWO_PREC;
 
-    if (state.type === 'mandelbrot' || state.type === 'julia') {
-      A = A2.sub(B2).add(Cx); B = AB.add(AB).add(Cy);
-    } else if (state.type === 'ship') {
-      const absA = A.abs(), absB = B.abs();
-      A = A2.sub(B2).add(Cx); B = absA.mul(absB).add(absA.mul(absB)).add(Cy);
-    } else if (state.type === 'tricorn') {
-      A = A2.sub(B2).add(Cx); B = AB.add(AB).mul(new BF(-1)).add(Cy);
-    } else if (state.type === 'celtic') {
-      A = A2.sub(B2).abs().add(Cx); B = AB.add(AB).add(Cy);
-    } else if (state.type === 'perpendicular') {
-      A = A2.sub(B2).add(Cx); B = A.abs().mul(B).add(A.abs().mul(B)).add(Cy);
+    if (fractalType === 'mandelbrot' || fractalType === 'julia') {
+      av = a2 - b2 + cxV;
+      bv = ab2 + cyV;
+    } else if (fractalType === 'ship') {
+      const absA = av < 0n ? -av : av;
+      const absB = bv < 0n ? -bv : bv;
+      av = a2 - b2 + cxV;
+      bv = ((absA * absB) >> TWO_PREC) + cyV;
+    } else if (fractalType === 'tricorn') {
+      av = a2 - b2 + cxV;
+      bv = -ab2 + cyV;
+    } else if (fractalType === 'celtic') {
+      const diff = a2 - b2;
+      av = (diff < 0n ? -diff : diff) + cxV;
+      bv = ab2 + cyV;
+    } else if (fractalType === 'perpendicular') {
+      const absA = av < 0n ? -av : av;
+      av = a2 - b2 + cxV;
+      bv = ((absA * bv) >> TWO_PREC) + cyV;
     }
   }
   return orbitData;
@@ -376,8 +422,21 @@ function pointAt(clientX, clientY) {
   };
 }
 
-function resetView() { Object.assign(state, defaults[state.type]); scheduleRender(); }
-function setAutoZoom(enabled) { state.autoZoom = enabled; $('btn-auto-zoom').classList.toggle('active', enabled); $('btn-auto-zoom').innerHTML = `<i class="bi bi-${enabled ? 'pause' : 'play'}-fill"></i>`; }
+function resetView() {
+  Object.assign(state, defaults[state.type]);
+  state.targetRelX = 0; state.targetRelY = 0;
+  state.smoothRelX = 0; state.smoothRelY = 0;
+  scheduleRender();
+}
+function setAutoZoom(enabled) {
+  state.autoZoom = enabled;
+  if (!enabled) {
+    state.targetRelX = 0; state.targetRelY = 0;
+    state.smoothRelX = 0; state.smoothRelY = 0;
+  }
+  $('btn-auto-zoom').classList.toggle('active', enabled);
+  $('btn-auto-zoom').innerHTML = `<i class="bi bi-${enabled ? 'pause' : 'play'}-fill"></i>`;
+}
 function bindStepper(prev, next, select) { const control = $(select), shift = amount => { control.selectedIndex = (control.selectedIndex + amount + control.options.length) % control.options.length; control.dispatchEvent(new Event('change')); }; $(prev).addEventListener('click', () => shift(-1)); $(next).addEventListener('click', () => shift(1)); }
 
 function initControls() {
@@ -429,17 +488,23 @@ function initSidebar() {
     });
   }
 }
+const ZOOM_STEP = new BF(0.993);
 function animate() {
   if (state.autoZoom && !state.dragging) {
-    let ns = state.scale.mul(new BF(0.992));
+    let ns = state.scale.mul(ZOOM_STEP);
     if (ns.toNumber() < 1e-36) ns = new BF(1e-36);
     state.scale = ns;
     
-    if (state.autoZoomTargetX && state.autoZoomTargetY) {
-      const dx = state.autoZoomTargetX.sub(state.x);
-      const dy = state.autoZoomTargetY.sub(state.y);
-      state.x = state.x.add(dx.mul(new BF(0.015)));
-      state.y = state.y.add(dy.mul(new BF(0.015)));
+    // Smooth the target relative offsets with exponential decay (low-pass filter)
+    state.smoothRelX = (state.smoothRelX || 0) * 0.94 + (state.targetRelX || 0) * 0.06;
+    state.smoothRelY = (state.smoothRelY || 0) * 0.94 + (state.targetRelY || 0) * 0.06;
+    
+    if (Math.abs(state.smoothRelX) > 1e-5 || Math.abs(state.smoothRelY) > 1e-5) {
+      const aspect = canvas.width / canvas.height;
+      const panStepX = state.scale.mul(new BF(state.smoothRelX * aspect * 0.015));
+      const panStepY = state.scale.mul(new BF(state.smoothRelY * 0.015));
+      state.x = state.x.add(panStepX);
+      state.y = state.y.add(panStepY);
     }
     
     scheduleRender();
