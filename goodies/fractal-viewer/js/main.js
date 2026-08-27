@@ -39,6 +39,11 @@ const state = {
   customWidth: 1920,
   customHeight: 1080,
   autoZoom: false,
+  homing: false,
+  homeTargetType: 'mandelbrot',
+  homeTargetX: defaults['mandelbrot'].x,
+  homeTargetY: defaults['mandelbrot'].y,
+  homeTargetScale: defaults['mandelbrot'].scale,
   animSpeed: 1.0,
   animSmoothing: 0.8,
   animEasing: 'exponential',
@@ -82,17 +87,21 @@ vec3 palette(float t) {
   return colour;
 }
 
-float delta_abs(float X, float dX) {
-  if (X + dX >= 0.0) return X >= 0.0 ? dX : 2.0*X + dX;
-  else return X < 0.0 ? -dX : -2.0*X - dX;
+float delta_abs_norm(float X, float W, float s) {
+  float sW = s * W;
+  if (abs(sW) < abs(X) * 0.5) {
+    return X >= 0.0 ? W : -W;
+  }
+  if (X + sW >= 0.0) return X >= 0.0 ? W : (2.0 * X / max(s, 1e-35) + W);
+  else return X < 0.0 ? -W : (-2.0 * X / max(s, 1e-35) - W);
 }
 
 void main() {
-  vec2 dC = vec2((uv.x - uRefUV.x) * uAspect, uv.y - uRefUV.y) * uScale;
-  vec2 dZ = vec2(0.0);
+  vec2 dC0 = vec2((uv.x - uRefUV.x) * uAspect, uv.y - uRefUV.y);
+  vec2 W = vec2(0.0);
   if (uType == 1) {
-    dZ = dC;
-    dC = vec2(0.0);
+    W = dC0;
+    dC0 = vec2(0.0);
   }
   
   float radius2 = 0.0;
@@ -107,35 +116,35 @@ void main() {
     if (A.x > 9999.0) perturb = false;
     
     if (perturb) {
-      Z = A + dZ;
+      Z = A + uScale * W;
       
-      float dx = dZ.x; float dy = dZ.y;
-      float dx2 = dx * dx; float dy2 = dy * dy;
+      float wx = W.x; float wy = W.y;
+      float wx2 = wx * wx; float wy2 = wy * wy;
       
       if (uType == 0 || uType == 1) {
-        dZ.x = 2.0 * (A.x * dx - A.y * dy) + dx2 - dy2 + dC.x;
-        dZ.y = 2.0 * (A.x * dy + A.y * dx) + 2.0 * dx * dy + dC.y;
+        W.x = 2.0 * (A.x * wx - A.y * wy) + uScale * (wx2 - wy2) + dC0.x;
+        W.y = 2.0 * (A.x * wy + A.y * wx) + 2.0 * uScale * wx * wy + dC0.y;
       } else if (uType == 2) {
-        float dX = delta_abs(A.x, dx);
-        float dY = delta_abs(A.y, dy);
+        float dX = delta_abs_norm(A.x, wx, uScale);
+        float dY = delta_abs_norm(A.y, wy, uScale);
         float absA = abs(A.x); float absB = abs(A.y);
-        dZ.x = 2.0 * (absA * dX - absB * dY) + dX * dX - dY * dY + dC.x;
-        dZ.y = 2.0 * (absA * dY + absB * dX) + 2.0 * dX * dY + dC.y;
+        W.x = 2.0 * (absA * dX - absB * dY) + uScale * (dX * dX - dY * dY) + dC0.x;
+        W.y = 2.0 * (absA * dY + absB * dX) + 2.0 * uScale * dX * dY + dC0.y;
       } else if (uType == 3) {
-        dZ.x = 2.0 * (A.x * dx - A.y * dy) + dx2 - dy2 + dC.x;
-        dZ.y = -2.0 * (A.x * dy + A.y * dx) - 2.0 * dx * dy + dC.y;
+        W.x = 2.0 * (A.x * wx - A.y * wy) + uScale * (wx2 - wy2) + dC0.x;
+        W.y = -2.0 * (A.x * wy + A.y * wx) - 2.0 * uScale * wx * wy + dC0.y;
       } else if (uType == 4) {
-        float dRe = 2.0 * (A.x * dx - A.y * dy) + dx2 - dy2;
-        dZ.x = delta_abs(A.x * A.x - A.y * A.y, dRe) + dC.x;
-        dZ.y = 2.0 * (A.x * dy + A.y * dx) + 2.0 * dx * dy + dC.y;
+        float dRe = 2.0 * (A.x * wx - A.y * wy) + uScale * (wx2 - wy2);
+        W.x = delta_abs_norm(A.x * A.x - A.y * A.y, dRe, uScale) + dC0.x;
+        W.y = 2.0 * (A.x * wy + A.y * wx) + 2.0 * uScale * wx * wy + dC0.y;
       } else if (uType == 5) {
-        float dX = delta_abs(A.x, dx);
+        float dX = delta_abs_norm(A.x, wx, uScale);
         float absA = abs(A.x);
-        dZ.x = 2.0 * (A.x * dx - A.y * dy) + dx2 - dy2 + dC.x;
-        dZ.y = 2.0 * (absA * dy + A.y * dX + dX * dy) + dC.y;
+        W.x = 2.0 * (A.x * wx - A.y * wy) + uScale * (wx2 - wy2) + dC0.x;
+        W.y = 2.0 * (absA * wy + A.y * dX) + 2.0 * uScale * dX * wy + dC0.y;
       }
     } else {
-      vec2 C_abs = uType == 1 ? uJulia : (uCentre + dC);
+      vec2 C_abs = uType == 1 ? uJulia : (uCentre + uScale * dC0);
       float zx = Z.x; float zy = Z.y;
       if (uType == 2) { zx = abs(zx); zy = abs(zy); }
       float zx2 = zx * zx; float zy2 = zy * zy; float zxy = zx * zy;
@@ -155,7 +164,12 @@ void main() {
       }
     }
     
-    radius2 = Z.x * Z.x + Z.y * Z.y;
+    radius2 = dot(Z, Z);
+    if (dot(W, W) > 1e16) {
+      if (radius2 <= 256.0) radius2 = 257.0;
+      iteration = i;
+      break;
+    }
     if (radius2 > 256.0) { iteration = i; break; }
   }
   
@@ -163,7 +177,7 @@ void main() {
     outputColor = vec4(0.0, 0.0, 0.0, 1.0);
   } else {
     float smoothIter = float(iteration);
-    if (uSmooth) smoothIter += 1.0 - log(log(radius2)) / log(2.0);
+    if (uSmooth && radius2 > 1.0) smoothIter += 1.0 - log(log(radius2)) / log(2.0);
     outputColor = vec4(palette(smoothIter / float(uIterations) + uCycle), 1.0);
   }
 }
@@ -435,6 +449,7 @@ function pointAt(clientX, clientY) {
 }
 
 function resetView() {
+  state.homing = false;
   Object.assign(state, defaults[state.type]);
   state.targetRelX = 0; state.targetRelY = 0;
   state.smoothRelX = 0; state.smoothRelY = 0;
@@ -450,6 +465,17 @@ function setAutoZoom(enabled) {
   }
   $('btn-auto-zoom').classList.toggle('active', enabled);
   $('btn-auto-zoom').innerHTML = `<i class="bi bi-${enabled ? 'pause' : 'play'}-fill"></i>`;
+}
+function startHoming() {
+  setAutoZoom(false);
+  state.homing = true;
+  state.homeTargetType = 'mandelbrot';
+  state.homeTargetX = defaults['mandelbrot'].x;
+  state.homeTargetY = defaults['mandelbrot'].y;
+  state.homeTargetScale = defaults['mandelbrot'].scale;
+  state.targetRelX = 0; state.targetRelY = 0;
+  state.smoothRelX = 0; state.smoothRelY = 0;
+  state.velRelX = 0; state.velRelY = 0;
 }
 function bindStepper(prev, next, select) { const control = $(select), shift = amount => { control.selectedIndex = (control.selectedIndex + amount + control.options.length) % control.options.length; control.dispatchEvent(new Event('change')); }; $(prev).addEventListener('click', () => shift(-1)); $(next).addEventListener('click', () => shift(1)); }
 
@@ -488,7 +514,7 @@ function initControls() {
 
   $('toggle-smooth').addEventListener('change', event => { state.smooth = event.target.checked; scheduleRender(); });
   $('btn-reset').addEventListener('click', resetView);
-  $('btn-home').addEventListener('click', () => { setAutoZoom(false); state.type = 'mandelbrot'; $('select-fractal').value = 'mandelbrot'; resetView(); });
+  $('btn-home').addEventListener('click', startHoming);
   $('btn-save').addEventListener('click', () => { const link = document.createElement('a'); link.download = `fractal-${state.type}.png`; link.href = canvas.toDataURL('image/png'); link.click(); });
   $('btn-auto-zoom').addEventListener('click', () => setAutoZoom(!state.autoZoom));
   $('btn-telemetry-toggle').addEventListener('click', () => { $('telemetry-hud').classList.toggle('hidden'); $('btn-telemetry-toggle').classList.toggle('active', !$('telemetry-hud').classList.contains('hidden')); });
@@ -499,6 +525,7 @@ function initControls() {
 function initInput() {
   canvas.addEventListener('wheel', event => {
     event.preventDefault();
+    state.homing = false;
     const point = pointAt(event.clientX, event.clientY);
     const zoom = event.deltaY < 0 ? 0.82 : 1.22;
     let ns = state.scale.mul(new BF(zoom));
@@ -510,9 +537,10 @@ function initInput() {
     setAutoZoom(false);
     scheduleRender();
   }, { passive: false });
-  canvas.addEventListener('pointerdown', event => { state.dragging = true; state.moved = false; state.lastX = event.clientX; state.lastY = event.clientY; canvas.setPointerCapture(event.pointerId); });
+  canvas.addEventListener('pointerdown', event => { state.homing = false; state.dragging = true; state.moved = false; state.lastX = event.clientX; state.lastY = event.clientY; canvas.setPointerCapture(event.pointerId); });
   canvas.addEventListener('pointermove', event => {
     if (!state.dragging) return;
+    state.homing = false;
     const deltaX = event.clientX - state.lastX, deltaY = event.clientY - state.lastY, rect = canvas.getBoundingClientRect(), aspect = canvas.width / canvas.height;
     if (Math.hypot(deltaX, deltaY) > 2) state.moved = true;
     state.x = state.x.sub(state.scale.mul(new BF(deltaX / rect.width * aspect)));
@@ -532,7 +560,35 @@ function initSidebar() {
   }
 }
 function animate() {
-  if (state.autoZoom && !state.dragging) {
+  if (state.homing && !state.dragging) {
+    const targetScaleNum = state.homeTargetScale.toNumber();
+    const currentScaleNum = Math.max(1e-75, state.scale.toNumber());
+    const logDist = Math.max(0, Math.log10(targetScaleNum / currentScaleNum));
+    
+    // Exponential zooming out: faster when deep, smoothly slowing down as we arrive
+    const zoomMultiplier = 1.08 + Math.min(0.38, logDist * 0.02);
+    let ns = state.scale.mul(new BF(zoomMultiplier));
+    
+    // Smoothly pan camera towards home center
+    const panAlpha = Math.min(0.28, 0.08 + Math.min(0.18, logDist * 0.006));
+    const panBF = new BF(panAlpha);
+    state.x = state.x.add(state.homeTargetX.sub(state.x).mul(panBF));
+    state.y = state.y.add(state.homeTargetY.sub(state.y).mul(panBF));
+    
+    if (ns.toNumber() >= targetScaleNum * 0.98) {
+      state.scale = state.homeTargetScale;
+      state.x = state.homeTargetX;
+      state.y = state.homeTargetY;
+      state.homing = false;
+      if (state.type !== state.homeTargetType) {
+        state.type = state.homeTargetType;
+        $('select-fractal').value = state.homeTargetType;
+      }
+    } else {
+      state.scale = ns;
+    }
+    scheduleRender();
+  } else if (state.autoZoom && !state.dragging) {
     const speed = state.animSpeed || 1.0;
     const zoomRate = 1.0 - 0.007 * speed;
     let ns = state.scale.mul(new BF(zoomRate));
