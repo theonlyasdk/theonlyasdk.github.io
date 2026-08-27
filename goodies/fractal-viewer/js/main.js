@@ -16,16 +16,19 @@ uniform vec2 uCentreHigh, uCentreLow, uJulia;
 uniform float uScaleHigh, uScaleLow, uAspect, uCycle;
 uniform int uIterations, uType, uPalette; uniform bool uSmooth;
 
+// Optimization barrier to prevent GLSL -ffast-math from folding double-single ops
+float op(float x) { return uintBitsToFloat(floatBitsToUint(x)); }
+
 // Double-single (emulated double precision float) arithmetic:
 // Represents double as pair of float (high + low)
 vec2 ds_set(float a) { return vec2(a, 0.0); }
 
 vec2 ds_add(vec2 dsa, vec2 dsb) {
-  float t1 = dsa.x + dsb.x;
-  float e = t1 - dsa.x;
-  float t2 = ((dsb.x - e) + (dsa.x - (t1 - e))) + dsa.y + dsb.y;
-  float high = t1 + t2;
-  float low = t2 - (high - t1);
+  float t1 = op(dsa.x + dsb.x);
+  float e = op(t1 - dsa.x);
+  float t2 = op(op(dsb.x - e) + op(dsa.x - op(t1 - e))) + dsa.y + dsb.y;
+  float high = op(t1 + t2);
+  float low = t2 - op(high - t1);
   return vec2(high, low);
 }
 
@@ -33,22 +36,25 @@ vec2 ds_sub(vec2 dsa, vec2 dsb) {
   return ds_add(dsa, vec2(-dsb.x, -dsb.y));
 }
 
-// Dekker's product for precise 24-bit mantissa split without GLSL fma
+vec2 split(float a) {
+  uint hi = floatBitsToUint(a) & 0xFFFFF000u;
+  float hiF = uintBitsToFloat(hi);
+  return vec2(hiF, op(a - hiF));
+}
+
 vec2 ds_mul(vec2 dsa, vec2 dsb) {
-  float conA = dsa.x * 4097.0;
-  float a1 = conA - (conA - dsa.x);
-  float a2 = dsa.x - a1;
+  vec2 a = split(dsa.x);
+  vec2 b = split(dsb.x);
 
-  float conB = dsb.x * 4097.0;
-  float b1 = conB - (conB - dsb.x);
-  float b2 = dsb.x - b1;
+  float c11 = op(dsa.x * dsb.x);
+  float err1 = op(c11 - op(a.x * b.x));
+  float err2 = op(err1 - op(a.y * b.x));
+  float err3 = op(err2 - op(a.x * b.y));
+  float c21 = op(a.y * b.y - err3);
 
-  float c11 = dsa.x * dsb.x;
-  float c21 = a2 * b2 - (((c11 - a1 * b1) - a2 * b1) - a1 * b2);
   float c2 = dsa.x * dsb.y + dsa.y * dsb.x + c21;
-
-  float high = c11 + c2;
-  float low = c2 - (high - c11);
+  float high = op(c11 + c2);
+  float low = c2 - op(high - c11);
   return vec2(high, low);
 }
 
