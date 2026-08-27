@@ -49,8 +49,8 @@ jobs:
         run: bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
         env:
           JEKYLL_ENV: production
-      - name: Check generated HTML and internal links
-        run: bundle exec htmlproofer ./_site --disable-external --check-html --check-img-http --allow-hash-href
+- name: Check generated HTML and internal links
+        run: bundle exec htmlproofer ./_site --disable-external --checks Links,Images,Scripts --allow-hash-href
       - name: Upload artifact
         # Automatically uploads an artifact from the './_site' directory by default
         uses: actions/upload-pages-artifact@v3
