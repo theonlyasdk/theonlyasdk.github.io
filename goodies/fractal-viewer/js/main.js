@@ -99,24 +99,13 @@ float delta_abs(float X, float dX) {
 
 vec3 sampleColor(vec2 sampleUV) {
   vec2 dC0 = vec2((sampleUV.x - uRefUV.x) * uAspect, sampleUV.y - uRefUV.y);
-  vec2 u = dC0;
-  vec2 v = vec2(0.0);
-  if (uType == 1) {
-    v = dC0;
-    u = vec2(0.0);
-  }
-  
-  float sMant = uScaleMantissa;
-  int sExp = uScaleExp;
-  
+  float effExp = float(max(-35, uScaleExp));
+  float s = uScaleMantissa * pow(10.0, effExp);
+  vec2 dC = dC0 * s;
   vec2 dZ = vec2(0.0);
-  vec2 dC = vec2(0.0);
-  bool linear = true;
-  if (sExp >= -4) {
-    float curScale = sMant * pow(10.0, float(sExp));
-    linear = false;
-    dZ = curScale * v;
-    dC = curScale * u;
+  if (uType == 1) {
+    dZ = dC;
+    dC = vec2(0.0);
   }
   
   float radius2 = 0.0;
@@ -131,89 +120,35 @@ vec3 sampleColor(vec2 sampleUV) {
     if (A.x > 9999.0) perturb = false;
     
     if (perturb) {
-      if (linear) {
-        float vx = v.x; float vy = v.y;
-        if (uType == 0 || uType == 1) {
-          v.x = 2.0 * (A.x * vx - A.y * vy) + u.x;
-          v.y = 2.0 * (A.x * vy + A.y * vx) + u.y;
-        } else if (uType == 2) {
-          float sx = A.x >= 0.0 ? 1.0 : -1.0;
-          float sy = A.y >= 0.0 ? 1.0 : -1.0;
-          float dX = sx * vx; float dY = sy * vy;
-          float absA = abs(A.x); float absB = abs(A.y);
-          v.x = 2.0 * (absA * dX - absB * dY) + u.x;
-          v.y = 2.0 * (absA * dY + absB * dX) + u.y;
-        } else if (uType == 3) {
-          v.x = 2.0 * (A.x * vx - A.y * vy) + u.x;
-          v.y = -2.0 * (A.x * vy + A.y * vx) + u.y;
-        } else if (uType == 4) {
-          float sDiff = (A.x * A.x - A.y * A.y) >= 0.0 ? 1.0 : -1.0;
-          float dRe = 2.0 * (A.x * vx - A.y * vy);
-          v.x = sDiff * dRe + u.x;
-          v.y = 2.0 * (A.x * vy + A.y * vx) + u.y;
-        } else if (uType == 5) {
-          float sx = A.x >= 0.0 ? 1.0 : -1.0;
-          float dX = sx * vx;
-          float absA = abs(A.x);
-          v.x = 2.0 * (A.x * vx - A.y * vy) + u.x;
-          v.y = 2.0 * (absA * vy + A.y * dX) + u.y;
-        }
-        
-        float vNorm2 = dot(v, v);
-        if (vNorm2 > 1.0e8) {
-          v *= 1.0e-4;
-          u *= 1.0e-4;
-          sExp += 4;
-        }
-        
-        if (sExp >= -4) {
-          float curScale = sMant * pow(10.0, float(sExp));
-          if (curScale * sqrt(vNorm2) >= 1.0e-5) {
-            dZ = curScale * v;
-            dC = curScale * u;
-            linear = false;
-          }
-        }
-        
-        if (linear) {
-          if (sExp >= -30) {
-            Z = A + (sMant * pow(10.0, float(sExp))) * v;
-          } else {
-            Z = A;
-          }
-        }
-      } else {
-        Z = A + dZ;
-        
-        float dx = dZ.x; float dy = dZ.y;
-        float dx2 = dx * dx; float dy2 = dy * dy;
-        
-        if (uType == 0 || uType == 1) {
-          dZ.x = 2.0 * (A.x * dx - A.y * dy) + dx2 - dy2 + dC.x;
-          dZ.y = 2.0 * (A.x * dy + A.y * dx) + 2.0 * dx * dy + dC.y;
-        } else if (uType == 2) {
-          float dX = delta_abs(A.x, dx);
-          float dY = delta_abs(A.y, dy);
-          float absA = abs(A.x); float absB = abs(A.y);
-          dZ.x = 2.0 * (absA * dX - absB * dY) + dX * dX - dY * dY + dC.x;
-          dZ.y = 2.0 * (absA * dY + absB * dX) + 2.0 * dX * dY + dC.y;
-        } else if (uType == 3) {
-          dZ.x = 2.0 * (A.x * dx - A.y * dy) + dx2 - dy2 + dC.x;
-          dZ.y = -2.0 * (A.x * dy + A.y * dx) - 2.0 * dx * dy + dC.y;
-        } else if (uType == 4) {
-          float dRe = 2.0 * (A.x * dx - A.y * dy) + dx2 - dy2;
-          dZ.x = delta_abs(A.x * A.x - A.y * A.y, dRe) + dC.x;
-          dZ.y = 2.0 * (A.x * dy + A.y * dx) + 2.0 * dx * dy + dC.y;
-        } else if (uType == 5) {
-          float dX = delta_abs(A.x, dx);
-          float absA = abs(A.x);
-          dZ.x = 2.0 * (A.x * dx - A.y * dy) + dx2 - dy2 + dC.x;
-          dZ.y = 2.0 * (absA * dy + A.y * dX + dX * dy) + dC.y;
-        }
+      Z = A + dZ;
+      
+      float dx = dZ.x; float dy = dZ.y;
+      float dx2 = dx * dx; float dy2 = dy * dy;
+      
+      if (uType == 0 || uType == 1) {
+        dZ.x = 2.0 * (A.x * dx - A.y * dy) + dx2 - dy2 + dC.x;
+        dZ.y = 2.0 * (A.x * dy + A.y * dx) + 2.0 * dx * dy + dC.y;
+      } else if (uType == 2) {
+        float dX = delta_abs(A.x, dx);
+        float dY = delta_abs(A.y, dy);
+        float absA = abs(A.x); float absB = abs(A.y);
+        dZ.x = 2.0 * (absA * dX - absB * dY) + dX * dX - dY * dY + dC.x;
+        dZ.y = 2.0 * (absA * dY + absB * dX) + 2.0 * dX * dY + dC.y;
+      } else if (uType == 3) {
+        dZ.x = 2.0 * (A.x * dx - A.y * dy) + dx2 - dy2 + dC.x;
+        dZ.y = -2.0 * (A.x * dy + A.y * dx) - 2.0 * dx * dy + dC.y;
+      } else if (uType == 4) {
+        float dRe = 2.0 * (A.x * dx - A.y * dy) + dx2 - dy2;
+        dZ.x = delta_abs(A.x * A.x - A.y * A.y, dRe) + dC.x;
+        dZ.y = 2.0 * (A.x * dy + A.y * dx) + 2.0 * dx * dy + dC.y;
+      } else if (uType == 5) {
+        float dX = delta_abs(A.x, dx);
+        float absA = abs(A.x);
+        dZ.x = 2.0 * (A.x * dx - A.y * dy) + dx2 - dy2 + dC.x;
+        dZ.y = 2.0 * (absA * dy + A.y * dX + dX * dy) + dC.y;
       }
     } else {
-      vec2 effOffset = linear ? (sExp >= -30 ? (sMant * pow(10.0, float(sExp))) * u : vec2(0.0)) : dC;
-      vec2 C_abs = uType == 1 ? uJulia : (uCentre + effOffset);
+      vec2 C_abs = uType == 1 ? uJulia : (uCentre + dC);
       float zx = Z.x; float zy = Z.y;
       if (uType == 2) { zx = abs(zx); zy = abs(zy); }
       float zx2 = zx * zx; float zy2 = zy * zy; float zxy = zx * zy;
