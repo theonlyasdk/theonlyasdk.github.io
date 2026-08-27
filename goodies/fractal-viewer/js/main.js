@@ -1,8 +1,3 @@
-const canvas = document.getElementById('render-canvas');
-const gl = canvas.getContext('webgl2', { antialias: false, alpha: false, preserveDrawingBuffer: true });
-const $ = id => document.getElementById(id);
-const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
-const defaults = { mandelbrot: { x: new BF(-0.5), y: new BF(0), scale: new BF(3.2) }, julia: { x: new BF(0), y: new BF(0), scale: new BF(3.2) }, ship: { x: new BF(-0.5), y: new BF(-0.5), scale: new BF(3.5) }, tricorn: { x: new BF(-0.5), y: new BF(0), scale: new BF(3.2) }, celtic: { x: new BF(-0.5), y: new BF(0), scale: new BF(3.2) }, perpendicular: { x: new BF(-0.5), y: new BF(0), scale: new BF(3.2) } };
 class BF {
   static PREC = 120n;
   constructor(v) {
@@ -17,60 +12,40 @@ class BF {
   toNumber() { return Number(this.v) / Math.pow(2, Number(BF.PREC)); }
 }
 
-let orbitTexture = null;
-function updateOrbitTexture(gl, renderer, orbitData) {
-  if (!orbitTexture) {
-    orbitTexture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, orbitTexture);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-  } else {
-    gl.bindTexture(gl.TEXTURE_2D, orbitTexture);
-  }
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RG32F, orbitData.length / 2, 1, 0, gl.RG, gl.FLOAT, orbitData);
-}
-
-function generateOrbit() {
-  const maxIter = state.iterations;
-  const orbitData = new Float32Array(maxIter * 2);
-  let A = new BF(0), B = new BF(0);
-  const Cx = state.type === 'julia' ? new BF(state.juliaRe) : state.x;
-  const Cy = state.type === 'julia' ? new BF(state.juliaIm) : state.y;
-  
-  if (state.type === 'julia') { A = state.x; B = state.y; }
-
-  for (let i = 0; i < maxIter; i++) {
-    orbitData[i * 2] = A.toNumber();
-    orbitData[i * 2 + 1] = B.toNumber();
-    
-    const A2 = A.mul(A);
-    const B2 = B.mul(B);
-    if (A2.add(B2).toNumber() > 256) break;
-    const AB = A.mul(B);
-
-    if (state.type === 'mandelbrot' || state.type === 'julia') {
-      A = A2.sub(B2).add(Cx);
-      B = AB.add(AB).add(Cy);
-    } else if (state.type === 'ship') {
-      const absA = A.abs(), absB = B.abs();
-      A = A2.sub(B2).add(Cx);
-      B = absA.mul(absB).add(absA.mul(absB)).add(Cy);
-    } else if (state.type === 'tricorn') {
-      A = A2.sub(B2).add(Cx);
-      B = AB.add(AB).mul(new BF(-1)).add(Cy);
-    } else if (state.type === 'celtic') {
-      A = A2.sub(B2).abs().add(Cx);
-      B = AB.add(AB).add(Cy);
-    } else if (state.type === 'perpendicular') {
-      A = A2.sub(B2).add(Cx);
-      B = A.abs().mul(B).add(A.abs().mul(B)).add(Cy);
-    }
-  }
-  return orbitData;
-}
-const state = { type: 'mandelbrot', palette: 'ocean', x: new BF(-0.5), y: new BF(0), scale: new BF(3.2), iterations: 320, cycle: 1, smooth: true, juliaRe: -.745, juliaIm: .113, resolution: 'auto', customWidth: 1920, customHeight: 1080, autoZoom: false, dragging: false, moved: false, lastX: 0, lastY: 0, renderQueued: false, slowFrameScore: 0 };
+const canvas = document.getElementById('render-canvas');
+const gl = canvas.getContext('webgl2', { antialias: false, alpha: false, preserveDrawingBuffer: true });
+const $ = id => document.getElementById(id);
+const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+const defaults = {
+  mandelbrot: { x: new BF(-0.5), y: new BF(0), scale: new BF(3.2) },
+  julia: { x: new BF(0), y: new BF(0), scale: new BF(3.2) },
+  ship: { x: new BF(-0.5), y: new BF(-0.5), scale: new BF(3.5) },
+  tricorn: { x: new BF(-0.5), y: new BF(0), scale: new BF(3.2) },
+  celtic: { x: new BF(-0.5), y: new BF(0), scale: new BF(3.2) },
+  perpendicular: { x: new BF(-0.5), y: new BF(0), scale: new BF(3.2) }
+};
+const state = {
+  type: 'mandelbrot',
+  palette: 'ocean',
+  x: new BF(-0.5),
+  y: new BF(0),
+  scale: new BF(3.2),
+  iterations: 320,
+  cycle: 1,
+  smooth: true,
+  juliaRe: -.745,
+  juliaIm: .113,
+  resolution: 'auto',
+  customWidth: 1920,
+  customHeight: 1080,
+  autoZoom: false,
+  dragging: false,
+  moved: false,
+  lastX: 0,
+  lastY: 0,
+  renderQueued: false,
+  slowFrameScore: 0
+};
 
 const vertexSource = `#version 300 es
 in vec2 position; out vec2 uv;
@@ -95,8 +70,8 @@ vec3 palette(float t) {
 }
 
 float delta_abs(float X, float dX) {
-    if (X + dX >= 0.0) return X >= 0.0 ? dX : 2.0*X + dX;
-    else return X < 0.0 ? -dX : -2.0*X - dX;
+  if (X + dX >= 0.0) return X >= 0.0 ? dX : 2.0*X + dX;
+  else return X < 0.0 ? -dX : -2.0*X - dX;
 }
 
 void main() {
@@ -168,13 +143,67 @@ function createRenderer() {
   const buffer = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
   const position = gl.getAttribLocation(program, 'position'); gl.enableVertexAttribArray(position); gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
-  return { program, uniforms: Object.fromEntries(['uCentreHigh','uCentreLow','uScaleHigh','uScaleLow','uAspect','uIterations','uType','uPalette','uCycle','uSmooth','uJulia'].map(name => [name, gl.getUniformLocation(program, name)])) };
+  return { program, uniforms: Object.fromEntries(['uScale','uAspect','uIterations','uType','uPalette','uCycle','uSmooth','uJulia','uOrbitTex'].map(name => [name, gl.getUniformLocation(program, name)])) };
 }
 
 let renderer;
 try { renderer = createRenderer(); } catch (error) {
   document.body.innerHTML = '<main class="webgl-error"><h1>WebGL 2 is required</h1><p>This Fractal Viewer uses your GPU for real-time rendering. Please open it in a current browser with hardware acceleration enabled.</p></main>';
   throw error;
+}
+
+let orbitTexture = null;
+function updateOrbitTexture(gl, renderer, orbitData) {
+  if (!orbitTexture) {
+    orbitTexture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, orbitTexture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  } else {
+    gl.bindTexture(gl.TEXTURE_2D, orbitTexture);
+  }
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RG32F, orbitData.length / 2, 1, 0, gl.RG, gl.FLOAT, orbitData);
+}
+
+function generateOrbit() {
+  const maxIter = state.iterations;
+  const orbitData = new Float32Array(maxIter * 2);
+  let A = new BF(0), B = new BF(0);
+  const Cx = state.type === 'julia' ? new BF(state.juliaRe) : state.x;
+  const Cy = state.type === 'julia' ? new BF(state.juliaIm) : state.y;
+  
+  if (state.type === 'julia') { A = state.x; B = state.y; }
+
+  for (let i = 0; i < maxIter; i++) {
+    orbitData[i * 2] = A.toNumber();
+    orbitData[i * 2 + 1] = B.toNumber();
+    
+    const A2 = A.mul(A);
+    const B2 = B.mul(B);
+    if (A2.add(B2).toNumber() > 256) break;
+    const AB = A.mul(B);
+
+    if (state.type === 'mandelbrot' || state.type === 'julia') {
+      A = A2.sub(B2).add(Cx);
+      B = AB.add(AB).add(Cy);
+    } else if (state.type === 'ship') {
+      const absA = A.abs(), absB = B.abs();
+      A = A2.sub(B2).add(Cx);
+      B = absA.mul(absB).add(absA.mul(absB)).add(Cy);
+    } else if (state.type === 'tricorn') {
+      A = A2.sub(B2).add(Cx);
+      B = AB.add(AB).mul(new BF(-1)).add(Cy);
+    } else if (state.type === 'celtic') {
+      A = A2.sub(B2).abs().add(Cx);
+      B = AB.add(AB).add(Cy);
+    } else if (state.type === 'perpendicular') {
+      A = A2.sub(B2).add(Cx);
+      B = A.abs().mul(B).add(A.abs().mul(B)).add(Cy);
+    }
+  }
+  return orbitData;
 }
 
 const maxRenderSize = gl.getParameter(gl.MAX_RENDERBUFFER_SIZE);
@@ -207,111 +236,17 @@ function resize() {
   gl.viewport(0, 0, canvas.width, canvas.height); scheduleRender();
 }
 
-function splitDouble(val) {
-  const high = Math.fround(val);
-  const low = Math.fround(val - high);
-  return [high, low];
-}
-
 function scheduleRender() { if (!state.renderQueued) { state.renderQueued = true; requestAnimationFrame(() => { state.renderQueued = false; render(); }); } }
 function render() {
   const renderStarted = performance.now();
   const u = renderer.uniforms; gl.useProgram(renderer.program);
 
-  const [xHigh, xLow] = splitDouble(state.x);
-  const [yHigh, yLow] = splitDouble(state.y);
-  const [scaleHigh, scaleLow] = splitDouble(state.scale);
+  updateOrbitTexture(gl, renderer, generateOrbit());
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, orbitTexture);
+  gl.uniform1i(u.uOrbitTex, 0);
 
-  gl.uniform2f(u.uCentreHigh, xHigh, yHigh);
-  gl.uniform2f(u.uCentreLow, xLow, yLow);
-  gl.uniform1f(u.uScaleHigh, scaleHigh);
-  gl.uniform1f(u.uScaleLow, scaleLow);
-  gl.uniform1f(u.uAspect, canvas.width / canvas.height);
-  gl.uniform1i(u.uIterations, state.iterations);
-  gl.uniform1i(u.uType, { mandelbrot: 0, julia: 1, ship: 2, tricorn: 3, celtic: 4, perpendicular: 5 }[state.type]);
-  gl.uniform1i(u.uPalette, { ocean: 0, ember: 1, neon: 2, mono: 3 }[state.palette]);
-  gl.uniform1f(u.uCycle, state.cycle);
-  gl.uniform1i(u.uSmooth, state.smooth ? 1 : 0);
-  gl.uniform2f(u.uJulia, state.juliaRe, state.juliaIm);
-  gl.drawArrays(gl.TRIANGLES, 0, 6);
-
-  const zoomFactor = 3.2 / state.scale.toNumber();
-  const zoomText = zoomFactor > 1e6 ? `${zoomFactor.toExponential(2)}x` : `${zoomFactor.toFixed(2)}x`;
-`;
-
-function shader(type, source) {
-  const compiled = gl.createShader(type); gl.shaderSource(compiled, source); gl.compileShader(compiled);
-  if (!gl.getShaderParameter(compiled, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(compiled));
-  return compiled;
-}
-
-function createRenderer() {
-  if (!gl) throw new Error('WebGL 2 is unavailable');
-  const program = gl.createProgram();
-  gl.attachShader(program, shader(gl.VERTEX_SHADER, vertexSource)); gl.attachShader(program, shader(gl.FRAGMENT_SHADER, fragmentSource)); gl.linkProgram(program);
-  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(program));
-  gl.useProgram(program);
-  const buffer = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
-  const position = gl.getAttribLocation(program, 'position'); gl.enableVertexAttribArray(position); gl.vertexVertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
-  return { program, uniforms: Object.fromEntries(['uCentreHigh','uCentreLow','uScaleHigh','uScaleLow','uAspect','uIterations','uType','uPalette','uCycle','uSmooth','uJulia'].map(name => [name, gl.getUniformLocation(program, name)])) };
-}
-
-let renderer;
-try { renderer = createRenderer(); } catch (error) {
-  document.body.innerHTML = '<main class="webgl-error"><h1>WebGL 2 is required</h1><p>This Fractal Viewer uses your GPU for real-time rendering. Please open it in a current browser with hardware acceleration enabled.</p></main>';
-  throw error;
-}
-
-const maxRenderSize = gl.getParameter(gl.MAX_RENDERBUFFER_SIZE);
-const lowPowerHost = (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) || (navigator.deviceMemory && navigator.deviceMemory <= 4);
-
-function renderSize() {
-  if (state.resolution === 'custom') return { width: state.customWidth, height: state.customHeight };
-  const factor = state.resolution === 'auto' ? 1 : Number(state.resolution);
-  const deviceScale = Math.min(window.devicePixelRatio || 1, 2) * factor;
-  return { width: Math.floor(innerWidth * deviceScale), height: Math.floor(innerHeight * deviceScale) };
-}
-
-function updateResolutionWarning(width, height) {
-  const warning = $('resolution-warning');
-  const pixels = width * height;
-  let message = '';
-  if (width > maxRenderSize || height > maxRenderSize) message = `This GPU supports up to ${maxRenderSize}px on either side. Reduce the custom size.`;
-  else if ((lowPowerHost || state.slowFrameScore >= 2) && pixels > 1500000) message = 'This device may be too slow for this resolution. Use Performance or Balanced if interaction stutters.';
-  else if (pixels > 6000000) message = 'This is a demanding render size and may reduce responsiveness on some devices.';
-  warning.hidden = !message;
-  warning.textContent = message;
-}
-
-function resize() {
-  const size = renderSize();
-  canvas.width = Math.max(1, Math.min(maxRenderSize, size.width)); canvas.height = Math.max(1, Math.min(maxRenderSize, size.height));
-  canvas.style.width = `${innerWidth}px`; canvas.style.height = `${innerHeight}px`;
-  $('label-resolution').textContent = `${canvas.width} × ${canvas.height}`;
-  updateResolutionWarning(size.width, size.height);
-  gl.viewport(0, 0, canvas.width, canvas.height); scheduleRender();
-}
-
-function splitDouble(val) {
-  const high = Math.fround(val);
-  const low = Math.fround(val - high);
-  return [high, low];
-}
-
-function scheduleRender() { if (!state.renderQueued) { state.renderQueued = true; requestAnimationFrame(() => { state.renderQueued = false; render(); }); } }
-function render() {
-  const renderStarted = performance.now();
-  const u = renderer.uniforms; gl.useProgram(renderer.program);
-
-  const [xHigh, xLow] = splitDouble(state.x.toNumber());
-  const [yHigh, yLow] = splitDouble(state.y.toNumber());
-  const [scaleHigh, scaleLow] = splitDouble(state.scale.toNumber());
-
-  gl.uniform2f(u.uCentreHigh, xHigh, yHigh);
-  gl.uniform2f(u.uCentreLow, xLow, yLow);
-  gl.uniform1f(u.uScaleHigh, scaleHigh);
-  gl.uniform1f(u.uScaleLow, scaleLow);
+  gl.uniform1f(u.uScale, state.scale.toNumber());
   gl.uniform1f(u.uAspect, canvas.width / canvas.height);
   gl.uniform1i(u.uIterations, state.iterations);
   gl.uniform1i(u.uType, { mandelbrot: 0, julia: 1, ship: 2, tricorn: 3, celtic: 4, perpendicular: 5 }[state.type]);
