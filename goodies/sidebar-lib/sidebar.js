@@ -49,13 +49,74 @@ class Sidebar {
       }
     });
 
-    document.querySelectorAll('[data-dismiss="sidebar"]').forEach(btn => {
-      if (btn !== this.collapseBtn) {
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          this.collapse();
-        });
+    this.initSegmentedControls();
+  }
+
+  initSegmentedControls() {
+    const controls = (this.sidebarEl || document).querySelectorAll('.seg-control');
+    controls.forEach(ctrl => {
+      let indicator = ctrl.querySelector('.seg-indicator');
+      if (!indicator) {
+        indicator = document.createElement('div');
+        indicator.className = 'seg-indicator';
+        ctrl.prepend(indicator);
       }
+
+      const updateIndicator = (activeBtn, animate = true) => {
+        if (!activeBtn) {
+          indicator.style.opacity = '0';
+          return;
+        }
+        const ctrlRect = ctrl.getBoundingClientRect();
+        const btnRect = activeBtn.getBoundingClientRect();
+        if (btnRect.width === 0 || btnRect.height === 0) return;
+
+        const left = btnRect.left - ctrlRect.left;
+        const top = btnRect.top - ctrlRect.top;
+        const width = btnRect.width;
+        const height = btnRect.height;
+
+        if (!animate) {
+          indicator.style.transition = 'none';
+        } else {
+          indicator.style.transition = 'transform 0.28s cubic-bezier(0.32, 0.72, 0, 1), width 0.28s cubic-bezier(0.32, 0.72, 0, 1), height 0.28s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.15s ease';
+        }
+
+        indicator.style.width = `${width}px`;
+        indicator.style.height = `${height}px`;
+        indicator.style.transform = `translate(${left}px, ${top}px)`;
+        indicator.style.opacity = '1';
+      };
+
+      const activeBtn = ctrl.querySelector('.seg-btn.active');
+      if (activeBtn) {
+        requestAnimationFrame(() => updateIndicator(activeBtn, false));
+      }
+
+      ctrl.querySelectorAll('.seg-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          ctrl.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          updateIndicator(btn, true);
+        });
+      });
+    });
+
+    window.addEventListener('resize', () => {
+      controls.forEach(ctrl => {
+        const activeBtn = ctrl.querySelector('.seg-btn.active');
+        const indicator = ctrl.querySelector('.seg-indicator');
+        if (activeBtn && indicator) {
+          const ctrlRect = ctrl.getBoundingClientRect();
+          const btnRect = activeBtn.getBoundingClientRect();
+          if (btnRect.width > 0) {
+            indicator.style.transition = 'none';
+            indicator.style.width = `${btnRect.width}px`;
+            indicator.style.height = `${btnRect.height}px`;
+            indicator.style.transform = `translate(${btnRect.left - ctrlRect.left}px, ${btnRect.top - ctrlRect.top}px)`;
+          }
+        }
+      });
     });
   }
 
