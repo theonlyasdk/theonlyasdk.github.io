@@ -39,10 +39,17 @@ const state = {
   customWidth: 1920,
   customHeight: 1080,
   autoZoom: false,
+  animSpeed: 1.0,
+  animSmoothing: 0.8,
+  animEasing: 'exponential',
+  animTracking: 50,
+  dynamicIter: true,
   targetRelX: 0,
   targetRelY: 0,
   smoothRelX: 0,
   smoothRelY: 0,
+  velRelX: 0,
+  velRelY: 0,
   dragging: false,
   moved: false,
   lastX: 0,
@@ -388,7 +395,9 @@ function render() {
   const scaleNum = Math.max(1e-75, state.scale.toNumber());
   const zoomFactor = 3.2 / scaleNum;
   const zoomExp = Math.max(0, Math.log10(zoomFactor));
-  const effectiveIterations = Math.min(3600, Math.round(state.iterations + zoomExp * 35));
+  const effectiveIterations = state.dynamicIter !== false
+    ? Math.min(3600, Math.round(state.iterations + zoomExp * 35))
+    : state.iterations;
 
   updateOrbitTexture(gl, renderer, generateOrbit(effectiveIterations));
   gl.activeTexture(gl.TEXTURE0);
@@ -429,6 +438,7 @@ function resetView() {
   Object.assign(state, defaults[state.type]);
   state.targetRelX = 0; state.targetRelY = 0;
   state.smoothRelX = 0; state.smoothRelY = 0;
+  state.velRelX = 0; state.velRelY = 0;
   scheduleRender();
 }
 function setAutoZoom(enabled) {
@@ -436,6 +446,7 @@ function setAutoZoom(enabled) {
   if (!enabled) {
     state.targetRelX = 0; state.targetRelY = 0;
     state.smoothRelX = 0; state.smoothRelY = 0;
+    state.velRelX = 0; state.velRelY = 0;
   }
   $('btn-auto-zoom').classList.toggle('active', enabled);
   $('btn-auto-zoom').innerHTML = `<i class="bi bi-${enabled ? 'pause' : 'play'}-fill"></i>`;
@@ -448,12 +459,41 @@ function initControls() {
   $('select-resolution').addEventListener('change', event => { state.resolution = event.target.value; $('custom-resolution').hidden = state.resolution !== 'custom'; if (state.resolution !== 'custom') resize(); else updateResolutionWarning(state.customWidth, state.customHeight); });
   $('btn-apply-resolution').addEventListener('click', () => { state.customWidth = clamp(Math.round(Number($('input-resolution-width').value) || 1920), 320, maxRenderSize); state.customHeight = clamp(Math.round(Number($('input-resolution-height').value) || 1080), 180, maxRenderSize); $('input-resolution-width').value = state.customWidth; $('input-resolution-height').value = state.customHeight; resize(); });
   ['input-resolution-width', 'input-resolution-height'].forEach(id => $(id).addEventListener('input', () => updateResolutionWarning(Number($('input-resolution-width').value), Number($('input-resolution-height').value))));
-  [['slider-iterations','label-iterations','iterations', v => v], ['slider-cycle','label-cycle','cycle', v => `${(v / 100).toFixed(1)}x`], ['slider-julia-real','label-julia-real','juliaRe', v => Number(v).toFixed(3)], ['slider-julia-imag','label-julia-imag','juliaIm', v => Number(v).toFixed(3)]].forEach(([input,label,key,format]) => $(input).addEventListener('input', event => { const value = Number(event.target.value); state[key] = key === 'cycle' ? value / 100 : value; $(label).textContent = format(value); scheduleRender(); }));
-  $('toggle-smooth').addEventListener('change', event => { state.smooth = event.target.checked; scheduleRender(); }); $('btn-reset').addEventListener('click', resetView);
-  $('btn-home').addEventListener('click', () => { state.type = 'mandelbrot'; $('select-fractal').value = 'mandelbrot'; resetView(); });
+  [['slider-iterations','label-iterations','iterations', v => v],
+   ['slider-cycle','label-cycle','cycle', v => `${(v / 100).toFixed(1)}x`],
+   ['slider-julia-real','label-julia-real','juliaRe', v => Number(v).toFixed(3)],
+   ['slider-julia-imag','label-julia-imag','juliaIm', v => Number(v).toFixed(3)],
+   ['slider-anim-speed','label-anim-speed','animSpeed', v => `${Number(v).toFixed(1)}x`],
+   ['slider-anim-smoothing','label-anim-smoothing','animSmoothing', v => `${Number(v).toFixed(1)}s`],
+   ['slider-anim-tracking','label-anim-tracking','animTracking', v => {
+     const n = Number(v);
+     return n === 0 ? 'Centered (0%)' : (n <= 40 ? `Slight (${n}%)` : (n <= 70 ? `Balanced (${n}%)` : `Aggressive (${n}%)`));
+   }]
+  ].forEach(([input,label,key,format]) => {
+    const el = $(input);
+    if (el) el.addEventListener('input', event => {
+      const value = Number(event.target.value);
+      state[key] = key === 'cycle' ? value / 100 : value;
+      const lbl = $(label);
+      if (lbl) lbl.textContent = format(value);
+      scheduleRender();
+    });
+  });
+
+  const selectEasing = $('select-anim-easing');
+  if (selectEasing) selectEasing.addEventListener('change', event => { state.animEasing = event.target.value; });
+
+  const toggleDynamic = $('toggle-dynamic-iter');
+  if (toggleDynamic) toggleDynamic.addEventListener('change', event => { state.dynamicIter = event.target.checked; scheduleRender(); });
+
+  $('toggle-smooth').addEventListener('change', event => { state.smooth = event.target.checked; scheduleRender(); });
+  $('btn-reset').addEventListener('click', resetView);
+  $('btn-home').addEventListener('click', () => { setAutoZoom(false); state.type = 'mandelbrot'; $('select-fractal').value = 'mandelbrot'; resetView(); });
   $('btn-save').addEventListener('click', () => { const link = document.createElement('a'); link.download = `fractal-${state.type}.png`; link.href = canvas.toDataURL('image/png'); link.click(); });
-  $('btn-auto-zoom').addEventListener('click', () => setAutoZoom(!state.autoZoom)); $('btn-telemetry-toggle').addEventListener('click', () => { $('telemetry-hud').classList.toggle('hidden'); $('btn-telemetry-toggle').classList.toggle('active', !$('telemetry-hud').classList.contains('hidden')); });
-  $('btn-info').addEventListener('click', () => { $('info-modal').hidden = false; }); $('btn-close-info').addEventListener('click', () => { $('info-modal').hidden = true; });
+  $('btn-auto-zoom').addEventListener('click', () => setAutoZoom(!state.autoZoom));
+  $('btn-telemetry-toggle').addEventListener('click', () => { $('telemetry-hud').classList.toggle('hidden'); $('btn-telemetry-toggle').classList.toggle('active', !$('telemetry-hud').classList.contains('hidden')); });
+  $('btn-info').addEventListener('click', () => { $('info-modal').hidden = false; });
+  $('btn-close-info').addEventListener('click', () => { $('info-modal').hidden = true; });
 }
 
 function initInput() {
@@ -491,16 +531,45 @@ function initSidebar() {
     });
   }
 }
-const ZOOM_STEP = new BF(0.993);
 function animate() {
   if (state.autoZoom && !state.dragging) {
-    let ns = state.scale.mul(ZOOM_STEP);
+    const speed = state.animSpeed || 1.0;
+    const zoomRate = 1.0 - 0.007 * speed;
+    let ns = state.scale.mul(new BF(zoomRate));
     if (ns.toNumber() < 1e-75) ns = new BF(1e-75);
     state.scale = ns;
     
-    // Smooth the target relative offsets with exponential decay (low-pass filter)
-    state.smoothRelX = (state.smoothRelX || 0) * 0.94 + (state.targetRelX || 0) * 0.06;
-    state.smoothRelY = (state.smoothRelY || 0) * 0.94 + (state.targetRelY || 0) * 0.06;
+    const trackingWeight = (state.animTracking !== undefined ? state.animTracking : 50) / 100;
+    const targetX = (state.targetRelX || 0) * trackingWeight;
+    const targetY = (state.targetRelY || 0) * trackingWeight;
+    
+    const duration = Math.max(0.05, state.animSmoothing || 0.8);
+    const alpha = clamp(1.0 - Math.exp(-1.0 / (60.0 * duration)), 0.01, 0.99);
+    const easing = state.animEasing || 'exponential';
+    
+    if (easing === 'cubic') {
+      const diffX = targetX - (state.smoothRelX || 0);
+      const diffY = targetY - (state.smoothRelY || 0);
+      state.smoothRelX = (state.smoothRelX || 0) + Math.sign(diffX) * Math.pow(Math.abs(diffX), 0.7) * alpha * 1.5;
+      state.smoothRelY = (state.smoothRelY || 0) + Math.sign(diffY) * Math.pow(Math.abs(diffY), 0.7) * alpha * 1.5;
+    } else if (easing === 'spring') {
+      const k = 0.14 / duration;
+      const damping = 0.84;
+      state.velRelX = ((state.velRelX || 0) + (targetX - (state.smoothRelX || 0)) * k) * damping;
+      state.velRelY = ((state.velRelY || 0) + (targetY - (state.smoothRelY || 0)) * k) * damping;
+      state.smoothRelX = (state.smoothRelX || 0) + state.velRelX;
+      state.smoothRelY = (state.smoothRelY || 0) + state.velRelY;
+    } else if (easing === 'linear') {
+      const maxStep = 0.02 * (1.0 / duration);
+      const diffX = targetX - (state.smoothRelX || 0);
+      const diffY = targetY - (state.smoothRelY || 0);
+      state.smoothRelX = (state.smoothRelX || 0) + clamp(diffX, -maxStep, maxStep);
+      state.smoothRelY = (state.smoothRelY || 0) + clamp(diffY, -maxStep, maxStep);
+    } else {
+      // Exponential low-pass filter
+      state.smoothRelX = (state.smoothRelX || 0) * (1.0 - alpha) + targetX * alpha;
+      state.smoothRelY = (state.smoothRelY || 0) * (1.0 - alpha) + targetY * alpha;
+    }
     
     if (Math.abs(state.smoothRelX) > 1e-5 || Math.abs(state.smoothRelY) > 1e-5) {
       const aspect = canvas.width / canvas.height;
