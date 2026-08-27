@@ -96,8 +96,7 @@ float delta_abs(float X, float dX) {
 }
 
 void main() {
-  float effectiveScale = max(uScale, 1e-32);
-  vec2 dC = vec2((uv.x - uRefUV.x) * uAspect, uv.y - uRefUV.y) * effectiveScale;
+  vec2 dC = vec2((uv.x - uRefUV.x) * uAspect, uv.y - uRefUV.y) * uScale;
   vec2 dZ = vec2(0.0);
   if (uType == 1) {
     dZ = dC;
