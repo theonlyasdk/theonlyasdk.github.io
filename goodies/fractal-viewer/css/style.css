@@ -9,7 +9,6 @@
 
 .telemetry-hud { position: absolute; right: 1rem; top: 1rem; width: 220px; padding: 1rem; border-radius: 16px; z-index: 10; transition: opacity .2s ease, transform .2s ease; }
 .telemetry-hud.hidden { opacity: 0; pointer-events: none; transform: scale(.92); }
-.telemetry-header { display: flex; justify-content: space-between; color: var(--accent); font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: .8rem; }
 .telemetry-grid { display: grid; grid-template-columns: 1fr auto; gap: .5rem .8rem; font-size: .78rem; color: var(--text-muted); }
 .telemetry-grid b { color: var(--text-main); font-weight: 600; text-align: right; }
 
