@@ -33,6 +33,7 @@ const state = {
   iterations: 320,
   cycle: 1,
   smooth: true,
+  aa: 2,
   juliaRe: -.745,
   juliaIm: .113,
   resolution: 'auto',
@@ -74,11 +75,12 @@ const fragmentSource = `#version 300 es
 precision highp float; precision highp int;
 in vec2 uv; out vec4 outputColor;
 uniform float uScale, uAspect, uCycle;
-uniform int uIterations, uType, uPalette; uniform bool uSmooth;
+uniform int uIterations, uType, uPalette, uAA; uniform bool uSmooth;
 uniform sampler2D uOrbitTex;
 uniform vec2 uJulia;
 uniform vec2 uCentre;
 uniform vec2 uRefUV;
+uniform vec2 uPixelSize;
 
 vec3 palette(float t) {
   t = fract(t);
@@ -95,8 +97,8 @@ float delta_abs(float X, float dX) {
   else return X < 0.0 ? -dX : -2.0*X - dX;
 }
 
-void main() {
-  vec2 dC = vec2((uv.x - uRefUV.x) * uAspect, uv.y - uRefUV.y) * uScale;
+vec3 sampleColor(vec2 sampleUV) {
+  vec2 dC = vec2((sampleUV.x - uRefUV.x) * uAspect, sampleUV.y - uRefUV.y) * uScale;
   vec2 dZ = vec2(0.0);
   if (uType == 1) {
     dZ = dC;
@@ -168,11 +170,29 @@ void main() {
   }
   
   if (iteration == 0 && radius2 <= 256.0) {
-    outputColor = vec4(0.0, 0.0, 0.0, 1.0);
+    return vec3(0.0);
   } else {
     float smoothIter = float(iteration);
     if (uSmooth && radius2 > 1.0) smoothIter += 1.0 - log(log(radius2)) / log(2.0);
-    outputColor = vec4(palette(smoothIter / float(uIterations) + uCycle), 1.0);
+    return palette(smoothIter / float(uIterations) + uCycle);
+  }
+}
+
+void main() {
+  if (uAA == 2) {
+    vec2 off = uPixelSize * 0.25;
+    vec3 c1 = sampleColor(uv - off);
+    vec3 c2 = sampleColor(uv + off);
+    outputColor = vec4((c1 + c2) * 0.5, 1.0);
+  } else if (uAA == 4) {
+    vec2 p = uPixelSize;
+    vec3 c1 = sampleColor(uv + vec2(-0.375, -0.125) * p);
+    vec3 c2 = sampleColor(uv + vec2( 0.125, -0.375) * p);
+    vec3 c3 = sampleColor(uv + vec2( 0.375,  0.125) * p);
+    vec3 c4 = sampleColor(uv + vec2(-0.125,  0.375) * p);
+    outputColor = vec4((c1 + c2 + c3 + c4) * 0.25, 1.0);
+  } else {
+    outputColor = vec4(sampleColor(uv), 1.0);
   }
 }
 `;
@@ -192,7 +212,7 @@ function createRenderer() {
   const buffer = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
   const position = gl.getAttribLocation(program, 'position'); gl.enableVertexAttribArray(position); gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
-  return { program, uniforms: Object.fromEntries(['uScale','uAspect','uIterations','uType','uPalette','uCycle','uSmooth','uJulia','uOrbitTex','uCentre','uRefUV'].map(name => [name, gl.getUniformLocation(program, name)])) };
+  return { program, uniforms: Object.fromEntries(['uScale','uAspect','uIterations','uType','uPalette','uCycle','uSmooth','uJulia','uOrbitTex','uCentre','uRefUV','uAA','uPixelSize'].map(name => [name, gl.getUniformLocation(program, name)])) };
 }
 
 let renderer;
@@ -440,6 +460,8 @@ function render() {
   gl.uniform1i(u.uPalette, { ocean: 0, ember: 1, neon: 2, mono: 3 }[state.palette]);
   gl.uniform1f(u.uCycle, state.cycle);
   gl.uniform1i(u.uSmooth, state.smooth ? 1 : 0);
+  gl.uniform1i(u.uAA, state.aa !== undefined ? state.aa : 2);
+  gl.uniform2f(u.uPixelSize, 1.0 / canvas.width, 1.0 / canvas.height);
   gl.uniform2f(u.uJulia, state.juliaRe, state.juliaIm);
   gl.drawArrays(gl.TRIANGLES, 0, 6);
 
@@ -539,6 +561,11 @@ function initControls() {
   if (toggleDynamic) toggleDynamic.addEventListener('change', event => { state.dynamicIter = event.target.checked; scheduleRender(); });
 
   $('toggle-smooth').addEventListener('change', event => { state.smooth = event.target.checked; scheduleRender(); });
+  const selectAA = $('select-aa');
+  if (selectAA) selectAA.addEventListener('change', event => {
+    state.aa = Number(event.target.value);
+    scheduleRender();
+  });
   $('btn-reset').addEventListener('click', resetView);
   $('btn-home').addEventListener('click', startHoming);
   $('btn-save').addEventListener('click', () => { const link = document.createElement('a'); link.download = `fractal-${state.type}.png`; link.href = canvas.toDataURL('image/png'); link.click(); });

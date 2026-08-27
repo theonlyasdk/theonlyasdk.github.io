@@ -56,6 +56,14 @@
     <div class="hud-section"><div class="control-row"><span>Iterations</span><span id="label-iterations" class="telemetry-val">320</span></div><input id="slider-iterations" type="range" min="80" max="1200" step="20" value="320"></div>
     <div class="hud-section"><div class="control-row"><span>Colour cycle</span><span id="label-cycle" class="telemetry-val">1.0x</span></div><input id="slider-cycle" type="range" min="10" max="300" step="5" value="100"></div>
     <div class="hud-section"><div class="toggle-row"><span>Smooth colouring</span><label class="switch"><input id="toggle-smooth" type="checkbox" checked><span class="slider-round"></span></label></div></div>
+    <div class="hud-section">
+      <div class="control-row"><span>Anti-aliasing</span></div>
+      <select id="select-aa" class="custom-select">
+        <option value="1">Off (1× Native)</option>
+        <option value="2" selected>2× Subpixel AA (Smooth)</option>
+        <option value="4">4× Super-Sampling (Ultra)</option>
+      </select>
+    </div>
 
     <div class="hud-group-title">Animation</div>
     <div class="hud-section">
