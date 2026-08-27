@@ -12,8 +12,36 @@ void main() { uv = position * .5 + .5; gl_Position = vec4(position, 0., 1.); }`;
 const fragmentSource = `#version 300 es
 precision highp float; precision highp int;
 in vec2 uv; out vec4 outputColor;
-uniform vec2 uCentre, uJulia; uniform float uScale, uAspect, uCycle;
+uniform vec2 uCentreHigh, uCentreLow, uJulia;
+uniform float uScaleHigh, uScaleLow, uAspect, uCycle;
 uniform int uIterations, uType, uPalette; uniform bool uSmooth;
+
+// Double-single (emulated double precision float) arithmetic:
+// Represents double as pair of float (high + low)
+vec2 ds_set(float a) { return vec2(a, 0.0); }
+
+vec2 ds_add(vec2 dsa, vec2 dsb) {
+  float t1 = dsa.x + dsb.x;
+  float e = t1 - dsa.x;
+  float t2 = ((dsb.x - e) + (dsa.x - (t1 - e))) + dsa.y + dsb.y;
+  float high = t1 + t2;
+  float low = t2 - (high - t1);
+  return vec2(high, low);
+}
+
+vec2 ds_sub(vec2 dsa, vec2 dsb) {
+  return ds_add(dsa, vec2(-dsb.x, -dsb.y));
+}
+
+vec2 ds_mul(vec2 dsa, vec2 dsb) {
+  float c11 = dsa.x * dsb.x;
+  float c21 = fma(dsa.x, dsb.x, -c11);
+  float c2 = dsa.x * dsb.y + dsa.y * dsb.x + c21;
+  float high = c11 + c2;
+  float low = c2 - (high - c11);
+  return vec2(high, low);
+}
+
 vec3 palette(float t) {
   t = fract(t);
   if (uPalette == 3) return vec3(t);
@@ -23,24 +51,45 @@ vec3 palette(float t) {
   if (uPalette == 1) colour *= vec3(1.,.56,.22);
   return colour;
 }
+
 void main() {
-  vec2 point = uCentre + vec2((uv.x-.5)*uScale*uAspect, (uv.y-.5)*uScale);
-  vec2 z = uType == 1 ? point : vec2(0.); vec2 c = uType == 1 ? uJulia : point;
-  float radius2 = 0.; int iteration = 0;
+  vec2 scale_ds = vec2(uScaleHigh, uScaleLow);
+  vec2 offX_ds = ds_mul(scale_ds, vec2((uv.x - 0.5) * uAspect, 0.0));
+  vec2 offY_ds = ds_mul(scale_ds, vec2(uv.y - 0.5, 0.0));
+
+  vec2 pointX_ds = ds_add(vec2(uCentreHigh.x, uCentreLow.x), offX_ds);
+  vec2 pointY_ds = ds_add(vec2(uCentreHigh.y, uCentreLow.y), offY_ds);
+
+  vec2 z = uType == 1 ? vec2(pointX_ds.x, pointY_ds.x) : vec2(0.0);
+  vec2 c = uType == 1 ? uJulia : vec2(pointX_ds.x, pointY_ds.x);
+
+  // Use perturbation relative coordinate if zoomed very deep
+  vec2 deltaC = vec2(offX_ds.x + offX_ds.y, offY_ds.x + offY_ds.y);
+
+  float radius2 = 0.0;
+  int iteration = 0;
   for (int i = 0; i < 1200; i++) {
     if (i >= uIterations) break;
     if (uType == 2) z = abs(z);
-    if (uType == 3) z = vec2(z.x*z.x-z.y*z.y, -2.*z.x*z.y) + c;
-    else if (uType == 4) z = vec2(abs(z.x*z.x-z.y*z.y), 2.*z.x*z.y) + c;
-    else if (uType == 5) z = vec2(z.x*z.x-z.y*z.y, 2.*abs(z.x)*z.y) + c;
-    else z = vec2(z.x*z.x-z.y*z.y, 2.*z.x*z.y) + c;
-    radius2 = dot(z,z); iteration = i;
-    if (radius2 > 256.) break;
+    if (uType == 3) z = vec2(z.x*z.x - z.y*z.y, -2.0*z.x*z.y) + c;
+    else if (uType == 4) z = vec2(abs(z.x*z.x - z.y*z.y), 2.0*z.x*z.y) + c;
+    else if (uType == 5) z = vec2(z.x*z.x - z.y*z.y, 2.0*abs(z.x)*z.y) + c;
+    else z = vec2(z.x*z.x - z.y*z.y, 2.0*z.x*z.y) + c;
+    radius2 = dot(z, z);
+    iteration = i;
+    if (radius2 > 256.0) break;
   }
-  if (radius2 <= 256. && iteration + 1 >= uIterations) { outputColor = vec4(.012,.027,.071,1.); return; }
+
+  if (radius2 <= 256.0 && iteration + 1 >= uIterations) {
+    outputColor = vec4(0.012, 0.027, 0.071, 1.0);
+    return;
+  }
+
   float value = float(iteration);
-  if (uSmooth) value += 1. - log(log(max(sqrt(radius2), 1.0001))) / log(2.);
-  outputColor = vec4(palette(value / float(uIterations) * 2.8 * uCycle), 1.);
+  if (uSmooth) {
+    value += 1.0 - log(log(max(sqrt(radius2), 1.0001))) / log(2.0);
+  }
+  outputColor = vec4(palette(value / float(uIterations) * 2.8 * uCycle), 1.0);
 }`;
 
 function shader(type, source) {
@@ -58,7 +107,7 @@ function createRenderer() {
   const buffer = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
   const position = gl.getAttribLocation(program, 'position'); gl.enableVertexAttribArray(position); gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
-  return { program, uniforms: Object.fromEntries(['uCentre','uScale','uAspect','uIterations','uType','uPalette','uCycle','uSmooth','uJulia'].map(name => [name, gl.getUniformLocation(program, name)])) };
+  return { program, uniforms: Object.fromEntries(['uCentreHigh','uCentreLow','uScaleHigh','uScaleLow','uAspect','uIterations','uType','uPalette','uCycle','uSmooth','uJulia'].map(name => [name, gl.getUniformLocation(program, name)])) };
 }
 
 let renderer;
@@ -97,14 +146,40 @@ function resize() {
   gl.viewport(0, 0, canvas.width, canvas.height); scheduleRender();
 }
 
+function splitDouble(val) {
+  const high = Math.fround(val);
+  const low = Math.fround(val - high);
+  return [high, low];
+}
+
 function scheduleRender() { if (!state.renderQueued) { state.renderQueued = true; requestAnimationFrame(() => { state.renderQueued = false; render(); }); } }
 function render() {
   const renderStarted = performance.now();
   const u = renderer.uniforms; gl.useProgram(renderer.program);
-  gl.uniform2f(u.uCentre, state.x, state.y); gl.uniform1f(u.uScale, state.scale); gl.uniform1f(u.uAspect, canvas.width / canvas.height);
-  gl.uniform1i(u.uIterations, state.iterations); gl.uniform1i(u.uType, { mandelbrot: 0, julia: 1, ship: 2, tricorn: 3, celtic: 4, perpendicular: 5 }[state.type]); gl.uniform1i(u.uPalette, { ocean: 0, ember: 1, neon: 2, mono: 3 }[state.palette]);
-  gl.uniform1f(u.uCycle, state.cycle); gl.uniform1i(u.uSmooth, state.smooth ? 1 : 0); gl.uniform2f(u.uJulia, state.juliaRe, state.juliaIm); gl.drawArrays(gl.TRIANGLES, 0, 6);
-  $('telemetry-formula').textContent = { mandelbrot: 'Mandelbrot', julia: 'Julia', ship: 'Burning Ship', tricorn: 'Tricorn', celtic: 'Celtic', perpendicular: 'Perpendicular' }[state.type]; $('telemetry-zoom').textContent = `${(3.2 / state.scale).toFixed(2)}x`; $('telemetry-centre').textContent = `${state.x.toFixed(4)}, ${state.y.toFixed(4)}`; $('telemetry-render').textContent = `GPU · ${canvas.width} × ${canvas.height}`;
+
+  const [xHigh, xLow] = splitDouble(state.x);
+  const [yHigh, yLow] = splitDouble(state.y);
+  const [scaleHigh, scaleLow] = splitDouble(state.scale);
+
+  gl.uniform2f(u.uCentreHigh, xHigh, yHigh);
+  gl.uniform2f(u.uCentreLow, xLow, yLow);
+  gl.uniform1f(u.uScaleHigh, scaleHigh);
+  gl.uniform1f(u.uScaleLow, scaleLow);
+  gl.uniform1f(u.uAspect, canvas.width / canvas.height);
+  gl.uniform1i(u.uIterations, state.iterations);
+  gl.uniform1i(u.uType, { mandelbrot: 0, julia: 1, ship: 2, tricorn: 3, celtic: 4, perpendicular: 5 }[state.type]);
+  gl.uniform1i(u.uPalette, { ocean: 0, ember: 1, neon: 2, mono: 3 }[state.palette]);
+  gl.uniform1f(u.uCycle, state.cycle);
+  gl.uniform1i(u.uSmooth, state.smooth ? 1 : 0);
+  gl.uniform2f(u.uJulia, state.juliaRe, state.juliaIm);
+  gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+  const zoomFactor = 3.2 / state.scale;
+  const zoomText = zoomFactor > 1e6 ? `${zoomFactor.toExponential(2)}x` : `${zoomFactor.toFixed(2)}x`;
+  $('telemetry-formula').textContent = { mandelbrot: 'Mandelbrot', julia: 'Julia', ship: 'Burning Ship', tricorn: 'Tricorn', celtic: 'Celtic', perpendicular: 'Perpendicular' }[state.type];
+  $('telemetry-zoom').textContent = zoomText;
+  $('telemetry-centre').textContent = `${state.x.toFixed(6)}, ${state.y.toFixed(6)}`;
+  $('telemetry-render').textContent = `GPU · ${canvas.width} × ${canvas.height}`;
   requestAnimationFrame(() => { state.slowFrameScore = clamp(state.slowFrameScore + (performance.now() - renderStarted > 45 ? 1 : -1), 0, 3); updateResolutionWarning(canvas.width, canvas.height); });
 }
 
@@ -128,7 +203,16 @@ function initControls() {
 }
 
 function initInput() {
-  canvas.addEventListener('wheel', event => { event.preventDefault(); const point = pointAt(event.clientX, event.clientY), zoom = event.deltaY < 0 ? .82 : 1.22; state.scale = clamp(state.scale * zoom, 1e-12, 6); state.x = point.x + (state.x - point.x) * zoom; state.y = point.y + (state.y - point.y) * zoom; setAutoZoom(false); scheduleRender(); }, { passive: false });
+  canvas.addEventListener('wheel', event => {
+    event.preventDefault();
+    const point = pointAt(event.clientX, event.clientY);
+    const zoom = event.deltaY < 0 ? 0.82 : 1.22;
+    state.scale = clamp(state.scale * zoom, 1e-100, 10.0);
+    state.x = point.x + (state.x - point.x) * zoom;
+    state.y = point.y + (state.y - point.y) * zoom;
+    setAutoZoom(false);
+    scheduleRender();
+  }, { passive: false });
   canvas.addEventListener('pointerdown', event => { state.dragging = true; state.moved = false; state.lastX = event.clientX; state.lastY = event.clientY; canvas.setPointerCapture(event.pointerId); });
   canvas.addEventListener('pointermove', event => { if (!state.dragging) return; const deltaX = event.clientX - state.lastX, deltaY = event.clientY - state.lastY, rect = canvas.getBoundingClientRect(), aspect = canvas.width / canvas.height; if (Math.hypot(deltaX, deltaY) > 2) state.moved = true; state.x -= deltaX / rect.width * state.scale * aspect; state.y += deltaY / rect.height * state.scale; state.lastX = event.clientX; state.lastY = event.clientY; setAutoZoom(false); scheduleRender(); });
   canvas.addEventListener('pointerup', event => { state.dragging = false; if (state.type === 'julia' && !state.moved) { const point = pointAt(event.clientX, event.clientY); state.juliaRe = clamp(point.x, -1, 1); state.juliaIm = clamp(point.y, -1, 1); $('slider-julia-real').value = state.juliaRe; $('slider-julia-imag').value = state.juliaIm; $('label-julia-real').textContent = state.juliaRe.toFixed(3); $('label-julia-imag').textContent = state.juliaIm.toFixed(3); scheduleRender(); } });
@@ -142,6 +226,6 @@ function initSidebar() {
     });
   }
 }
-function animate() { if (state.autoZoom && !state.dragging) { state.scale = Math.max(1e-12, state.scale * .992); scheduleRender(); } requestAnimationFrame(animate); }
+function animate() { if (state.autoZoom && !state.dragging) { state.scale = Math.max(1e-100, state.scale * 0.992); scheduleRender(); } requestAnimationFrame(animate); }
 
 addEventListener('resize', resize); initControls(); initInput(); initSidebar(); resize(); animate();
