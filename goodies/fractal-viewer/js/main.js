@@ -1,5 +1,5 @@
 class BF {
-  static PREC = 120n;
+  static PREC = 256n;
   constructor(v) {
     if (typeof v === 'bigint') this.v = v;
     else if (v instanceof BF) this.v = v.v;
@@ -93,7 +93,7 @@ void main() {
   vec2 Z = vec2(0.0);
   bool perturb = true;
 
-  for (int i = 0; i < 2000; i++) {
+  for (int i = 0; i < 4000; i++) {
     if (i >= uIterations) break;
     
     vec2 A = texelFetch(uOrbitTex, ivec2(i, 0), 0).rg;
@@ -205,8 +205,7 @@ const BAILOUT_BIGINT = 256n << BF.PREC;
 const TWO_PREC = BF.PREC - 1n;
 const PREC_NUM = Math.pow(2, Number(BF.PREC));
 
-function generateOrbit() {
-  const maxIter = state.iterations;
+function generateOrbit(maxIter = state.iterations) {
   const aspect = canvas.width / canvas.height;
   
   const stateXv = state.x.v;
@@ -386,16 +385,21 @@ function render() {
   const renderStarted = performance.now();
   const u = renderer.uniforms; gl.useProgram(renderer.program);
 
-  updateOrbitTexture(gl, renderer, generateOrbit());
+  const scaleNum = Math.max(1e-75, state.scale.toNumber());
+  const zoomFactor = 3.2 / scaleNum;
+  const zoomExp = Math.max(0, Math.log10(zoomFactor));
+  const effectiveIterations = Math.min(3600, Math.round(state.iterations + zoomExp * 35));
+
+  updateOrbitTexture(gl, renderer, generateOrbit(effectiveIterations));
   gl.activeTexture(gl.TEXTURE0);
   gl.bindTexture(gl.TEXTURE_2D, orbitTexture);
   gl.uniform1i(u.uOrbitTex, 0);
 
   gl.uniform2f(u.uCentre, (state.refX || state.x).toNumber(), (state.refY || state.y).toNumber());
   if (state.refUV) gl.uniform2f(u.uRefUV, state.refUV[0], state.refUV[1]);
-  gl.uniform1f(u.uScale, state.scale.toNumber());
+  gl.uniform1f(u.uScale, scaleNum);
   gl.uniform1f(u.uAspect, canvas.width / canvas.height);
-  gl.uniform1i(u.uIterations, state.iterations);
+  gl.uniform1i(u.uIterations, effectiveIterations);
   gl.uniform1i(u.uType, { mandelbrot: 0, julia: 1, ship: 2, tricorn: 3, celtic: 4, perpendicular: 5 }[state.type]);
   gl.uniform1i(u.uPalette, { ocean: 0, ember: 1, neon: 2, mono: 3 }[state.palette]);
   gl.uniform1f(u.uCycle, state.cycle);
@@ -403,7 +407,6 @@ function render() {
   gl.uniform2f(u.uJulia, state.juliaRe, state.juliaIm);
   gl.drawArrays(gl.TRIANGLES, 0, 6);
 
-  const zoomFactor = 3.2 / state.scale.toNumber();
   const zoomText = zoomFactor > 1e6 ? `${zoomFactor.toExponential(2)}x` : `${zoomFactor.toFixed(2)}x`;
   $('telemetry-formula').textContent = { mandelbrot: 'Mandelbrot', julia: 'Julia', ship: 'Burning Ship', tricorn: 'Tricorn', celtic: 'Celtic', perpendicular: 'Perpendicular' }[state.type];
   $('telemetry-zoom').textContent = zoomText;
@@ -459,7 +462,7 @@ function initInput() {
     const point = pointAt(event.clientX, event.clientY);
     const zoom = event.deltaY < 0 ? 0.82 : 1.22;
     let ns = state.scale.mul(new BF(zoom));
-    if (ns.toNumber() < 1e-36) ns = new BF(1e-36);
+    if (ns.toNumber() < 1e-75) ns = new BF(1e-75);
     if (ns.toNumber() > 10.0) ns = new BF(10.0);
     state.scale = ns;
     state.x = point.x.add(state.x.sub(point.x).mul(new BF(zoom)));
@@ -492,7 +495,7 @@ const ZOOM_STEP = new BF(0.993);
 function animate() {
   if (state.autoZoom && !state.dragging) {
     let ns = state.scale.mul(ZOOM_STEP);
-    if (ns.toNumber() < 1e-36) ns = new BF(1e-36);
+    if (ns.toNumber() < 1e-75) ns = new BF(1e-75);
     state.scale = ns;
     
     // Smooth the target relative offsets with exponential decay (low-pass filter)
