@@ -707,7 +707,23 @@ function initSidebar() {
     });
   }
 }
+let fpsFrames = 0;
+let fpsLastTime = performance.now();
+function updateFPS() {
+  fpsFrames++;
+  const now = performance.now();
+  const elapsed = now - fpsLastTime;
+  if (elapsed >= 500) {
+    const currentFPS = Math.round((fpsFrames * 1000) / elapsed);
+    fpsFrames = 0;
+    fpsLastTime = now;
+    const elFPS = $('telemetry-fps');
+    if (elFPS) elFPS.textContent = `${currentFPS} FPS`;
+  }
+}
+
 function animate() {
+  updateFPS();
   if (state.homing && !state.dragging) {
     const currentScaleNum = Math.max(1e-75, state.scale.toNumber());
     const targetScaleNum = state.homeTargetScale.toNumber();
