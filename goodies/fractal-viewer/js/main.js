@@ -48,6 +48,9 @@ const state = {
   animSmoothing: 0.8,
   animEasing: 'exponential',
   animTracking: 50,
+  animDensity: 7,
+  animRadius: 0.25,
+  animSensitivity: 70,
   dynamicIter: true,
   targetRelX: 0,
   targetRelY: 0,
@@ -245,17 +248,22 @@ function generateOrbit(maxIter = state.iterations) {
   let bestEdgeRelX = 0, bestEdgeRelY = 0;
   let maxEdgeScore = -1;
 
-  // Search a focused 5x5 grid tightly centered around the middle of the viewport
-  // This keeps the zoom center-focused while detecting intricate edge paths
-  const steps = [-0.25, -0.125, 0, 0.125, 0.25];
-  for (let sY = 0; sY < steps.length; sY++) {
-    const dy = steps[sY];
-    const dyScaledV = (scaleV * BigInt(Math.round(dy * 1048576))) >> 20n;
+  const density = state.animDensity || 7;
+  const radius = state.animRadius || 0.25;
+  const sensitivity = (state.animSensitivity !== undefined ? state.animSensitivity : 70) / 100;
+  const sensExp = 0.5 + sensitivity * 1.5;
+
+  const stepSize = density > 1 ? (radius * 2) / (density - 1) : 0;
+
+  for (let sY = 0; sY < density; sY++) {
+    const dy = -radius + sY * stepSize;
+    // Lossless high-precision BigInt offset calculation (12 decimal places)
+    const dyScaledV = (scaleV * BigInt(Math.round(dy * 1000000000000))) / 1000000000000n;
     const testCyV = stateYv + dyScaledV;
 
-    for (let sX = 0; sX < steps.length; sX++) {
-      const dx = steps[sX];
-      const dxScaledV = (scaleV * BigInt(Math.round(dx * aspect * 1048576))) >> 20n;
+    for (let sX = 0; sX < density; sX++) {
+      const dx = -radius + sX * stepSize;
+      const dxScaledV = (scaleV * BigInt(Math.round(dx * aspect * 1000000000000))) / 1000000000000n;
       const testCxV = stateXv + dxScaledV;
       
       let av = isJulia ? testCxV : 0n;
@@ -299,13 +307,16 @@ function generateOrbit(maxIter = state.iterations) {
         bestUV = [0.5 + dx, 0.5 + dy];
       }
       
-      // Center-biased edge scoring: prioritizes points near screen center
-      const distSq = dx * dx + dy * dy;
-      const edgeScore = iter < maxIter ? iter * (1.0 - 2.5 * distSq) : -1;
-      if (edgeScore > maxEdgeScore) {
-        maxEdgeScore = edgeScore;
-        bestEdgeRelX = dx;
-        bestEdgeRelY = dy;
+      // High-precision filament detection
+      if (iter < maxIter && iter > 8) {
+        const distSq = (dx * dx + dy * dy) / (radius * radius * 2.0);
+        const centerWeight = Math.max(0.05, 1.0 - distSq);
+        const edgeScore = Math.pow(iter, sensExp) * centerWeight;
+        if (edgeScore > maxEdgeScore) {
+          maxEdgeScore = edgeScore;
+          bestEdgeRelX = dx;
+          bestEdgeRelY = dy;
+        }
       }
     }
   }
@@ -490,11 +501,13 @@ function initControls() {
    ['slider-julia-real','label-julia-real','juliaRe', v => Number(v).toFixed(3)],
    ['slider-julia-imag','label-julia-imag','juliaIm', v => Number(v).toFixed(3)],
    ['slider-anim-speed','label-anim-speed','animSpeed', v => `${Number(v).toFixed(1)}x`],
-   ['slider-anim-smoothing','label-anim-smoothing','animSmoothing', v => `${Number(v).toFixed(1)}s`],
+   ['slider-anim-smoothing','label-anim-smoothing','animSmoothing', v => `${Number(v).toFixed(2)}s`],
    ['slider-anim-tracking','label-anim-tracking','animTracking', v => {
      const n = Number(v);
      return n === 0 ? 'Centered (0%)' : (n <= 40 ? `Slight (${n}%)` : (n <= 70 ? `Balanced (${n}%)` : `Aggressive (${n}%)`));
-   }]
+   }],
+   ['slider-anim-radius','label-anim-radius','animRadius', v => `±${Math.round(Number(v) * 100)}%`],
+   ['slider-anim-sensitivity','label-anim-sensitivity','animSensitivity', v => `${Math.round(Number(v))}%`]
   ].forEach(([input,label,key,format]) => {
     const el = $(input);
     if (el) el.addEventListener('input', event => {
@@ -508,6 +521,12 @@ function initControls() {
 
   const selectEasing = $('select-anim-easing');
   if (selectEasing) selectEasing.addEventListener('change', event => { state.animEasing = event.target.value; });
+
+  const selectDensity = $('select-anim-density');
+  if (selectDensity) selectDensity.addEventListener('change', event => {
+    state.animDensity = Number(event.target.value);
+    scheduleRender();
+  });
 
   const toggleDynamic = $('toggle-dynamic-iter');
   if (toggleDynamic) toggleDynamic.addEventListener('change', event => { state.dynamicIter = event.target.checked; scheduleRender(); });
