@@ -76,7 +76,8 @@ order: 5
 
   .goodie-filter button:focus-visible,
   .goodie-card:focus-visible,
-  .goodie-demo-link:focus-visible {
+  .goodie-demo-link:focus-visible,
+  .goodie-edge-nav:focus-visible {
     outline: 3px solid var(--link-color);
     outline-offset: 3px;
   }
@@ -281,6 +282,7 @@ order: 5
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    position: relative;
   }
 
   .modal-iframe {
@@ -292,6 +294,173 @@ order: 5
 
   .modal-placeholder {
     text-align: center;
+  }
+
+  /* Goodie modal edge navigation (MIUI back-gesture style) */
+  .goodie-edge-nav {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 40px;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    cursor: default;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 6;
+  }
+
+  .goodie-edge-prev {
+    left: 0;
+  }
+
+  .goodie-edge-next {
+    right: 0;
+  }
+
+  .goodie-edge-nav.is-visible {
+    pointer-events: auto;
+  }
+
+  .goodie-edge-nav:focus-visible {
+    opacity: 1;
+    pointer-events: auto;
+    outline-offset: -3px;
+  }
+
+  /* Cross-origin demo iframes can't report pointer position, so the
+     edge strips stay clickable there and fade in on hover instead. */
+  .custom-modal-content.has-xframe .goodie-edge-nav {
+    pointer-events: auto;
+  }
+
+  .custom-modal-content.has-xframe .goodie-edge-nav:hover {
+    opacity: 1;
+  }
+
+  .goodie-edge-hump {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 48px;
+    height: 100%;
+    display: block;
+    pointer-events: none;
+  }
+
+  .goodie-edge-next .goodie-edge-hump {
+    left: auto;
+    right: 0;
+  }
+
+  .goodie-edge-next .hump-chevron {
+    animation-name: edge-nudge-r;
+  }
+
+  .hump-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    overflow: visible;
+  }
+
+  .hump-fill {
+    fill: rgba(10, 10, 12, 0.78);
+    transition: fill 0.25s ease;
+  }
+
+  .hump-edge {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.16);
+    stroke-width: 1.5;
+  }
+
+  .goodie-edge-nav:hover .hump-fill {
+    fill: rgba(10, 10, 12, 0.92);
+  }
+
+  .hump-chevron-wrap {
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.25s ease;
+  }
+
+  .hump-label {
+    margin-top: 6px;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.72);
+    writing-mode: vertical-rl;
+    line-height: 1;
+    user-select: none;
+  }
+
+  .goodie-edge-nav:hover .hump-chevron-wrap {
+    transform: translateY(-50%) scale(1.25);
+  }
+
+  .goodie-edge-nav:active .hump-chevron-wrap {
+    transform: translateY(-50%) scale(0.9);
+  }
+
+  .goodie-edge-nav.is-pressed .hump-chevron-wrap {
+    transform: translateY(-50%) scale(0.9);
+    transition-duration: 0.08s;
+  }
+
+  .hump-chevron {
+    display: block;
+    width: 22px;
+    height: 22px;
+    color: #ffffff;
+    animation: edge-nudge 1.6s ease-in-out infinite;
+  }
+
+  @keyframes edge-nudge {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(4px); }
+  }
+
+  @keyframes edge-nudge-r {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(-4px); }
+  }
+
+  /* Ripple that covers the dialog on prev/next navigation */
+  .goodie-ripple-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 40;
+    pointer-events: none;
+    overflow: hidden;
+    border-radius: inherit;
+  }
+
+  .goodie-ripple {
+    position: absolute;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.18) 55%, rgba(255, 255, 255, 0) 70%);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .goodie-edge-nav,
+    .hump-chevron-wrap {
+      transition: none;
+    }
+
+    .hump-chevron {
+      animation: none;
+    }
   }
 
   /* Goodie Info Button */
@@ -429,7 +598,14 @@ order: 5
         <h1 id="custom-modal-game-name" class="display-3">Loading...</h1>
         <p class="text-muted italic">Stay tuned, the engine is charging up!</p>
       </div>
+      <button id="goodie-edge-prev" class="goodie-edge-nav goodie-edge-prev" type="button" aria-label="Previous goodie" title="Previous goodie">
+        <span class="goodie-edge-hump" aria-hidden="true"><svg class="hump-svg" aria-hidden="true"><path class="hump-fill" d=""/><path class="hump-edge" d=""/></svg><span class="hump-chevron-wrap"><svg class="hump-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span></span>
+      </button>
+      <button id="goodie-edge-next" class="goodie-edge-nav goodie-edge-next" type="button" aria-label="Next goodie" title="Next goodie">
+        <span class="goodie-edge-hump" aria-hidden="true"><svg class="hump-svg" aria-hidden="true"><path class="hump-fill" d=""/><path class="hump-edge" d=""/></svg><span class="hump-chevron-wrap"><svg class="hump-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span></span>
+      </button>
     </div>
+    <div class="goodie-ripple-layer" id="goodie-ripple-layer" aria-hidden="true"></div>
   </div>
 </div>
 
