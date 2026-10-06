@@ -2,8 +2,16 @@
 
 $sidebar-width: 260px !default; /* the basic width */
 $sidebar-width-large: 300px !default; /* screen width: >= 1650px */
-$sb-btn-gap: 0.8rem !default;
-$sb-btn-gap-lg: 1rem !default;
+$sb-btn-gap: 0.35rem !default;
+$sb-btn-gap-lg: 0.45rem !default;
+
+/* Single source of truth for the drawer animation: the panel slide and the
+   contents zoom share one duration + easing so they stay locked together. */
+$sidebar-transition-dur: 0.4s !default;
+
+/* Content shift is allowed to finish sooner than the panel. It paints above
+   the drawer, so it can lead the animation instead of waiting on it. */
+$sidebar-content-dur: 0.3s !default;
 
 /* other framework sizes */
 

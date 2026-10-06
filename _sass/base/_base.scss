@@ -425,7 +425,8 @@ mjx-container {
   @include mx.pl-pr(0);
 
   @include bp.lt(bp.get(lg)) {
-    @include mx.slide;
+    /* Content leads the drawer so it never lags behind the panel */
+    @include mx.slide(null, v.$sidebar-content-dur);
   }
 
   @include bp.lg {

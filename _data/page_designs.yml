@@ -1,0 +1,53 @@
+- name: Black Fill
+  category: Fills
+  description: A solid black A4 sheet — covers, title pages and high-contrast backing.
+  image: /assets/img/page-designs/page-black-fill.png
+  pdf: /assets/files/page-designs/page-black-fill.pdf
+
+- name: Blue Fill
+  category: Fills
+  description: A solid blue A4 sheet — dividers, covers and color backing.
+  image: /assets/img/page-designs/page-blue-fill.png
+  pdf: /assets/files/page-designs/page-blue-fill.pdf
+
+- name: Green Fill
+  category: Fills
+  description: A solid green A4 sheet — dividers, covers and color backing.
+  image: /assets/img/page-designs/page-green-fill.png
+  pdf: /assets/files/page-designs/page-green-fill.pdf
+
+- name: Red Fill
+  category: Fills
+  description: A solid red A4 sheet — dividers, covers and color backing.
+  image: /assets/img/page-designs/page-red-fill.png
+  pdf: /assets/files/page-designs/page-red-fill.pdf
+
+- name: Black Dotted Rounded Border
+  category: Borders
+  description: A4 sheet with a dotted, round-cornered black border and a page-number header — notebooks, logs and worksheets.
+  image: /assets/img/page-designs/page-border-black-dotted-rounded.png
+  pdf: /assets/files/page-designs/page-border-black-dotted-rounded.pdf
+
+- name: Black Dotted Sharp Border
+  category: Borders
+  description: A4 sheet with a dotted, sharp-cornered black border and a page-number header — notebooks, logs and worksheets.
+  image: /assets/img/page-designs/page-border-black-dotted-sharp.png
+  pdf: /assets/files/page-designs/page-border-black-dotted-sharp.pdf
+
+- name: Black Rounded Border
+  category: Borders
+  description: A4 sheet with a solid, round-cornered black border and a page-number header — notebooks, logs and worksheets.
+  image: /assets/img/page-designs/page-border-black-rounded.png
+  pdf: /assets/files/page-designs/page-border-black-rounded.pdf
+
+- name: Black Sharp Border
+  category: Borders
+  description: A4 sheet with a solid, sharp-cornered black border and a page-number header — notebooks, logs and worksheets.
+  image: /assets/img/page-designs/page-border-black-sharp.png
+  pdf: /assets/files/page-designs/page-border-black-sharp.pdf
+
+- name: PAL Test Chart
+  category: Test
+  description: PAL color-bar test page — check printer color output and alignment before a big print run.
+  image: /assets/img/page-designs/page-test-pal.png
+  pdf: /assets/files/page-designs/page-test-pal.pdf

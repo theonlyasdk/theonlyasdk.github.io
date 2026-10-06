@@ -1,6 +1,7 @@
 <!-- The Side Bar -->
 
 <aside aria-label="Sidebar" id="sidebar" class="d-flex flex-column align-items-end">
+  <div class="sidebar-zoom">
   <header class="profile-wrapper">
     <div class="full-width-flex-center">
       <div class="fwfc-row">
@@ -49,7 +50,7 @@
     </ul>
   </nav>
 
-  <div class="sidebar-bottom d-flex flex-wrap  align-items-center w-100">
+  <div class="sidebar-bottom d-flex flex-wrap justify-content-center w-100">
     {% unless site.theme_mode == 'light' or site.theme_mode == 'dark' %}
       {%- capture icon_system -%}
         <i class="fa-solid fa-display" data-theme-mode="system"></i>
@@ -68,6 +69,7 @@
           type="button"
           class="btn btn-link nav-link"
           aria-label="Switch Mode"
+          title="Switch Mode"
           id="mode-toggle"
           data-bs-toggle="dropdown"
         >
@@ -97,10 +99,44 @@
         </ul>
       </div>
 
-      {% if site.data.contact.size > 0 %}
-        <span class="icon-border"></span>
-      {% endif %}
-    {% endunless %}
+      <script>
+        (function () {
+          function initThemeMenuFadeOut() {
+            var toggle = document.getElementById('mode-toggle');
+            var menu = toggle ? toggle.nextElementSibling : null;
+            if (!toggle || !menu) return;
+
+            var isClosing = false;
+            toggle.addEventListener('hide.bs.dropdown', function (e) {
+              if (isClosing) return;
+              e.preventDefault();
+              isClosing = true;
+              menu.classList.add('fade-out');
+
+              setTimeout(function () {
+                var dropdown = window.bootstrap && window.bootstrap.Dropdown ? window.bootstrap.Dropdown.getInstance(toggle) : null;
+                menu.classList.remove('fade-out');
+                if (dropdown) {
+                  dropdown.hide();
+                } else {
+                  menu.classList.remove('show');
+                  toggle.classList.remove('show');
+                  toggle.setAttribute('aria-expanded', 'false');
+                }
+                isClosing = false;
+              }, 140);
+            });
+          }
+
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initThemeMenuFadeOut);
+          } else {
+            initThemeMenuFadeOut();
+          }
+        })();
+      </script>
+
+      {% endunless %}
 
     {% for entry in site.data.contact %}
       {% case entry.type %}
@@ -123,6 +159,7 @@
         <a
           href="{{ url }}"
           aria-label="{{ entry.type }}"
+          title="{{ entry.type | capitalize }}"
           {% assign link_types = '' %}
 
           {% unless entry.noblank %}
@@ -144,5 +181,7 @@
     {% endfor %}
   </div>
   <!-- .sidebar-bottom -->
+  </div>
+  <!-- .sidebar-zoom -->
 </aside>
 <!-- #sidebar -->

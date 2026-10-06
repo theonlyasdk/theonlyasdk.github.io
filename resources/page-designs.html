@@ -1,0 +1,414 @@
+---
+layout: page-notitle
+title: Printable Page Designs
+---
+
+<style>
+  .pdesign-card {
+    background-color: var(--card-bg);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    padding: 0 0 1.5rem 0;
+    width: 100%;
+    height: 100%;
+    margin-bottom: 0;
+    box-shadow: var(--card-shadow);
+    border: 0;
+    opacity: 0;
+    overflow: hidden;
+    animation: pdesignIn 1.5s var(--spring-ease, ease-out) var(--anim-delay, 0s) forwards;
+    cursor: pointer;
+    transition: transform 0.3s var(--spring-ease, ease-out), box-shadow 0.3s ease;
+  }
+
+  .pdesign-card h5 {
+    padding: 0 2rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.4rem;
+    font-weight: light;
+    font-size: 1.6rem;
+  }
+
+  .pdesign-card p {
+    padding: 0 2rem;
+    margin-bottom: 0;
+    line-height: 1.4;
+    flex-grow: 1;
+  }
+
+  .pdesign-card:active {
+    filter: brightness(90%);
+  }
+
+  .pdesign-card:focus-visible,
+  .pdesign-filter button:focus-visible,
+  .pdesign-search-clear:focus-visible {
+    outline: 3px solid var(--link-color);
+    outline-offset: 3px;
+  }
+
+  .pdesign-cover {
+    position: relative;
+    height: 240px;
+    overflow: hidden;
+    margin: 0;
+    flex-shrink: 0;
+    background: var(--main-bg);
+  }
+
+  .pdesign-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .pdesign-image-fallback {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    text-align: center;
+    color: var(--text-muted-color);
+    background: var(--main-bg);
+  }
+
+  .pdesign-search {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background-color: var(--card-bg);
+    border: 1px solid var(--sidebar-border-color);
+    border-radius: 0.75rem;
+    padding: 0.55rem 0.9rem;
+    margin-top: 1rem;
+    box-shadow: var(--card-shadow);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .pdesign-search:focus-within {
+    border-color: var(--link-color);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--link-color) 25%, transparent);
+  }
+
+  .pdesign-search svg {
+    flex-shrink: 0;
+    width: 1rem;
+    height: 1rem;
+    color: var(--text-muted-color);
+  }
+
+  .pdesign-search input {
+    flex: 1;
+    min-width: 0;
+    background: none;
+    border: 0;
+    outline: none;
+    color: var(--text-color);
+    font-size: 0.95rem;
+  }
+
+  .pdesign-search input::placeholder {
+    color: var(--text-muted-color);
+  }
+
+  .pdesign-search input[type="search"]::-webkit-search-cancel-button {
+    display: none;
+  }
+
+  .pdesign-search-clear {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.4rem;
+    height: 1.4rem;
+    border-radius: 999px;
+    border: 0;
+    background: var(--btn-border-color);
+    color: var(--text-muted-color);
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 0 0.1rem;
+  }
+
+  .pdesign-search-clear:hover {
+    color: var(--text-color);
+  }
+
+  .pdesign-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.9rem;
+  }
+
+  .pdesign-filter-btn {
+    background-color: var(--card-bg);
+    border-radius: 0.5em;
+    padding: 0.2em 0.7em;
+    border-color: var(--btn-border-color);
+    box-shadow: var(--filter-btn-shadow);
+    color: var(--text-color);
+    user-select: none;
+    transition: all 0.3s ease;
+    outline: none;
+    border: none;
+  }
+
+  .pdesign-filter-btn:hover,
+  .pdesign-filter-btn:active,
+  .pdesign-filter-btn.active {
+    background: var(--card-bg-active);
+    box-shadow: var(--filter-btn-shadow-active);
+  }
+
+  #pdesigns-grid {
+    margin-top: 0.5rem;
+  }
+
+  .pdesign-empty-col {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .pdesign-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 38vh;
+    padding: 2.5rem 1rem;
+    color: var(--text-muted-color);
+  }
+
+  .pdesign-empty svg {
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-bottom: 0.75rem;
+    opacity: 0.6;
+    transform-origin: center;
+    animation: pdesign-empty-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  .pdesign-empty p {
+    margin-bottom: 0.25rem;
+    max-width: 26rem;
+  }
+
+  @keyframes pdesign-empty-pop {
+    0% { transform: scale(0.3); }
+    55% { transform: scale(1.2); }
+    75% { transform: scale(0.95); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes pdesignIn {
+    from {
+      opacity: 0;
+      transform: scale(1.05);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* Preview modal */
+  .pdesign-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 9999;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.25s ease-out;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .pdesign-modal-overlay.active {
+    display: flex;
+    opacity: 1;
+  }
+
+  .pdesign-modal-overlay.closing {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  @keyframes pdesignZoomIn {
+    from {
+      opacity: 0;
+      transform: scale(0.85);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes pdesignFadeOut {
+    from {
+      opacity: 1;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(0.92);
+    }
+  }
+
+  .pdesign-modal-content {
+    background: var(--main-bg);
+    width: 95%;
+    height: 95%;
+    max-width: 1000px;
+    border-radius: 20px;
+    position: relative;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: pdesignZoomIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  .pdesign-modal-overlay.closing .pdesign-modal-content {
+    animation: pdesignFadeOut 0.25s ease-out both;
+  }
+
+  @media (max-width: 768px) {
+    .pdesign-modal-content {
+      width: 100%;
+      height: 100%;
+      border-radius: 0;
+      max-width: none;
+    }
+  }
+
+  .pdesign-modal-header {
+    padding: 0.5rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--sidebar-border-color);
+    gap: 0.75rem;
+  }
+
+  .pdesign-modal-title {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 0;
+  }
+
+  .pdesign-title-icon {
+    width: 1.35rem;
+    height: 1.35rem;
+    flex-shrink: 0;
+    color: var(--text-muted-color);
+  }
+
+  .pdesign-modal-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+  }
+
+  .pdesign-modal-link {
+    white-space: nowrap;
+  }
+
+  .pdesign-modal-close {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: var(--text-color);
+    cursor: pointer;
+    line-height: 1;
+    transition: opacity 0.2s;
+  }
+
+  .pdesign-modal-close:hover {
+    opacity: 0.6;
+  }
+
+  .pdesign-modal-body {
+    flex: 1;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+    background: var(--main-bg);
+  }
+
+  .pdesign-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pdesign-card,
+    .pdesign-modal-content,
+    .pdesign-modal-overlay {
+      animation: none;
+      transition: none;
+    }
+
+    .pdesign-card {
+      opacity: 1;
+    }
+
+    .pdesign-empty svg {
+      animation: none;
+    }
+  }
+</style>
+
+<h1 class="mt-5 mb-2">Printable Page Designs</h1>
+<p class="text-muted">A4 sheets for notebooks, logs and print runs — click any design to preview it, then download the print-ready PDF. Part of the <a href="{{ '/resources/' | relative_url }}">Resources</a> collection.</p>
+
+<div class="pdesign-search" role="search">
+  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
+  <input type="search" id="pdesign-search" placeholder="Search designs by name or topic…" aria-label="Search page designs" autocomplete="off">
+  <button type="button" class="pdesign-search-clear" id="pdesign-search-clear" aria-label="Clear search" hidden>&times;</button>
+</div>
+<div class="pdesign-filter" id="pdesign-filter" aria-label="Filter page designs"></div>
+<div class="row row-cols-1 row-cols-md-2 g-4" id="pdesigns-grid" aria-live="polite"></div>
+
+<!-- Preview modal -->
+<div id="pdesign-modal" class="pdesign-modal-overlay" onclick="closeDesignPreview(event)">
+  <div class="pdesign-modal-content">
+    <div class="pdesign-modal-header">
+      <h3 id="pdesign-modal-title" class="pdesign-modal-title">
+        <svg class="pdesign-title-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 1.5h5.5L13 5v9.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-12a.5.5 0 0 1 .5-.5z"/><path d="M9.5 1.5V5H13"/></svg>
+        <span id="pdesign-modal-title-text">Preview</span>
+      </h3>
+      <div class="pdesign-modal-actions">
+        <a id="pdesign-modal-download" class="pdesign-modal-link small" href="#" download>Download PDF</a>
+        <a id="pdesign-modal-open" class="pdesign-modal-link small" href="#" target="_blank" rel="noopener noreferrer">Open in a new tab</a>
+        <button class="pdesign-modal-close" aria-label="Close preview" onclick="closeDesignPreview(event, true)">&times;</button>
+      </div>
+    </div>
+    <div class="pdesign-modal-body" id="pdesign-modal-body"></div>
+  </div>
+</div>
+
+<script type="application/json" id="pdesigns-data">{{ site.data.page_designs | jsonify }}</script>
+<script src="{{ '/assets/js/collection-grid.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/js/page-designs.js' | relative_url }}" defer></script>

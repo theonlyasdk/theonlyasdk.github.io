@@ -1,7 +1,7 @@
 ---
 # the default layout is 'page'
 icon: fas fa-info-circle
-order: 5
+order: 6
 ---
 
 <style>
@@ -67,17 +67,302 @@ order: 5
     background: var(--main-bg);
   }
 
+  .goodie-search {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background-color: var(--card-bg);
+    border: 1px solid var(--sidebar-border-color);
+    border-radius: 0.75rem;
+    padding: 0.55rem 0.9rem;
+    margin-top: 2rem;
+    box-shadow: var(--card-shadow);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .goodie-search:focus-within {
+    border-color: var(--link-color);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--link-color) 25%, transparent);
+  }
+
+  .goodie-search svg {
+    flex-shrink: 0;
+    width: 1rem;
+    height: 1rem;
+    color: var(--text-muted-color);
+  }
+
+  .goodie-search input {
+    flex: 1;
+    min-width: 0;
+    background: none;
+    border: 0;
+    outline: none;
+    color: var(--text-color);
+    font-size: 0.95rem;
+  }
+
+  .goodie-search input::placeholder {
+    color: var(--text-muted-color);
+  }
+
+  .goodie-search input[type="search"]::-webkit-search-cancel-button {
+    display: none;
+  }
+
+  .goodie-search-clear {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.4rem;
+    height: 1.4rem;
+    border-radius: 999px;
+    border: 0;
+    background: var(--btn-border-color);
+    color: var(--text-muted-color);
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 0 0.1rem;
+  }
+
+  .goodie-search-clear:hover {
+    color: var(--text-color);
+  }
+
+  .goodie-search-clear:focus-visible {
+    outline: 3px solid var(--link-color);
+    outline-offset: 2px;
+  }
+
   .goodie-filter {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-    margin-top: 1rem;
+    margin-top: 0.9rem;
+  }
+
+  #goodies-grid {
+    margin-top: 0.5rem;
+  }
+
+  .goodie-empty-col {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .goodie-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 38vh;
+    padding: 2.5rem 1rem;
+    color: var(--text-muted-color);
+  }
+
+  .goodie-empty svg {
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-bottom: 0.75rem;
+    opacity: 0.6;
+    transform-origin: center;
+    animation: goodie-empty-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  @keyframes goodie-empty-pop {
+    0% { transform: scale(0.3); }
+    55% { transform: scale(1.2); }
+    75% { transform: scale(0.95); }
+    100% { transform: scale(1); }
+  }
+
+  .goodie-empty p {
+    margin-bottom: 0.25rem;
+    max-width: 26rem;
+  }
+
+  /* Goodies grid/list split button (transitions-dev #16 sliding tabs) */
+  .goodie-toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.9rem;
+  }
+
+  .goodie-toolbar .goodie-filter {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin-top: 0;
+  }
+
+  .view-toggle {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 3px;
+    border-radius: 0.5em;
+    background: var(--tabs-bar-bg);
+    border: 0;
+    box-shadow: var(--card-shadow);
+    flex-shrink: 0;
+  }
+
+  .view-toggle .t-tab {
+    position: relative;
+    appearance: none;
+    border: 0;
+    background: transparent;
+    height: 30px;
+    width: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--tabs-text-muted);
+    cursor: pointer;
+    border-radius: 0.35rem;
+    z-index: 1;
+    transition: color var(--tabs-dur) var(--tabs-ease);
+  }
+
+  .view-toggle .t-tab svg {
+    width: 1rem;
+    height: 1rem;
+    display: block;
+  }
+
+  .view-toggle .t-tab:not([aria-pressed="true"]):hover,
+  .view-toggle .t-tab[aria-pressed="true"] {
+    color: var(--tabs-text-active);
+  }
+
+  .view-toggle .t-tab:focus-visible {
+    outline: 3px solid var(--link-color);
+    outline-offset: 2px;
+  }
+
+  .view-toggle .t-tabs-pill {
+    position: absolute;
+    top: 3px;
+    left: 0;
+    height: 30px;
+    width: 0;
+    background: var(--tabs-pill-bg);
+    border-radius: 0.35rem;
+    box-shadow: var(--filter-btn-shadow-active);
+    transform: translateX(0);
+    transition:
+      transform var(--tabs-dur) var(--tabs-ease),
+      width var(--tabs-dur) var(--tabs-ease);
+    will-change: transform, width;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* List view: full-width rows with horizontal cards */
+  #goodies-grid.list-view > * {
+    width: 100%;
+  }
+
+  #goodies-grid.list-view .goodie-card {
+    display: grid;
+    grid-template-columns: 210px 1fr;
+    padding-bottom: 0;
+  }
+
+  #goodies-grid.list-view .card-cover {
+    grid-row: 1 / span 2;
+    height: 100%;
+    min-height: 150px;
+  }
+
+  #goodies-grid.list-view .card-cover::after {
+    left: auto;
+    right: 0;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to right, transparent, var(--card-bg));
+  }
+
+  #goodies-grid.list-view .goodie-card h5 {
+    margin-top: 0;
+    padding-top: 1.25rem;
+    align-self: end;
+  }
+
+  #goodies-grid.list-view .goodie-card p {
+    padding-bottom: 1.25rem;
+    align-self: start;
+  }
+
+  @media (max-width: 576px) {
+    #goodies-grid.list-view .goodie-card {
+      grid-template-columns: 1fr;
+    }
+
+    #goodies-grid.list-view .card-cover {
+      grid-row: auto;
+      height: 160px;
+      min-height: 0;
+    }
+
+    #goodies-grid.list-view .card-cover::after {
+      left: 0;
+      right: auto;
+      top: auto;
+      bottom: 0;
+      width: 100%;
+      height: 60%;
+      background: linear-gradient(to bottom, transparent, var(--card-bg));
+    }
+
+    /* Phone is always list view: hide the toggle … */
+    .view-toggle {
+      display: none;
+    }
+
+    .goodie-toolbar .goodie-filter {
+      flex: 1 1 100%;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding: 0.25rem 0.25rem 0.35rem;
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 20px, #000 calc(100% - 20px), transparent);
+      mask-image: linear-gradient(to right, transparent, #000 20px, #000 calc(100% - 20px), transparent);
+    }
+
+    .goodie-toolbar .goodie-filter::-webkit-scrollbar {
+      display: none;
+    }
+
+    .goodie-toolbar .goodie-filter:not(.can-scroll-left) {
+      -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 20px), transparent);
+      mask-image: linear-gradient(to right, #000 calc(100% - 20px), transparent);
+    }
+
+    .goodie-toolbar .goodie-filter:not(.can-scroll-right) {
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 20px);
+      mask-image: linear-gradient(to right, transparent, #000 20px);
+    }
+
+    .goodie-toolbar .goodie-filter:not(.can-scroll-left):not(.can-scroll-right) {
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+
+    .goodie-toolbar .goodie-filter .goodie-filter-btn {
+      flex-shrink: 0;
+    }
   }
 
   .goodie-filter button:focus-visible,
   .goodie-card:focus-visible,
-  .goodie-demo-link:focus-visible,
-  .goodie-edge-nav:focus-visible {
+  .goodie-demo-link:focus-visible {
     outline: 3px solid var(--link-color);
     outline-offset: 3px;
   }
@@ -119,13 +404,29 @@ order: 5
 
   .goodie-error-link {
     margin-top: 0.75rem;
+    color: var(--link-color);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.95rem;
+    display: inline-block;
+    transition: opacity 0.15s ease;
+  }
+
+  .goodie-error-link:hover {
+    color: var(--link-color);
+    opacity: 0.8;
   }
 
   @media (prefers-reduced-motion: reduce) {
     .goodie-card,
     .custom-modal-content,
     .custom-modal-overlay,
-    .modal-iframe {
+    .modal-iframe,
+    .goodie-empty svg {
       animation: none;
       transition: none;
     }
@@ -296,173 +597,6 @@ order: 5
     text-align: center;
   }
 
-  /* Goodie modal edge navigation (MIUI back-gesture style) */
-  .goodie-edge-nav {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 40px;
-    background: transparent;
-    border: 0;
-    padding: 0;
-    cursor: default;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-    z-index: 6;
-  }
-
-  .goodie-edge-prev {
-    left: 0;
-  }
-
-  .goodie-edge-next {
-    right: 0;
-  }
-
-  .goodie-edge-nav.is-visible {
-    pointer-events: auto;
-  }
-
-  .goodie-edge-nav:focus-visible {
-    opacity: 1;
-    pointer-events: auto;
-    outline-offset: -3px;
-  }
-
-  /* Cross-origin demo iframes can't report pointer position, so the
-     edge strips stay clickable there and fade in on hover instead. */
-  .custom-modal-content.has-xframe .goodie-edge-nav {
-    pointer-events: auto;
-  }
-
-  .custom-modal-content.has-xframe .goodie-edge-nav:hover {
-    opacity: 1;
-  }
-
-  .goodie-edge-hump {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 48px;
-    height: 100%;
-    display: block;
-    pointer-events: none;
-  }
-
-  .goodie-edge-next .goodie-edge-hump {
-    left: auto;
-    right: 0;
-  }
-
-  .goodie-edge-next .hump-chevron {
-    animation-name: edge-nudge-r;
-  }
-
-  .hump-svg {
-    width: 100%;
-    height: 100%;
-    display: block;
-    overflow: visible;
-  }
-
-  .hump-fill {
-    fill: rgba(10, 10, 12, 0.78);
-    transition: fill 0.25s ease;
-  }
-
-  .hump-edge {
-    fill: none;
-    stroke: rgba(255, 255, 255, 0.16);
-    stroke-width: 1.5;
-  }
-
-  .goodie-edge-nav:hover .hump-fill {
-    fill: rgba(10, 10, 12, 0.92);
-  }
-
-  .hump-chevron-wrap {
-    position: absolute;
-    left: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    transition: transform 0.25s ease;
-  }
-
-  .hump-label {
-    margin-top: 6px;
-    font-size: 9px;
-    font-weight: 600;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.72);
-    writing-mode: vertical-rl;
-    line-height: 1;
-    user-select: none;
-  }
-
-  .goodie-edge-nav:hover .hump-chevron-wrap {
-    transform: translateY(-50%) scale(1.25);
-  }
-
-  .goodie-edge-nav:active .hump-chevron-wrap {
-    transform: translateY(-50%) scale(0.9);
-  }
-
-  .goodie-edge-nav.is-pressed .hump-chevron-wrap {
-    transform: translateY(-50%) scale(0.9);
-    transition-duration: 0.08s;
-  }
-
-  .hump-chevron {
-    display: block;
-    width: 22px;
-    height: 22px;
-    color: #ffffff;
-    animation: edge-nudge 1.6s ease-in-out infinite;
-  }
-
-  @keyframes edge-nudge {
-    0%, 100% { transform: translateX(0); }
-    50% { transform: translateX(4px); }
-  }
-
-  @keyframes edge-nudge-r {
-    0%, 100% { transform: translateX(0); }
-    50% { transform: translateX(-4px); }
-  }
-
-  /* Ripple that covers the dialog on prev/next navigation */
-  .goodie-ripple-layer {
-    position: absolute;
-    inset: 0;
-    z-index: 40;
-    pointer-events: none;
-    overflow: hidden;
-    border-radius: inherit;
-  }
-
-  .goodie-ripple {
-    position: absolute;
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.18) 55%, rgba(255, 255, 255, 0) 70%);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .goodie-edge-nav,
-    .hump-chevron-wrap {
-      transition: none;
-    }
-
-    .hump-chevron {
-      animation: none;
-    }
-  }
-
   /* Goodie Info Button */
   .goodie-info-btn {
     position: absolute;
@@ -563,6 +697,134 @@ order: 5
     color: var(--text-muted-color);
     margin-top: 0.75rem;
   }
+
+  /* Goodies FAQ accordion (transitions-dev #21) */
+  :root {
+    --acc-expand: 250ms;
+    --acc-collapse: 250ms;
+    --acc-chevron: 250ms;
+    --acc-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --tabs-dur: 320ms;
+    --tabs-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --tabs-text-muted: var(--text-muted-color);
+    --tabs-text-active: var(--text-color);
+    --tabs-bar-bg: var(--card-bg);
+    --tabs-pill-bg: var(--card-bg-active);
+  }
+
+  .t-acc {
+    background-color: var(--card-bg);
+    border: 1px solid var(--sidebar-border-color);
+    border-radius: 10px;
+    box-shadow: var(--card-shadow);
+    margin: 0.75rem 0 1rem;
+    overflow: hidden;
+  }
+
+  .t-acc-head {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    background: none;
+    border: 0;
+    padding: 0.9rem 1.1rem;
+    cursor: pointer;
+    color: var(--text-color);
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-align: left;
+  }
+
+  .t-acc-head:hover {
+    opacity: 0.85;
+  }
+
+  .t-acc-head:active {
+    filter: brightness(60%);
+  }
+
+  .t-acc-head:focus-visible {
+    outline: 3px solid var(--link-color);
+    outline-offset: -3px;
+  }
+
+  .t-acc-chevron {
+    display: inline-flex;
+    flex-shrink: 0;
+    transform: scaleY(1);
+    transform-origin: center;
+    transition: transform var(--acc-chevron) var(--acc-ease);
+    color: var(--text-muted-color);
+  }
+
+  .t-acc-chevron svg {
+    width: 16px;
+    height: 16px;
+    display: block;
+  }
+
+  .t-acc-chevron path { vector-effect: non-scaling-stroke; }
+
+  .t-acc[data-open="true"] .t-acc-chevron {
+    transform: scaleY(-1);
+  }
+
+  /* grid-template-rows 0fr → 1fr gives a clean height animation
+     with no JS measurement; the inner element clips overflow. */
+  .t-acc-panel {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows var(--acc-collapse) var(--acc-ease);
+  }
+
+  .t-acc[data-open="true"] .t-acc-panel {
+    grid-template-rows: 1fr;
+    transition: grid-template-rows var(--acc-expand) var(--acc-ease);
+  }
+
+  .t-acc-panel-inner {
+    overflow: hidden;
+    opacity: 0;
+    filter: blur(2px);
+    transition:
+      opacity var(--acc-collapse) var(--acc-ease),
+      filter var(--acc-collapse) var(--acc-ease);
+  }
+
+  .t-acc[data-open="true"] .t-acc-panel-inner {
+    opacity: 1;
+    filter: blur(0);
+    transition:
+      opacity var(--acc-expand) var(--acc-ease),
+      filter var(--acc-expand) var(--acc-ease);
+  }
+
+  .t-acc-panel-inner > div {
+    padding: 0 1.1rem 1rem;
+    color: var(--text-muted-color);
+  }
+
+  .t-acc-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin: 0.75rem 0 1rem;
+  }
+
+  .t-acc-group .t-acc {
+    margin: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .t-acc-panel, .t-acc-panel-inner, .t-acc-chevron {
+      transition: none !important;
+    }
+    .view-toggle .t-tabs-pill, .view-toggle .t-tab {
+      transition: none !important;
+    }
+  }
 </style>
 
 <div style="text-align: center; margin-bottom: 2rem;">
@@ -574,14 +836,96 @@ order: 5
   </svg>
 </div>
 
-<p><strong>Hello!</strong> I'm <strong>ASDK</strong>. Nothing special about me, just another guy who likes to tinker with software.</p>
-<p>I make stuff and post them here in my freetime. Feel free to contribute to any of my repositories if you find silly bugs in them!</p>
+<p><strong>Yooo!</strong> I'm <strong>ASDK</strong>, I also go by the name theonlyasdk. Nothing special about me, just another guy who likes to tinker with software.</p>
+<p>Feel free to contribute to any of my repositories if you find silly bugs in them!</p>
 
 <h1 class="mt-5 mb-4">Goodies</h1>
-<h3>What are Goodies? Can I eat them?</h3>
-<small>Absolutely not! Goodies include minigames, demos and experiments.</small>
+<div class="t-acc-group">
+<div class="t-acc" data-open="false">
+  <button class="t-acc-head" aria-expanded="false" aria-controls="goodies-faq-panel-1">
+    <span>What are Goodies? Can I eat them?</span>
+    <span class="t-acc-chevron" aria-hidden="true">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5L8 10.5L12 6.5"/></svg>
+    </span>
+  </button>
+  <div class="t-acc-panel" id="goodies-faq-panel-1" role="region">
+    <div class="t-acc-panel-inner"><div>Absolutely not! Goodies include minigames, demos and experiments.</div></div>
+  </div>
+</div>
+<div class="t-acc" data-open="false">
+  <button class="t-acc-head" aria-expanded="false" aria-controls="goodies-faq-panel-2">
+    <span>How do I open or play a goodie?</span>
+    <span class="t-acc-chevron" aria-hidden="true">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5L8 10.5L12 6.5"/></svg>
+    </span>
+  </button>
+  <div class="t-acc-panel" id="goodies-faq-panel-2" role="region">
+    <div class="t-acc-panel-inner"><div>Click a card (or focus it and press Enter) to open it in the viewer. If it has a live demo, it loads right inside — or use "Open demo in a new tab" for fullscreen. Press Esc to close.</div></div>
+  </div>
+</div>
+<div class="t-acc" data-open="false">
+  <button class="t-acc-head" aria-expanded="false" aria-controls="goodies-faq-panel-3">
+    <span>How do I find a specific goodie?</span>
+    <span class="t-acc-chevron" aria-hidden="true">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5L8 10.5L12 6.5"/></svg>
+    </span>
+  </button>
+  <div class="t-acc-panel" id="goodies-faq-panel-3" role="region">
+    <div class="t-acc-panel-inner"><div>Use the filter pills above the grid to narrow by category — Simulations, Experiments, Demos or Tools — or pick All to see everything.</div></div>
+  </div>
+</div>
+<div class="t-acc" data-open="false">
+  <button class="t-acc-head" aria-expanded="false" aria-controls="goodies-faq-panel-4">
+    <span>Who made these? Can I reuse them?</span>
+    <span class="t-acc-chevron" aria-hidden="true">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5L8 10.5L12 6.5"/></svg>
+    </span>
+  </button>
+  <div class="t-acc-panel" id="goodies-faq-panel-4" role="region">
+    <div class="t-acc-panel-inner"><div>Several goodies are third-party work. Click the (i) Credits button on a card to see its author, repository and license before reusing anything.</div></div>
+  </div>
+</div>
+<div class="t-acc" data-open="false">
+  <button class="t-acc-head" aria-expanded="false" aria-controls="goodies-faq-panel-5">
+    <span>It says "the engine is charging up" — is it broken?</span>
+    <span class="t-acc-chevron" aria-hidden="true">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5L8 10.5L12 6.5"/></svg>
+    </span>
+  </button>
+  <div class="t-acc-panel" id="goodies-faq-panel-5" role="region">
+    <div class="t-acc-panel-inner"><div>No — that goodie just has no live demo attached yet, so there is nothing to load. Check back later.</div></div>
+  </div>
+</div>
+<div class="t-acc" data-open="false">
+  <button class="t-acc-head" aria-expanded="false" aria-controls="goodies-faq-panel-6">
+    <span>Do goodies work offline? Can I contribute?</span>
+    <span class="t-acc-chevron" aria-hidden="true">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5L8 10.5L12 6.5"/></svg>
+    </span>
+  </button>
+  <div class="t-acc-panel" id="goodies-faq-panel-6" role="region">
+    <div class="t-acc-panel-inner"><div>Pages are cached for offline reading, but live demos (especially external ones) need an internet connection. And yes — contributions are welcome! If you spot silly bugs, feel free to contribute to the repositories.</div></div>
+  </div>
+</div>
+</div>
+<div class="goodie-search" role="search">
+  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
+  <input type="search" id="goodie-search" placeholder="Search goodies by name or topic…" aria-label="Search goodies" autocomplete="off">
+  <button type="button" class="goodie-search-clear" id="goodie-search-clear" aria-label="Clear search" hidden>&times;</button>
+</div>
+<div class="goodie-toolbar">
 <div class="goodie-filter" id="goodie-filter" aria-label="Filter goodies"></div>
-<div class="row row-cols-1 row-cols-md-2 g-4 mt-2" id="goodies-grid"></div>
+<div class="t-tabs view-toggle" role="group" aria-label="Change goodies layout">
+  <span class="t-tabs-pill" aria-hidden="true"></span>
+  <button class="t-tab" type="button" data-view="grid" aria-pressed="true" aria-label="Grid view" title="Grid view">
+    <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.5"/><rect x="9" y="1" width="6" height="6" rx="1.5"/><rect x="1" y="9" width="6" height="6" rx="1.5"/><rect x="9" y="9" width="6" height="6" rx="1.5"/></svg>
+  </button>
+  <button class="t-tab" type="button" data-view="list" aria-pressed="false" aria-label="List view" title="List view">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 4h9M6 8h9M6 12h9"/><circle cx="2.4" cy="4" r="1.1" fill="currentColor" stroke="none"/><circle cx="2.4" cy="8" r="1.1" fill="currentColor" stroke="none"/><circle cx="2.4" cy="12" r="1.1" fill="currentColor" stroke="none"/></svg>
+  </button>
+</div>
+</div>
+<div class="row row-cols-1 row-cols-md-2 g-4" id="goodies-grid" aria-live="polite"></div>
 
 <!-- Custom Mini-game Modal -->
 <div id="custom-minigame-modal" class="custom-modal-overlay" onclick="closeMinigame(event)">
@@ -598,14 +942,7 @@ order: 5
         <h1 id="custom-modal-game-name" class="display-3">Loading...</h1>
         <p class="text-muted italic">Stay tuned, the engine is charging up!</p>
       </div>
-      <button id="goodie-edge-prev" class="goodie-edge-nav goodie-edge-prev" type="button" aria-label="Previous goodie" title="Previous goodie">
-        <span class="goodie-edge-hump" aria-hidden="true"><svg class="hump-svg" aria-hidden="true"><path class="hump-fill" d=""/><path class="hump-edge" d=""/></svg><span class="hump-chevron-wrap"><svg class="hump-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span></span>
-      </button>
-      <button id="goodie-edge-next" class="goodie-edge-nav goodie-edge-next" type="button" aria-label="Next goodie" title="Next goodie">
-        <span class="goodie-edge-hump" aria-hidden="true"><svg class="hump-svg" aria-hidden="true"><path class="hump-fill" d=""/><path class="hump-edge" d=""/></svg><span class="hump-chevron-wrap"><svg class="hump-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span></span>
-      </button>
     </div>
-    <div class="goodie-ripple-layer" id="goodie-ripple-layer" aria-hidden="true"></div>
   </div>
 </div>
 
@@ -623,5 +960,23 @@ order: 5
 </div>
 
 <script type="application/json" id="goodies-data">{{ site.data.goodies | jsonify }}</script>
+<script src="{{ '/assets/js/collection-grid.js' | relative_url }}" defer></script>
 <script src="{{ '/assets/js/goodies.js' | relative_url }}" defer></script>
+<script>
+  // Goodies FAQ accordion: CSS owns the height + chevron morph.
+  // Single-open: opening one item closes the others.
+  document.querySelectorAll('.t-acc').forEach((acc) => {
+    const head = acc.querySelector('.t-acc-head');
+    if (!head) return;
+    head.addEventListener('click', () => {
+      const willOpen = acc.getAttribute('data-open') !== 'true';
+      document.querySelectorAll('.t-acc[data-open="true"]').forEach((other) => {
+        other.setAttribute('data-open', 'false');
+        other.querySelector('.t-acc-head')?.setAttribute('aria-expanded', 'false');
+      });
+      acc.setAttribute('data-open', String(willOpen));
+      head.setAttribute('aria-expanded', String(willOpen));
+    });
+  });
+</script>
 

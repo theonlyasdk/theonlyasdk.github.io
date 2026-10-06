@@ -3,7 +3,6 @@
 @use '../abstracts/breakpoints' as bp;
 @use '../abstracts/placeholders';
 
-$btn-border-width: 3px;
 $btn-mb: 0.5rem;
 $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
 
@@ -37,6 +36,23 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
 
     [#{$sidebar-display}] & {
       transform: translateX(0);
+    }
+
+    /* Contents zoom from 60% as the panel slides in */
+    .sidebar-zoom {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      min-height: 100vh;
+      min-height: 100dvh;
+      transform: scale(0.6);
+      transform-origin: center;
+      /* Same duration/easing as mx.slide, so zoom and slide stay locked together */
+      transition: transform v.$sidebar-transition-dur v.$easing-func;
+    }
+
+    [#{$sidebar-display}] & .sidebar-zoom {
+      transform: scale(1);
     }
   }
 
@@ -100,7 +116,6 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
     @include bp.xxxl {
       margin-top: 3.5rem;
       margin-bottom: 2.5rem;
-      padding-left: 3.5rem;
     }
   }
 
@@ -190,24 +205,53 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
   }
 
   .sidebar-bottom {
-    padding-left: 2rem;
     padding-right: 1rem;
     margin-bottom: 1.5rem;
+    /* Single spacing mechanism for the whole row. Mixing `gap` on phones
+       with per-item `margin-right` elsewhere produced uneven rhythm. */
+    gap: v.$sb-btn-gap;
 
-    @include bp.xxxl {
-      padding-left: 2.75rem;
-      margin-bottom: 1.75rem;
+    /* The mode toggle lives inside a .btn-group wrapper; strip its own
+       spacing so it lines up with the bare links beside it. */
+    .btn-group {
+      margin: 0;
+      padding: 0;
     }
 
-    $btn-size: 1.75rem;
+    /* Phone drawer: pin the row to the bottom, centered with equal gaps */
+    @include bp.lt(bp.get(lg)) {
+      justify-content: center;
+      padding-left: 1rem;
+      padding-right: 1rem;
+      margin-top: auto;
+
+      a,
+      #mode-toggle {
+        margin-bottom: 0;
+      }
+    }
+
+    @include bp.xxxl {
+      margin-bottom: 1.75rem;
+      gap: v.$sb-btn-gap-lg;
+    }
+
+    $btn-size: 2.15rem;
 
     %button {
       width: $btn-size;
       height: $btn-size;
+      /* `flex: 0 0 auto` stops the circles shrinking into uneven ovals,
+         and zeroed padding matters because #mode-toggle is also a
+         Bootstrap .btn-link/.nav-link (which pads by default). */
+      flex: 0 0 auto;
+      padding: 0;
+      box-sizing: border-box;
       margin-bottom: $btn-mb; // multi line gap
       border-radius: 50%;
       color: var(--sidebar-btn-color);
       background-color: var(--sidebar-btn-bg);
+      font-size: 1.15rem; // scale the glyph with the button
       text-align: center;
       display: flex;
       align-items: center;
@@ -226,18 +270,10 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
       @extend %button;
       @extend %sidebar-link-hover;
       // @extend %clickable-transition;
-
-      &:not(:last-child) {
-        margin-right: v.$sb-btn-gap;
-
-        @include bp.xxxl {
-          margin-right: v.$sb-btn-gap-lg;
-        }
-      }
     }
 
     i {
-      line-height: $btn-size;
+      line-height: 1;
     }
 
     #mode-toggle {
@@ -267,7 +303,7 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
       @-webkit-keyframes ios-menu-zoom {
         from {
           opacity: 0;
-          transform: scale(0.05);
+          transform: scale(0.85);
         }
 
         to {
@@ -279,12 +315,36 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
       @keyframes ios-menu-zoom {
         from {
           opacity: 0;
-          transform: scale(0.05);
+          transform: scale(0.85);
         }
 
         to {
           opacity: 1;
           transform: scale(1);
+        }
+      }
+
+      @-webkit-keyframes ios-menu-fade-out {
+        from {
+          opacity: 1;
+          transform: scale(1);
+        }
+
+        to {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+      }
+
+      @keyframes ios-menu-fade-out {
+        from {
+          opacity: 1;
+          transform: scale(1);
+        }
+
+        to {
+          opacity: 0;
+          transform: scale(0.9);
         }
       }
 
@@ -304,8 +364,18 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
           flex-direction: column;
           gap: 0.2rem;
           left: -0.25rem !important;
-          -webkit-animation: ios-menu-zoom 0.45s cubic-bezier(0.09, 0.11, 0, 1.14) forwards;
-          animation: ios-menu-zoom 0.45s cubic-bezier(0.09, 0.11, 0, 1.14) forwards;
+          -webkit-animation: ios-menu-zoom 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation: ios-menu-zoom 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        &.fade-out {
+          display: flex !important;
+          flex-direction: column;
+          gap: 0.2rem;
+          left: -0.25rem !important;
+          pointer-events: none;
+          -webkit-animation: ios-menu-fade-out 0.15s ease-out forwards !important;
+          animation: ios-menu-fade-out 0.15s ease-out forwards !important;
         }
 
         .dropdown-item {
@@ -367,22 +437,7 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
       }
     }
 
-    .icon-border {
-      @extend %no-cursor;
-      @include mx.ml-mr(calc((v.$sb-btn-gap - $btn-border-width) / 2));
-
-      background-color: var(--sidebar-btn-color);
-      content: '';
-      width: $btn-border-width;
-      height: $btn-border-width;
-      border-radius: 50%;
-      margin-bottom: $btn-mb;
-
-      @include bp.xxxl {
-        @include mx.ml-mr(calc((v.$sb-btn-gap-lg - $btn-border-width) / 2));
-      }
-    }
-  } /* .sidebar-bottom */
+    } /* .sidebar-bottom */
 } /* #sidebar */
 
 [#{$sidebar-display}] {
@@ -390,5 +445,12 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
     @include bp.lt(bp.get(lg)) {
       transform: translateX(v.$sidebar-width);
     }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #sidebar .sidebar-zoom {
+    transform: none;
+    transition: none;
   }
 }

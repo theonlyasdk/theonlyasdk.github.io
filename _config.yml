@@ -204,7 +204,11 @@ compress_html:
   ignore:
     envs: [development]
 
+include:
+  - ".well-known"
+
 exclude:
+  - _tmp_serve.log
   - "*.gem"
   - "*.gemspec"
   - docs
@@ -214,6 +218,12 @@ exclude:
   - purgecss.js
   - rollup.config.js
   - "package*.json"
+  - vendor
+  - ".bundle"
+  - ".agents"
+  - ".claude"
+  - skills-lock.json
+  - res
 
 jekyll-archives:
   enabled: [categories, tags]

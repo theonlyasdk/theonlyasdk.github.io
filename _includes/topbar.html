@@ -28,6 +28,12 @@
               <span>{{ page.title }}</span>
             {% endif %}
 
+          {% elsif site.data.locales[include.lang].tabs[item] %}
+            <span>
+              <a href="{{ item | append: '/' | relative_url }}">
+                {{- site.data.locales[include.lang].tabs[item] -}}
+              </a>
+            </span>
           {% elsif page.layout == 'category' or page.layout == 'tag' %}
             <span>
               <a href="{{ item | append: '/' | relative_url }}">
@@ -47,7 +53,7 @@
     <div id="topbar-title">
       {% if page.layout == 'home' %}
         {{- site.data.locales[include.lang].title | default: site.title -}}
-      {% elsif page.collection == 'tabs' or page.layout == 'page' %}
+      {% elsif page.collection == 'tabs' or page.layout == 'page' or page.layout == 'page-notitle' %}
         {%- capture tab_key -%}{{ page.url | split: '/' }}{%- endcapture -%}
         {{- site.data.locales[include.lang].tabs[tab_key] | default: page.title -}}
       {% else %}

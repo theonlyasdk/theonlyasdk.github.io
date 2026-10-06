@@ -73,8 +73,12 @@
   }
 }
 
-@mixin slide($append: null) {
-  $basic: transform 0.4s v.$easing-func;
+@mixin slide($append: null, $dur: null) {
+  $basic: transform v.$sidebar-transition-dur v.$easing-func;
+
+  @if $dur {
+    $basic: transform $dur v.$easing-func;
+  }
 
   @if $append {
     transition: $basic, $append;

@@ -17,12 +17,17 @@
   <link rel="stylesheet" href="{{ site.data.origin[type].glightbox.css | relative_url }}">
 {% endif %}
 
-{% if jekyll.environment == 'production' %}
-<!-- PWA -->
+<!-- PWA: emitted in all environments so development builds unregister
+     stale service workers instead of leaving them controlling localhost. -->
 {% if site.pwa.enabled %}
+  {% if jekyll.environment == 'production' %}
   <script defer src="{{ '/app.min.js' | relative_url }}?baseurl={{ site.baseurl | default: '' }}&register={{ site.pwa.cache.enabled }}"></script>
+  {% else %}
+  <script defer src="{{ '/app.min.js' | relative_url }}?baseurl={{ site.baseurl | default: '' }}&register="></script>
+  {% endif %}
 {% endif %}
 
+{% if jekyll.environment == 'production' %}
 <!-- Web Analytics -->
 {% for analytics in site.analytics %}
   {% capture str %}{{ analytics }}{% endcapture %}
