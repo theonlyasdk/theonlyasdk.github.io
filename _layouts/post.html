@@ -106,11 +106,12 @@ script_includes:
         <i class="fa-solid fa-list-ul fa-fw"></i>
       </button>
     </div>
-
-    <button id="toc-solo-trigger" type="button" class="toc-trigger btn btn-outline-secondary btn-sm">
-      <span class="label ps-2 pe-1">{{- site.data.locales[lang].panel.toc -}}</span>
-      <i class="fa-solid fa-angle-right fa-fw"></i>
-    </button>
+    <div class="toc-solo-wrapper d-flex align-items-center justify-content-center w-100">
+      <button id="toc-solo-trigger" type="button" class="toc-trigger btn btn-outline-secondary btn-sm">
+        <span class="label ps-2 pe-1">{{- site.data.locales[lang].panel.toc -}}</span>
+        <i class="fa-solid fa-angle-right fa-fw"></i>
+      </button>
+    </div>
 
     <dialog id="toc-popup" class="p-0">
       <div class="header d-flex flex-row align-items-center justify-content-between">
