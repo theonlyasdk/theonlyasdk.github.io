@@ -1,3 +1,93 @@
+<style>
+  /* Fixed overlay that covers the screen */
+  #notification.show,
+  #notification.updating-active {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(0, 0, 0, 0.8) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    z-index: 10000 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    max-width: none !important;
+    margin: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+  
+  #notification:not(.show):not(.updating-active) {
+    display: none !important;
+  }
+
+  .update-modal-content {
+    background: var(--main-bg);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    border: 1px solid var(--sidebar-border-color);
+  }
+
+  .update-modal-content h3 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+
+  .update-modal-content p {
+    color: var(--text-muted-color);
+    margin-bottom: 1.5rem;
+  }
+
+  .update-btn {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    background: var(--link-color);
+    color: #fff;
+    transition: filter 0.2s;
+  }
+  
+  @media (max-width: 576px) {
+    .update-btn {
+      width: 100%;
+    }
+  }
+
+  .update-btn:hover {
+    filter: brightness(1.1);
+  }
+
+  /* Shimmer animation for Updating... state */
+  .update-btn.updating {
+    pointer-events: none;
+    background: linear-gradient(90deg, var(--link-color) 25%, #88b3f2 50%, var(--link-color) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+</style>
+
 <aside
   id="notification"
   class="toast"
@@ -8,43 +98,25 @@
   data-bs-autohide="false"
   style="display: none !important;"
 >
-  <!-- ASDK Note: Let's just make sure the user updates no matter what ;) -->
-  <!-- <div class="toast-header">
-    <button
-      type="button"
-      class="btn-close ms-auto"
-      data-bs-dismiss="toast"
-      aria-label="Close"
-    ></button>
-  </div>  -->
-  <!-- <br>
-  <br>
-  <div class="toast-body text-center pt-0">
-    <h1 class="toast-title">{{ site.data.locales[include.lang].notification.update_available }}</h1>
-    <p class="px-2 mb-3 toast-text">{{ site.data.locales[include.lang].notification.update_found }}</p>
-    <button type="button" class="btn btn-primary" aria-label="Update">
-      {{ site.data.locales[include.lang].notification.update }}
-    </button>
-  </div> -->
-  
-  <!-- Minimal elements required for app.js to attach event listeners without crashing -->
-  <div class="toast-body" style="display: none;">
-    <button type="button" class="btn btn-primary" aria-label="Update"></button>
+  <div class="update-modal-content toast-body">
+    <h3>Update Available</h3>
+    <p>A new version of this site is available.</p>
+    <button type="button" class="update-btn" aria-label="Update">Update</button>
   </div>
 </aside>
 
-<!-- Instantly apply page updates by hijacking the notification dialog -->
 <script>
   (function() {
     const notification = document.getElementById('notification');
-    if (notification) {
-      const observer = new MutationObserver((mutations) => {
-        if (notification.classList.contains('show')) {
-          const btn = notification.querySelector('.toast-body > button');
-          if (btn) btn.click();
-        }
-      });
-      observer.observe(notification, { attributes: true, attributeFilter: ['class'] });
-    }
+    if (!notification) return;
+    const btn = notification.querySelector('.toast-body > button');
+    if (!btn) return;
+    
+    // When clicked, show updating state
+    btn.addEventListener('click', function() {
+      this.classList.add('updating');
+      this.textContent = 'Updating...';
+      notification.classList.add('updating-active');
+    });
   })();
 </script>
