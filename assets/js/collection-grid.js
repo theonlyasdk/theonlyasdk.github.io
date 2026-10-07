@@ -19,6 +19,13 @@
     let currentList = [];
     let activeCategory = '';
 
+    let initialized = false;
+    let itemNodes = [];
+    const emptyState = document.createElement('div');
+    emptyState.className = options.emptyColClass;
+    emptyState.style.display = 'none';
+    emptyState.innerHTML = `<div class="${options.emptyClass}">${EMPTY_ICON}<p><strong>${options.emptyTitle}</strong></p><p class="small mb-0">${options.emptyHint}</p></div>`;
+
     const readQuery = () => (search ? search.value.trim().toLowerCase() : '');
 
     function matchesQuery(item, query) {
@@ -31,32 +38,173 @@
       const query = readQuery();
       const next = items.filter(item =>
         (!activeCategory || item.category === activeCategory) && matchesQuery(item, query));
-      // Same result set as what's already on screen (e.g. "fl" -> "flu"):
-      // skip the rebuild so cards don't replay their entrance animation.
-      if (next.length === currentList.length &&
+      
+      if (initialized && next.length === currentList.length &&
           next.every((item, index) => currentList[index] === item)) return;
-      const wasEmpty = grid.querySelector('.' + options.emptyColClass) !== null;
-      grid.replaceChildren();
+      
       currentList = next;
-      if (!currentList.length) {
-        const empty = document.createElement('div');
-        empty.className = options.emptyColClass;
-        empty.innerHTML = `<div class="${options.emptyClass}">${EMPTY_ICON}<p><strong>${options.emptyTitle}</strong></p><p class="small mb-0">${options.emptyHint}</p></div>`;
-        // Replay the pop only when the empty state first appears, not on every keystroke.
-        if (wasEmpty) empty.querySelector('svg').style.animation = 'none';
-        grid.appendChild(empty);
-        return;
-      }
-      currentList.forEach((item, index) => {
-        const col = document.createElement('div'); col.className = 'col d-flex flex-column';
-        const card = options.buildCard(item, index);
-        if (options.onOpen) {
-          card.addEventListener('click', () => options.onOpen(item));
-          card.addEventListener('keydown', event => {
-            if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); options.onOpen(item); }
+      
+      if (!initialized) {
+        grid.style.position = 'relative';
+        grid.replaceChildren();
+        
+        itemNodes = items.map((item, index) => {
+          const col = document.createElement('div');
+          col.className = 'col d-flex flex-column';
+          const card = options.buildCard(item, index);
+          if (options.onOpen) {
+            card.addEventListener('click', () => options.onOpen(item));
+            card.addEventListener('keydown', event => {
+              if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); options.onOpen(item); }
+            });
+          }
+          col.appendChild(card);
+          grid.appendChild(col);
+          
+          return { item, col, card, visible: true };
+        });
+        
+        grid.appendChild(emptyState);
+        initialized = true;
+        
+        if (!currentList.length) {
+          itemNodes.forEach(node => { 
+            node.col.classList.remove('d-flex');
+            node.col.classList.add('d-none');
+            node.visible = false; 
+          });
+          emptyState.style.display = '';
+        } else {
+          itemNodes.forEach(node => {
+            if (!currentList.includes(node.item)) {
+              node.col.classList.remove('d-flex');
+              node.col.classList.add('d-none');
+              node.visible = false;
+            }
           });
         }
-        col.appendChild(card); grid.appendChild(col);
+        return;
+      }
+      
+      // Filter change AFTER initialization
+      // Clear original entrance animation to prevent replay
+      itemNodes.forEach(node => {
+        node.card.style.animation = 'none';
+        node.card.style.opacity = '1';
+      });
+
+      // Record FIRST state (for currently visible elements)
+      const firstRects = new Map();
+      itemNodes.forEach(node => {
+        if (node.visible) {
+          firstRects.set(node, node.card.getBoundingClientRect());
+        }
+      });
+      
+      // Toggle visibility based on new list
+      itemNodes.forEach(node => {
+        const shouldBeVisible = currentList.includes(node.item);
+        
+        if (node.visible && !shouldBeVisible) {
+          // Ghost for fading out
+          const rect = firstRects.get(node);
+          const ghost = node.card.cloneNode(true);
+          ghost.style.position = 'absolute';
+          ghost.style.margin = '0';
+          ghost.style.left = (rect.left + window.scrollX) + 'px';
+          ghost.style.top = (rect.top + window.scrollY) + 'px';
+          ghost.style.width = rect.width + 'px';
+          ghost.style.height = rect.height + 'px';
+          ghost.style.pointerEvents = 'none';
+          ghost.style.zIndex = '100';
+          ghost.style.animation = 'none'; // Force kill CSS animations so they don't fight the fade out
+          ghost.style.transition = 'opacity 250ms cubic-bezier(0.22, 1, 0.36, 1)'; // No transform scale
+          
+          document.body.appendChild(ghost);
+          
+          // Trigger reflow
+          void ghost.offsetWidth;
+          
+          requestAnimationFrame(() => {
+            ghost.style.opacity = '0';
+          });
+          
+          setTimeout(() => {
+            if (ghost.parentNode) ghost.parentNode.removeChild(ghost);
+          }, 300);
+        }
+        
+        if (!node.visible && shouldBeVisible) {
+           node.isEntering = true;
+        } else {
+           node.isEntering = false;
+        }
+        
+        if (shouldBeVisible) {
+          node.col.classList.add('d-flex');
+          node.col.classList.remove('d-none');
+        } else {
+          node.col.classList.remove('d-flex');
+          node.col.classList.add('d-none');
+        }
+        
+        node.visible = shouldBeVisible;
+      });
+      
+      // Empty state handling
+      emptyState.style.display = currentList.length ? 'none' : '';
+      if (!currentList.length) {
+        const svg = emptyState.querySelector('svg');
+        if (svg) {
+          svg.style.animation = 'none';
+          void svg.offsetWidth;
+          svg.style.animation = '';
+        }
+      }
+      
+      // Apply FLIP and entrance animations
+      itemNodes.forEach(node => {
+        if (!node.visible) return;
+        
+        if (node.isEntering) {
+          node.card.style.transition = 'none';
+          node.card.style.transform = 'scale(0.97)';
+          node.card.style.opacity = '0';
+          
+          requestAnimationFrame(() => {
+            node.card.style.transition = 'opacity 250ms cubic-bezier(0.22, 1, 0.36, 1), transform 250ms cubic-bezier(0.22, 1, 0.36, 1)';
+            node.card.style.opacity = '1';
+            node.card.style.transform = 'scale(1)';
+          });
+        } else {
+          // Element was visible and is STILL visible: calculate FLIP Invert
+          const lastRect = node.card.getBoundingClientRect();
+          const firstRect = firstRects.get(node);
+          
+          const dx = firstRect.left - lastRect.left;
+          const dy = firstRect.top - lastRect.top;
+          
+          if (dx !== 0 || dy !== 0) {
+            node.card.style.transition = 'none';
+            node.card.style.transform = `translate(${dx}px, ${dy}px)`;
+            
+            requestAnimationFrame(() => {
+              node.card.style.transition = 'transform 250ms cubic-bezier(0.22, 1, 0.36, 1)';
+              node.card.style.transform = 'translate(0, 0)';
+              
+              // Clean up transition property after animation completes
+              setTimeout(() => {
+                if (node.card.style.transform === 'translate(0px, 0px)' || node.card.style.transform === 'translate(0, 0)') {
+                  node.card.style.transition = '';
+                  node.card.style.transform = '';
+                }
+              }, 400);
+            });
+          } else {
+            node.card.style.transition = '';
+            node.card.style.transform = '';
+          }
+        }
       });
     }
 

@@ -12,6 +12,12 @@
       "sourceType": "github",
       "skillPath": "skills/transitions-polish/SKILL.md",
       "computedHash": "f1dd8e76b5fb275447b5dcd2e24dcd8f9bcda7b93361163754ccdff957e30509"
+    },
+    "liquid-glass": {
+      "source": "haider-nawaz/liquid-glass-skill",
+      "sourceType": "github",
+      "skillPath": "plugins/liquid-glass/skills/liquid-glass/SKILL.md",
+      "computedHash": "4e19c862b240ff55f8b3e05b8844e792e5d3ba42452216d1b25d214992a5a317"
     }
   }
 }

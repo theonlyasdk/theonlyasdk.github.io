@@ -211,11 +211,25 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
        with per-item `margin-right` elsewhere produced uneven rhythm. */
     gap: v.$sb-btn-gap;
 
-    /* The mode toggle lives inside a .btn-group wrapper; strip its own
-       spacing so it lines up with the bare links beside it. */
+    /* The mode toggle lives inside a .btn-group wrapper. It must stay an
+       in-flow flex item so it keeps the same slot, gaps and alignment as the
+       bare links beside it — absolutely positioning it dropped it out of the
+       row and parked it in the sidebar's bottom-left corner. */
+    $btn-size: 2.15rem;
+
     .btn-group {
+      position: relative;
+      display: block;
+      flex: 0 0 auto;
       margin: 0;
       padding: 0;
+      width: $btn-size;
+      height: $btn-size;
+      margin-bottom: $btn-mb;
+
+      @include bp.lt(bp.get(lg)) {
+        margin-bottom: 0;
+      }
     }
 
     /* Phone drawer: pin the row to the bottom, centered with equal gaps */
@@ -225,8 +239,7 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
       padding-right: 1rem;
       margin-top: auto;
 
-      a,
-      #mode-toggle {
+      a {
         margin-bottom: 0;
       }
     }
@@ -235,8 +248,6 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
       margin-bottom: 1.75rem;
       gap: v.$sb-btn-gap-lg;
     }
-
-    $btn-size: 2.15rem;
 
     %button {
       width: $btn-size;
@@ -276,14 +287,39 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
       line-height: 1;
     }
 
+    .theme-morph {
+      --morph-open-dur: 1s;
+      --morph-close-dur: 200ms;
+      --morph-ease: var(--linear-spring, #{v.$linear-spring});
+      --morph-close-ease: ease-out;
+      --morph-stagger: 50ms;
+      --morph-width: 9.5rem;
+      --morph-radius: 1rem;
+    }
+
+    /* The button keeps the row slot and stays a plain centered circle.
+       `margin-bottom: 0` because .btn-group already owns the row's bottom gap. */
     #mode-toggle {
       @extend %button;
       @extend %sidebar-link-hover;
-      transition: none !important;
+
+      margin-bottom: 0;
+      border: 0;
+      /* Background is provided by the morphing surface (.dropdown-menu) underneath */
+      background-color: transparent !important;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      z-index: 1060 !important;
+      position: relative;
+      line-height: 1;
+      transition:
+        opacity var(--morph-close-dur) var(--morph-close-ease),
+        filter var(--morph-close-dur) var(--morph-close-ease),
+        transform var(--morph-close-dur) var(--morph-close-ease);
 
       > i {
         display: none;
-        transition: none !important;
+        line-height: 1;
 
         @at-root :root[data-bs-theme='light'][data-theme-persisted]
             &[data-theme-mode='light'] {
@@ -299,141 +335,177 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
           display: block;
         }
       }
+    }
 
-      @-webkit-keyframes ios-menu-zoom {
-        from {
-          opacity: 0;
-          transform: scale(0.85);
-        }
+    /* Shared morph surface. The menu itself IS the surface: it starts exactly
+       on the button's box (same rest bg var(--sidebar-btn-bg), same 50% radius, zero offset)
+       and tweens real width/height/border-radius and background-color. No scale() —
+       a scaled box re-composites its radius and border each frame, which is what made
+       the radius read as broken. Anchored left/bottom 0 so the bottom-left corner never moves. */
+    #mode-toggle + .dropdown-menu {
+      display: flex !important; /* always rendered; visibility owned by .is-open */
+      position: absolute;
+      left: 0;
+      /* Bootstrap's `.dropdown-menu[data-bs-popper]` sets `top:100%`. This
+         selector already outranks it on specificity; `data-bs-display="static"`
+         on the toggle is what stops Popper writing inline left/transform. */
+      top: auto;
+      bottom: 0;
+      width: $btn-size;
+      height: $btn-size;
+      min-width: 0;
+      margin: 0 !important;
+      flex-direction: column;
+      /* Bottom-anchored: as the box grows upward the list is revealed from the
+         button outward. With the default flex-start, a partially-grown box
+         slices item 1 in half right where the button icon is fading out. */
+      justify-content: flex-end;
+      gap: 0.2rem;
+      /* Even padding on all sides. */
+      padding: 0.35rem !important;
+      box-sizing: border-box;
+      overflow: hidden;
+      border: 1px solid transparent;
+      border-radius: 50%;
+      /* Starts at the button's rest background so closed state is identical,
+         and transitions smoothly to var(--menu-bg) during morph open. */
+      background-color: var(--sidebar-btn-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: none;
+      opacity: 1;
+      visibility: visible;
+      pointer-events: none; /* Let clicks pass through to the #mode-toggle above it when closed */
+      z-index: 1050;
+      transition:
+        width var(--morph-close-dur) var(--morph-close-ease),
+        height var(--morph-close-dur) var(--morph-close-ease),
+        border-radius var(--morph-close-dur) var(--morph-close-ease),
+        background-color var(--morph-close-dur) var(--morph-close-ease),
+        border-color var(--morph-close-dur) var(--morph-close-ease),
+        box-shadow var(--morph-close-dur) var(--morph-close-ease);
+    }
 
-        to {
-          opacity: 1;
-          transform: scale(1);
-        }
-      }
+    .theme-morph.is-open #mode-toggle {
+      opacity: 0;
+      filter: blur(4px);
+      /* Move to the center of the expanded menu (which grows up and right from bottom-left) */
+      transform: translate(
+        calc((var(--morph-width) - #{$btn-size}) / 2),
+        calc((#{$btn-size} - var(--morph-open-height, 150px)) / 2)
+      ) scale(1.4);
+      pointer-events: none;
+      background-color: transparent !important;
+      transition:
+        opacity var(--morph-open-dur) var(--morph-ease),
+        filter var(--morph-open-dur) var(--morph-ease),
+        transform var(--morph-open-dur) var(--morph-ease);
+    }
 
-      @keyframes ios-menu-zoom {
-        from {
-          opacity: 0;
-          transform: scale(0.85);
-        }
+    /* Match hover background with other buttons in the row */
+    .theme-morph:not(.is-open) #mode-toggle:hover + .dropdown-menu {
+      background-color: var(--sidebar-hover-bg);
+    }
 
-        to {
-          opacity: 1;
-          transform: scale(1);
-        }
-      }
+    .theme-morph.is-open #mode-toggle + .dropdown-menu {
+      width: var(--morph-width);
+      border-radius: var(--morph-radius);
+      background-color: var(--menu-bg);
+      border-color: var(--menu-border-color);
+      box-shadow: 0 10px 30px var(--menu-shadow-color), 0 2px 8px rgba(0, 0, 0, 0.05);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transition:
+        width var(--morph-open-dur) var(--morph-ease),
+        height var(--morph-open-dur) var(--morph-ease),
+        border-radius var(--morph-open-dur) var(--morph-ease),
+        background-color var(--morph-open-dur) var(--morph-ease),
+        border-color var(--morph-open-dur) var(--morph-ease),
+        box-shadow var(--morph-open-dur) var(--morph-ease);
+    }
 
-      @-webkit-keyframes ios-menu-fade-out {
-        from {
-          opacity: 1;
-          transform: scale(1);
-        }
+    .theme-morph {
+      .dropdown-item {
+        border-radius: 0.65rem;
+        color: var(--sidebar-muted-color);
+        font-size: 0.95rem;
+        padding: 0.2rem 0.75rem;
+        user-select: none;
+        background-color: transparent;
+        opacity: 0;
+        transform: translateY(6px);
+        filter: blur(4px);
+        transition:
+          opacity var(--morph-close-dur) var(--morph-close-ease),
+          transform var(--morph-close-dur) var(--morph-close-ease),
+          filter var(--morph-close-dur) var(--morph-close-ease),
+          background-color 0.12s ease;
 
-        to {
-          opacity: 0;
-          transform: scale(0.9);
-        }
-      }
-
-      @keyframes ios-menu-fade-out {
-        from {
-          opacity: 1;
-          transform: scale(1);
-        }
-
-        to {
-          opacity: 0;
-          transform: scale(0.9);
-        }
-      }
-
-      + .dropdown-menu {
-        background-color: var(--menu-bg);
-        border: 1px solid var(--menu-border-color);
-        box-shadow: 0 10px 30px var(--menu-shadow-color), 0 2px 8px rgba(0, 0, 0, 0.05);
-        border-radius: 0.85rem !important;
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        padding: 0.35rem !important;
-        min-width: 9.5rem;
-        transform-origin: bottom left;
-
-        &.show {
-          display: flex;
-          flex-direction: column;
-          gap: 0.2rem;
-          left: -0.25rem !important;
-          -webkit-animation: ios-menu-zoom 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-          animation: ios-menu-zoom 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        &.fade-out {
-          display: flex !important;
-          flex-direction: column;
-          gap: 0.2rem;
-          left: -0.25rem !important;
-          pointer-events: none;
-          -webkit-animation: ios-menu-fade-out 0.15s ease-out forwards !important;
-          animation: ios-menu-fade-out 0.15s ease-out forwards !important;
-        }
-
-        .dropdown-item {
-          border-radius: 0.4rem;
-          color: var(--sidebar-muted-color);
+        > i {
+          color: var(--sidebar-btn-color);
+          margin-right: 0.6rem;
           font-size: 0.95rem;
-          padding: 0.2rem 0.75rem;
-          user-select: none;
-          background-color: transparent;
-          transition: filter 0.12s ease;
+          width: 1.1rem;
+          text-align: center;
+        }
+
+        &:hover:not(:active):not(.active) {
+          background-color: var(--menu-hover-bg);
+          color: var(--sidebar-muted-color);
 
           > i {
             color: var(--sidebar-btn-color);
-            margin-right: 0.6rem;
-            font-size: 0.95rem;
-            width: 1.1rem;
-            text-align: center;
-          }
-
-          &:hover:not(:active):not(.active) {
-            background-color: var(--menu-hover-bg);
-            color: var(--sidebar-muted-color);
-            transition: none;
-
-            > i {
-              color: var(--sidebar-btn-color);
-            }
-          }
-
-          &.active {
-            font-weight: 600;
-            color: var(--menu-active-color);
-            background-color: var(--menu-selected-bg);
-
-            &:hover:not(:active) {
-              background-color: var(--menu-selected-bg);
-              transition: none;
-            }
-
-            > i,
-            &::after {
-              color: var(--menu-active-color);
-            }
-
-            &::after {
-              content: '\f00c';
-              font: var(--fa-font-solid);
-              font-size: 0.8rem;
-              margin-left: auto;
-              padding-left: 0.85rem;
-            }
-          }
-
-          &:active {
-            transform: none !important;
-            transition: filter 0.06s ease;
           }
         }
+
+        &.active {
+          font-weight: 600;
+          color: var(--menu-active-color);
+          background-color: var(--menu-selected-bg);
+
+          &:hover:not(:active) {
+            background-color: var(--menu-selected-bg);
+          }
+
+          > i,
+          &::after {
+            color: var(--menu-active-color);
+          }
+
+          &::after {
+            content: '\f00c';
+            font: var(--fa-font-solid);
+            font-size: 0.8rem;
+            margin-left: auto;
+            padding-left: 0.85rem;
+          }
+        }
+
+        &:active {
+          transform: none;
+        }
+      }
+
+      &.is-open .dropdown-item {
+        opacity: 1;
+        transform: none;
+        filter: blur(0);
+        transition:
+          opacity var(--morph-open-dur) var(--morph-ease),
+          transform var(--morph-open-dur) var(--morph-ease),
+          filter var(--morph-open-dur) var(--morph-ease),
+          background-color 0.12s ease;
+      }
+
+      &.is-open li:nth-child(2) .dropdown-item {
+        transition-delay: var(--morph-stagger);
+      }
+
+      &.is-open li:nth-child(3) .dropdown-item {
+        transition-delay: calc(var(--morph-stagger) * 2);
       }
     }
 
@@ -452,5 +524,12 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
   #sidebar .sidebar-zoom {
     transform: none;
     transition: none;
+  }
+
+  #sidebar .theme-morph,
+  #sidebar .theme-morph #mode-toggle,
+  #sidebar .theme-morph .dropdown-menu,
+  #sidebar .theme-morph .dropdown-item {
+    transition: none !important;
   }
 }

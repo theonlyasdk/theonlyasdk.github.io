@@ -5,6 +5,21 @@ order: 5
 ---
 
 <style>
+  /* Show "Resources" heading in mobile view for resources page: big font, centered */
+  @media all and (max-width: 849px) {
+    h1.dynamic-title {
+      display: block !important;
+      text-align: center;
+      font-size: 2.25rem;
+      font-weight: 700;
+      margin-top: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    #topbar-title {
+      visibility: hidden;
+    }
+  }
+
   .shake-new {
     display: inline-block;
   }
@@ -48,9 +63,9 @@ order: 5
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.65);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
     z-index: 9999;
     display: none;
     opacity: 0;
@@ -69,12 +84,12 @@ order: 5
     pointer-events: none;
   }
   .guestbook-dialog {
-    background: var(--main-bg);
+    background: var(--card-bg, var(--main-bg));
     width: 100%;
     max-width: 480px;
     border-radius: 16px;
-    border: 1px solid var(--sidebar-border-color);
-    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--main-border-color);
+    box-shadow: var(--card-shadow, 0 16px 36px rgba(0, 0, 0, 0.25));
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -84,7 +99,7 @@ order: 5
     animation: gbFadeOut 0.2s ease-out both;
   }
   @keyframes gbZoomIn {
-    from { opacity: 0; transform: scale(0.9); }
+    from { opacity: 0; transform: scale(0.92); }
     to { opacity: 1; transform: scale(1); }
   }
   @keyframes gbFadeOut {
@@ -92,30 +107,33 @@ order: 5
     to { opacity: 0; transform: scale(0.92); }
   }
   .guestbook-header {
-    padding: 1rem 1.25rem;
+    padding: 1.1rem 1.25rem 0.9rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid var(--sidebar-border-color);
+    border-bottom: 1px solid var(--main-border-color);
   }
   .guestbook-header h4 {
     margin: 0;
     font-size: 1.2rem;
     font-weight: 600;
-    color: var(--text-color);
+    font-family: Lato, 'Microsoft Yahei', sans-serif;
+    color: var(--heading-color, var(--text-color));
   }
   .guestbook-close-btn {
     background: none;
     border: none;
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     line-height: 1;
     color: var(--text-muted-color);
     cursor: pointer;
-    padding: 0 0.25rem;
-    transition: color 0.15s ease;
+    padding: 0.2rem 0.4rem;
+    border-radius: 6px;
+    transition: color 0.15s ease, background-color 0.15s ease;
   }
   .guestbook-close-btn:hover {
     color: var(--text-color);
+    background-color: var(--sidebar-hover-bg, rgba(128, 128, 128, 0.12));
   }
   .guestbook-body {
     padding: 1.25rem;
@@ -137,6 +155,7 @@ order: 5
     background: var(--button-bg);
     cursor: pointer;
     font-size: 0.95rem;
+    color: var(--text-color);
     transition: background 0.15s, border-color 0.15s;
     user-select: none;
   }
@@ -152,18 +171,20 @@ order: 5
     width: 100%;
     border-radius: 8px;
     border: 1px solid var(--btn-border-color);
-    background: var(--card-bg);
+    background: var(--main-bg, var(--card-bg));
     color: var(--text-color);
-    padding: 0.55rem 0.75rem;
+    padding: 0.6rem 0.8rem;
     font-size: 0.95rem;
+    font-family: inherit;
     resize: none;
     box-sizing: border-box;
     outline: none;
     margin-bottom: 1.25rem;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s;
   }
   .guestbook-msg-input:focus {
     border-color: var(--link-color);
+    box-shadow: 0 0 0 2px var(--input-focus-border-color, rgba(138, 180, 248, 0.25));
   }
   .guestbook-submit-btn {
     width: 100%;
@@ -191,13 +212,14 @@ order: 5
   .guestbook-success-icon {
     width: 3.5rem;
     height: 3.5rem;
-    color: #28a745;
+    color: var(--prompt-tip-icon-color, #28a745);
     margin-bottom: 0.75rem;
   }
   .guestbook-success-msg {
     font-size: 1.25rem;
     font-weight: 600;
-    color: var(--text-color);
+    font-family: Lato, 'Microsoft Yahei', sans-serif;
+    color: var(--heading-color, var(--text-color));
     margin-bottom: 0.35rem;
   }
   .guestbook-success-sub {

@@ -37,6 +37,7 @@ $enable-dark: v.$theme == dark or $enable-dual;
 :root {
   font-size: 16px;
   --spring-ease: cubic-bezier(.1,.78,0,1);
+  --linear-spring: #{v.$linear-spring};
 
   @include bp.lg {
     overflow-y: scroll;

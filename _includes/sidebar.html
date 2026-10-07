@@ -64,7 +64,7 @@
         <i class="fa-regular fa-moon" data-theme-mode="dark"></i>
       {%- endcapture -%}
 
-      <div class="btn-group dropup">
+      <div class="btn-group theme-morph" id="theme-morph">
         <button
           type="button"
           class="btn btn-link nav-link"
@@ -72,12 +72,15 @@
           title="Switch Mode"
           id="mode-toggle"
           data-bs-toggle="dropdown"
+          data-bs-display="static"
+          aria-haspopup="true"
+          aria-expanded="false"
         >
           {{- icon_light -}}
           {{- icon_dark -}}
           {{- icon_system -}}
         </button>
-        <ul class="dropdown-menu rounded-3 mb-1 p-1">
+        <ul class="dropdown-menu" role="menu" aria-label="{{ site.data.locales[include.lang].theme.title | default: 'Theme mode' }}">
           <li>
             <button class="dropdown-item d-flex align-items-center" type="button" data-theme-mode="light">
               {{- icon_light -}}
@@ -101,37 +104,134 @@
 
       <script>
         (function () {
-          function initThemeMenuFadeOut() {
+          function initThemeMorph() {
+            var morph = document.getElementById('theme-morph');
             var toggle = document.getElementById('mode-toggle');
-            var menu = toggle ? toggle.nextElementSibling : null;
-            if (!toggle || !menu) return;
+            if (!morph || !toggle) return;
+            var menu = morph.querySelector('.dropdown-menu');
+            if (!menu) return;
+            if (morph.dataset.morphInit) return;
+            morph.dataset.morphInit = '1';
 
-            var isClosing = false;
-            toggle.addEventListener('hide.bs.dropdown', function (e) {
-              if (isClosing) return;
-              e.preventDefault();
-              isClosing = true;
-              menu.classList.add('fade-out');
+            var finishTimer = null;
 
-              setTimeout(function () {
-                var dropdown = window.bootstrap && window.bootstrap.Dropdown ? window.bootstrap.Dropdown.getInstance(toggle) : null;
-                menu.classList.remove('fade-out');
-                if (dropdown) {
-                  dropdown.hide();
-                } else {
-                  menu.classList.remove('show');
-                  toggle.classList.remove('show');
-                  toggle.setAttribute('aria-expanded', 'false');
-                }
-                isClosing = false;
-              }, 140);
+            // The menu IS the morph surface now (it owns the shared background),
+            // so every height read/write targets it, not the wrapper.
+            function chrome() {
+              // border thickness, box-sizing-proof
+              return menu.offsetHeight - menu.clientHeight;
+            }
+
+            function btnH() {
+              // The menu is border-box with a 1px transparent border and the
+              // toggle has none, so the button's own height is the rest height.
+              return toggle.offsetHeight;
+            }
+
+            function openH() {
+              // Measured from the items, not scrollHeight: the list is
+              // bottom-anchored (flex-end), and overflow past the top of a
+              // flex-end box is unreachable, so scrollHeight under-reports and
+              // the panel would never grow.
+              var items = menu.querySelectorAll('.dropdown-item');
+              var gap = parseFloat(getComputedStyle(menu).rowGap) || 0;
+              var cs = getComputedStyle(menu);
+              var h = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+              for (var i = 0; i < items.length; i++) {
+                h += items[i].offsetHeight;
+                if (i > 0) h += gap;
+              }
+              return Math.round(h) + chrome();
+            }
+
+            function clearFinishTimer() {
+              if (finishTimer) {
+                clearTimeout(finishTimer);
+                finishTimer = null;
+              }
+              menu.removeEventListener('transitionend', onHeightEnd);
+            }
+
+            function onHeightEnd(ev) {
+              if (ev.target !== menu || ev.propertyName !== 'height') return;
+              clearFinishTimer();
+              if (!morph.classList.contains('is-open')) menu.style.height = '';
+            }
+
+            // Morph: the box tweens real width/height/border-radius (no scale()),
+            // while the button content crossfades out and the items rise in.
+            toggle.addEventListener('show.bs.dropdown', function () {
+              clearFinishTimer();
+              morph.classList.add('is-open');
+              var h = openH();
+              morph.style.setProperty('--morph-open-height', h + 'px');
+              menu.style.height = menu.offsetHeight + 'px'; // pin current: seamless mid-close reopen
+              void menu.offsetWidth; // reflow so the height tween restarts
+              menu.style.height = h + 'px';
+            });
+
+            function collapse() {
+              if (!morph.classList.contains('is-open')) return;
+              menu.style.height = menu.offsetHeight + 'px';
+              void menu.offsetWidth;
+              morph.classList.remove('is-open');
+              menu.style.height = btnH() + 'px';
+            }
+
+            // No preventDefault: Bootstrap .show is vestigial (menu is always
+            // rendered, visibility is owned by .is-open), so close cannot deadlock.
+            toggle.addEventListener('hide.bs.dropdown', collapse);
+            toggle.addEventListener('hidden.bs.dropdown', function () {
+              // Bootstrap's clearMenus deliberately ignores Tab-out of a menu, and
+              // Escape only works while focus is still inside — so without this the
+              // panel can be left open with focus gone, unreachable by keyboard.
+              if (morph.contains(document.activeElement) || document.activeElement === document.body) {
+                toggle.focus();
+              }
+              // hidden fires immediately; let the shrink tween finish first
+              menu.addEventListener('transitionend', onHeightEnd);
+              clearTimeout(finishTimer);
+              finishTimer = setTimeout(function () {
+                menu.removeEventListener('transitionend', onHeightEnd);
+                finishTimer = null;
+                if (!morph.classList.contains('is-open')) menu.style.height = '';
+              }, 350);
+            });
+
+            // The pinned height is a measurement, so re-establish it if the content
+            // metrics shift under us (late font swap, OS min font size, locale swap).
+            toggle.addEventListener('shown.bs.dropdown', function () {
+              if (morph.classList.contains('is-open')) {
+                var h = openH();
+                morph.style.setProperty('--morph-open-height', h + 'px');
+                menu.style.height = h + 'px';
+              }
+            });
+
+            morph.addEventListener('focusout', function (e) {
+              if (!morph.classList.contains('is-open')) return;
+              if (morph.contains(e.relatedTarget)) return;
+              if (e.relatedTarget === null) return; // focus left the document
+              var dropdown =
+                window.bootstrap && window.bootstrap.Dropdown
+                  ? window.bootstrap.Dropdown.getInstance(toggle)
+                  : null;
+              if (dropdown) dropdown.hide();
+            });
+
+            window.addEventListener('resize', function () {
+              if (morph.classList.contains('is-open')) {
+                var h = openH();
+                morph.style.setProperty('--morph-open-height', h + 'px');
+                menu.style.height = h + 'px';
+              }
             });
           }
 
           if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initThemeMenuFadeOut);
+            document.addEventListener('DOMContentLoaded', initThemeMorph);
           } else {
-            initThemeMenuFadeOut();
+            initThemeMorph();
           }
         })();
       </script>
