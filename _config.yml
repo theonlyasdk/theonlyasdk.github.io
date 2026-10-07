@@ -223,7 +223,7 @@ exclude:
   - ".agents"
   - ".claude"
   - skills-lock.json
-  - res
+  - res/
 
 jekyll-archives:
   enabled: [categories, tags]

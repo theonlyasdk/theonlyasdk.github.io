@@ -51,3 +51,9 @@
   description: PAL color-bar test page — check printer color output and alignment before a big print run.
   image: /assets/img/page-designs/page-test-pal.png
   pdf: /assets/files/page-designs/page-test-pal.pdf
+
+- name: Assignments for Month
+  category: Templates
+  description: Monthly assignments tracker sheet with columns for Name, Paper, and Due date — perfect for students, teachers, and project tracking.
+  image: /assets/img/page-designs/assignments-for-month.png
+  pdf: /assets/files/page-designs/assignments-for-month.pdf

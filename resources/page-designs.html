@@ -1,6 +1,7 @@
 ---
 layout: page-notitle
-title: Printable Page Designs
+title: Printable Page Templates
+permalink: /resources/page-designs/
 ---
 
 <style>
@@ -323,12 +324,26 @@ title: Printable Page Designs
   .pdesign-modal-actions {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.85rem;
     flex-shrink: 0;
   }
 
   .pdesign-modal-link {
     white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    text-decoration: none;
+  }
+
+  .pdesign-modal-link:hover {
+    text-decoration: underline;
+  }
+
+  .pdesign-modal-link svg {
+    width: 0.95rem;
+    height: 0.95rem;
+    flex-shrink: 0;
   }
 
   .pdesign-modal-close {
@@ -380,15 +395,15 @@ title: Printable Page Designs
   }
 </style>
 
-<h1 class="mt-5 mb-2">Printable Page Designs</h1>
-<p class="text-muted">A4 sheets for notebooks, logs and print runs — click any design to preview it, then download the print-ready PDF. Part of the <a href="{{ '/resources/' | relative_url }}">Resources</a> collection.</p>
+<h1 class="mt-5 mb-2">Printable Page Templates</h1>
+<p class="text-muted">A4 sheets for notebooks, logs, assignments and print runs — click any template to preview it, then download the print-ready PDF. Part of the <a href="{{ '/resources/' | relative_url }}">Resources</a> collection.</p>
 
 <div class="pdesign-search" role="search">
   <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
-  <input type="search" id="pdesign-search" placeholder="Search designs by name or topic…" aria-label="Search page designs" autocomplete="off">
+  <input type="search" id="pdesign-search" placeholder="Search templates by name or topic…" aria-label="Search page templates" autocomplete="off">
   <button type="button" class="pdesign-search-clear" id="pdesign-search-clear" aria-label="Clear search" hidden>&times;</button>
 </div>
-<div class="pdesign-filter" id="pdesign-filter" aria-label="Filter page designs"></div>
+<div class="pdesign-filter" id="pdesign-filter" aria-label="Filter page templates"></div>
 <div class="row row-cols-1 row-cols-md-2 g-4" id="pdesigns-grid" aria-live="polite"></div>
 
 <!-- Preview modal -->
@@ -396,12 +411,17 @@ title: Printable Page Designs
   <div class="pdesign-modal-content">
     <div class="pdesign-modal-header">
       <h3 id="pdesign-modal-title" class="pdesign-modal-title">
-        <svg class="pdesign-title-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 1.5h5.5L13 5v9.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-12a.5.5 0 0 1 .5-.5z"/><path d="M9.5 1.5V5H13"/></svg>
         <span id="pdesign-modal-title-text">Preview</span>
       </h3>
       <div class="pdesign-modal-actions">
-        <a id="pdesign-modal-download" class="pdesign-modal-link small" href="#" download>Download PDF</a>
-        <a id="pdesign-modal-open" class="pdesign-modal-link small" href="#" target="_blank" rel="noopener noreferrer">Open in a new tab</a>
+        <a id="pdesign-modal-download" class="pdesign-modal-link small" href="#" download>
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 10.5v2a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-2"/><path d="M8 2.5v7m-3-3 3 3 3-3"/></svg>
+          <span>Download PDF</span>
+        </a>
+        <a id="pdesign-modal-open" class="pdesign-modal-link small" href="#" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3"/><path d="M9.5 2.5h4v4m-8.5 7L13.5 2.5"/></svg>
+          <span>Open in a new tab</span>
+        </a>
         <button class="pdesign-modal-close" aria-label="Close preview" onclick="closeDesignPreview(event, true)">&times;</button>
       </div>
     </div>

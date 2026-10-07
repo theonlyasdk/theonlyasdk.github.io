@@ -94,6 +94,8 @@ order: 5
     flex-direction: column;
     overflow: hidden;
     animation: gbZoomIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+    transition: height 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: height;
   }
   .guestbook-overlay.closing .guestbook-dialog {
     animation: gbFadeOut 0.2s ease-out both;
@@ -105,6 +107,19 @@ order: 5
   @keyframes gbFadeOut {
     from { opacity: 1; transform: scale(1); }
     to { opacity: 0; transform: scale(0.92); }
+  }
+  .guestbook-content-pane {
+    transition: opacity 0.22s cubic-bezier(0.22, 1, 0.36, 1), filter 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, filter;
+  }
+  .guestbook-content-pane.is-crossfading-out {
+    opacity: 0;
+    filter: blur(8px);
+    pointer-events: none;
+  }
+  .guestbook-content-pane.is-crossfading-in {
+    opacity: 0;
+    filter: blur(8px);
   }
   .guestbook-header {
     padding: 1.1rem 1.25rem 0.9rem;
@@ -167,6 +182,49 @@ order: 5
     accent-color: var(--link-color);
     margin: 0;
   }
+  .guestbook-other-wrap {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .guestbook-other-wrap.is-visible {
+    grid-template-rows: 1fr;
+  }
+  .guestbook-other-inner {
+    overflow: hidden;
+    padding: 0;
+  }
+  .guestbook-other-field {
+    margin-top: 0.5rem;
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+    opacity: 0;
+    filter: blur(4px);
+    transform: translateY(-4px);
+    transition: opacity 0.22s cubic-bezier(0.22, 1, 0.36, 1), filter 0.22s cubic-bezier(0.22, 1, 0.36, 1), transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .guestbook-other-wrap.is-visible .guestbook-other-field {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+  .guestbook-other-input {
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid var(--btn-border-color);
+    background: var(--main-bg, var(--card-bg));
+    color: var(--text-color);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+    font-family: inherit;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .guestbook-other-input:focus {
+    border-color: var(--link-color);
+    box-shadow: 0 0 0 2px var(--input-focus-border-color, rgba(138, 180, 248, 0.25));
+  }
   .guestbook-msg-input {
     width: 100%;
     border-radius: 8px;
@@ -205,9 +263,8 @@ order: 5
     transform: scale(0.98);
   }
   .guestbook-success-state {
-    padding: 2rem 1rem;
+    padding: 1.5rem 1rem;
     text-align: center;
-    animation: gbZoomIn 0.3s ease-out both;
   }
   .guestbook-success-icon {
     width: 3.5rem;
@@ -226,6 +283,16 @@ order: 5
     font-size: 0.95rem;
     color: var(--text-muted-color);
     margin-bottom: 1.5rem;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .guestbook-dialog,
+    .guestbook-content-pane,
+    .guestbook-overlay,
+    .guestbook-dialog * {
+      animation: none !important;
+      transition: none !important;
+      filter: none !important;
+    }
   }
 </style>
 
@@ -267,7 +334,7 @@ order: 5
 
 Short, print-friendly references for the desk or the workshop wall.
 
-- 🖨 **[Printable Page Borders](/resources/page-designs/)** — Solid fills, bordered pages, PAL test chart - print-ready PDF downloads!<span class="post-tag shake-new">NEW!</span>
+- 🖨 **[Printable Page Templates](/resources/page-designs/)** — Solid fills, bordered pages, assignment trackers, PAL test chart - print-ready PDF downloads!<span class="post-tag shake-new">NEW!</span>
 - ★ **[Linux Command Cheatsheet](#)** — the 20% of commands that cover 80% of terminal work.
 - ★ **[Git Survival Sheet](#)** — init to rebase, plus how to undo almost anything.
 - ★ **[Regex Quick Reference](#)** — character classes, quantifiers and lookarounds on one page.
@@ -311,41 +378,83 @@ Bookmark-grade utilities and lookup pages.
       <button type="button" class="guestbook-close-btn" aria-label="Close" onclick="closeGuestbook(event, true)">&times;</button>
     </div>
     <div class="guestbook-body" id="guestbook-body">
-      <form id="guestbook-form" onsubmit="submitGuestbook(event)">
-        <p style="margin: 0; font-size: 0.95rem;">Where did you drop in from?</p>
-        <div class="guestbook-options">
-          <label class="guestbook-opt-label">
-            <input type="radio" name="source" value="GitHub / Repositories" checked>
-            <span>GitHub / Repositories</span>
-          </label>
-          <label class="guestbook-opt-label">
-            <input type="radio" name="source" value="Search Engine (Google/DuckDuckGo)">
-            <span>Search Engine (Google/DuckDuckGo)</span>
-          </label>
-          <label class="guestbook-opt-label">
-            <input type="radio" name="source" value="Friend / Shared Link">
-            <span>Friend / Shared Link</span>
-          </label>
-          <label class="guestbook-opt-label">
-            <input type="radio" name="source" value="Other">
-            <span>Somewhere else</span>
-          </label>
-        </div>
-        <label for="guestbook-msg" style="display: block; font-size: 0.9rem; margin-bottom: 0.35rem; color: var(--text-muted-color);">Leave a quick hello or note (optional):</label>
-        <textarea id="guestbook-msg" class="guestbook-msg-input" rows="3" placeholder="What brought you here or what did you like?"></textarea>
-        <button type="submit" class="guestbook-submit-btn">Submit</button>
-      </form>
+      <div class="guestbook-content-pane">
+        <form id="guestbook-form" onsubmit="submitGuestbook(event)">
+          <p style="margin: 0; font-size: 0.95rem;">Where did you drop in from?</p>
+          <div class="guestbook-options">
+            <label class="guestbook-opt-label">
+              <input type="radio" name="source" value="GitHub / Repositories" checked>
+              <span>GitHub / Repositories</span>
+            </label>
+            <label class="guestbook-opt-label">
+              <input type="radio" name="source" value="Search Engine (Google/DuckDuckGo)">
+              <span>Search Engine (Google/DuckDuckGo)</span>
+            </label>
+            <label class="guestbook-opt-label">
+              <input type="radio" name="source" value="Friend / Shared Link">
+              <span>Friend / Shared Link</span>
+            </label>
+            <label class="guestbook-opt-label">
+              <input type="radio" name="source" value="Other" onchange="toggleGuestbookOther(this)">
+              <span>Somewhere else</span>
+            </label>
+          </div>
+          <div id="guestbook-other-wrap" class="guestbook-other-wrap" aria-hidden="true">
+            <div class="guestbook-other-inner">
+              <div class="guestbook-other-field">
+                <label for="guestbook-other-input" style="display: block; font-size: 0.85rem; margin-bottom: 0.25rem; color: var(--text-muted-color);">Please specify where you came from:</label>
+                <input id="guestbook-other-input" name="other_source" class="guestbook-other-input" type="text" placeholder="e.g. Mastodon, Substack, LinkedIn, blog mention...">
+              </div>
+            </div>
+          </div>
+          <label for="guestbook-msg" style="display: block; font-size: 0.9rem; margin-top: 1rem; margin-bottom: 0.35rem; color: var(--text-muted-color);">Leave a quick hello or note (optional):</label>
+          <textarea id="guestbook-msg" class="guestbook-msg-input" rows="3" placeholder="What brought you here or what did you like?"></textarea>
+          <button type="submit" class="guestbook-submit-btn">Submit</button>
+        </form>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
+  function toggleGuestbookOther(radio) {
+    var wrap = document.getElementById('guestbook-other-wrap');
+    var input = document.getElementById('guestbook-other-input');
+    if (!wrap) return;
+    if (radio && radio.value === 'Other' && radio.checked) {
+      wrap.classList.add('is-visible');
+      wrap.setAttribute('aria-hidden', 'false');
+      if (input) {
+        setTimeout(function () { input.focus(); }, 120);
+      }
+    } else {
+      wrap.classList.remove('is-visible');
+      wrap.setAttribute('aria-hidden', 'true');
+    }
+  }
+
+  function setupGuestbookSourceListeners() {
+    var form = document.getElementById('guestbook-form');
+    if (!form) return;
+    var radios = form.querySelectorAll('input[name="source"]');
+    radios.forEach(function (radio) {
+      radio.addEventListener('change', function () {
+        toggleGuestbookOther(this);
+      });
+    });
+  }
+
   function openGuestbook() {
     var modal = document.getElementById('guestbook-modal');
     if (!modal) return;
+    var dialog = modal.querySelector('.guestbook-dialog');
+    if (dialog) {
+      dialog.style.height = '';
+    }
     modal.classList.remove('closing');
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
+    setupGuestbookSourceListeners();
   }
 
   function closeGuestbook(e, force) {
@@ -356,25 +465,57 @@ Bookmark-grade utilities and lookup pages.
       setTimeout(function () {
         modal.classList.remove('active', 'closing');
         document.body.style.overflow = '';
+        var dialog = modal.querySelector('.guestbook-dialog');
+        if (dialog) dialog.style.height = '';
       }, 200);
     }
   }
 
   function submitGuestbook(e) {
     e.preventDefault();
+    var modal = document.getElementById('guestbook-modal');
+    if (!modal) return;
+    var dialog = modal.querySelector('.guestbook-dialog');
     var body = document.getElementById('guestbook-body');
-    if (!body) return;
-    body.innerHTML = `
-      <div class="guestbook-success-state">
-        <svg class="guestbook-success-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-          <polyline points="22 4 12 14.01 9 11.01"></polyline>
-        </svg>
-        <div class="guestbook-success-msg">Thank you for your feedback!</div>
-        <div class="guestbook-success-sub">Your note has been received with thanks.</div>
-        <button type="button" class="guestbook-submit-btn" style="max-width: 160px; margin: 0 auto; display: block;" onclick="closeGuestbook(event, true)">Close</button>
-      </div>
-    `;
+    if (!dialog || !body) return;
+
+    var startHeight = dialog.getBoundingClientRect().height;
+    dialog.style.height = startHeight + 'px';
+
+    var currentPane = body.querySelector('.guestbook-content-pane') || body;
+    currentPane.classList.add('is-crossfading-out');
+
+    setTimeout(function () {
+      body.innerHTML = `
+        <div class="guestbook-content-pane is-crossfading-in">
+          <div class="guestbook-success-state">
+            <svg class="guestbook-success-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            <div class="guestbook-success-msg">Thank you for your feedback!</div>
+            <div class="guestbook-success-sub">Your note has been received with thanks.</div>
+            <button type="button" class="guestbook-submit-btn" style="max-width: 160px; margin: 0 auto; display: block;" onclick="closeGuestbook(event, true)">Close</button>
+          </div>
+        </div>
+      `;
+
+      var newPane = body.querySelector('.guestbook-content-pane');
+      dialog.style.height = 'auto';
+      var targetHeight = dialog.getBoundingClientRect().height;
+      dialog.style.height = startHeight + 'px';
+
+      // Force layout reflow before tweening height and crossfading in
+      dialog.offsetHeight;
+
+      dialog.style.height = targetHeight + 'px';
+
+      requestAnimationFrame(function () {
+        if (newPane) {
+          newPane.classList.remove('is-crossfading-in');
+        }
+      });
+    }, 220);
   }
 
   document.addEventListener('keydown', function (e) {
