@@ -20,10 +20,20 @@
 <!-- PWA: emitted in all environments so development builds unregister
      stale service workers instead of leaving them controlling localhost. -->
 {% if site.pwa.enabled %}
-  {% if jekyll.environment == 'production' %}
-  <script defer src="{{ '/app.min.js' | relative_url }}?baseurl={{ site.baseurl | default: '' }}&register={{ site.pwa.cache.enabled }}"></script>
+  {% if jekyll.environment == 'production' and site.pwa.cache.enabled %}
+  <script defer src="{{ '/app.min.js' | relative_url }}?baseurl={{ site.baseurl | default: '' }}&register=true"></script>
   {% else %}
   <script defer src="{{ '/app.min.js' | relative_url }}?baseurl={{ site.baseurl | default: '' }}&register="></script>
+  <script>
+    /* Purge stale PWA caches when cache is disabled */
+    if ('caches' in window) {
+      caches.keys().then(function(names) {
+        for (var i = 0; i < names.length; i++) {
+          caches.delete(names[i]);
+        }
+      });
+    }
+  </script>
   {% endif %}
 {% endif %}
 
