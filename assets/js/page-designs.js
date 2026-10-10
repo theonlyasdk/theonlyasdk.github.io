@@ -18,7 +18,7 @@
   function buildDesignCard(design, index) {
     const card = document.createElement('div'); card.className = 'pdesign-card'; card.tabIndex = 0; card.setAttribute('role', 'button'); card.setAttribute('aria-label', 'Preview ' + design.name); card.style.setProperty('--anim-delay', `${((index + 1) * .1).toFixed(1)}s`);
     const cover = document.createElement('div'); cover.className = 'pdesign-cover';
-    const image = document.createElement('img'); image.src = siteUrl(design.image); image.alt = design.name; image.loading = 'lazy'; image.addEventListener('error', () => imageFallback(image), { once: true }); cover.appendChild(image);
+    const image = document.createElement('img'); image.src = siteUrl(design.image); image.alt = design.name; image.loading = 'lazy'; image.width = 400; image.height = 200; image.addEventListener('error', () => imageFallback(image), { once: true }); cover.appendChild(image);
     const title = document.createElement('h5'); title.className = 'card-title'; title.textContent = design.name;
     const description = document.createElement('p'); description.className = 'text-muted small'; description.textContent = design.description;
     card.append(cover, title, description);

@@ -61,6 +61,20 @@ order: 4
     opacity: 0;
     overflow: hidden;
     animation: slideIn 2s var(--spring-ease) var(--anim-delay, 0s) forwards;
+    transform-style: preserve-3d;
+    will-change: transform;
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease;
+  }
+
+  .project-card:hover {
+    box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.3);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .project-card {
+      transform: none !important;
+      transition: none !important;
+    }
   }
 
   @keyframes slideIn {
@@ -102,11 +116,20 @@ order: 4
     margin-top: 0;
   }
 
+  .projects-search-wrap {
+    position: relative;
+    display: flex;
+    flex: 1;
+    align-items: center;
+    min-width: 0;
+  }
+
   .projects-search-box {
     border-radius: 1.2em;
     border: none;
-    padding: .2em .4em .2em .8em;
+    padding: .2em 2.4em .2em .8em;
     flex: 1;
+    width: 100%;
     box-shadow: var(--filter-btn-shadow);
     transition: box-shadow 0.3s ease;
     position: relative;
@@ -114,6 +137,50 @@ order: 4
     background: radial-gradient(circle var(--gradient-size) at var(--mouse-x) var(--mouse-y),
         var(--sidebar-border-color),
         transparent 40%);
+  }
+
+  .projects-search-clear {
+    position: absolute;
+    right: 0.65rem;
+    top: 50%;
+    transform: translateY(-50%) scale(0.65);
+    background: transparent;
+    border: none;
+    color: var(--text-muted-color, #71717a);
+    font-size: 0.85rem;
+    width: 1.55rem;
+    height: 1.55rem;
+    padding: 0;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+                color 0.15s ease,
+                background-color 0.15s ease;
+    z-index: 2;
+  }
+
+  .projects-search-clear:hover {
+    color: var(--text-color, #ffffff);
+    background: rgba(125, 125, 125, 0.15);
+  }
+
+  .projects-search-clear.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(-50%) scale(1);
+  }
+
+  .projects-search-clear.is-dissolving {
+    opacity: 0 !important;
+    pointer-events: none;
+    transform: translateY(-50%) scale(0.65) rotate(45deg) !important;
+    filter: blur(3px);
   }
 
   .projects-search-box:hover {
@@ -229,9 +296,11 @@ order: 4
     border: none;
   }
 
-  .btn-search-filter:active {
+  .btn-search-filter:active,
+  .btn-search-filter.active {
     box-shadow: var(--filter-btn-shadow-active);
-    background-color: var(--card-bg-active);
+    background-color: var(--card-bg-active, var(--sidebar-border-color));
+    color: var(--text-color);
   }
 
   /* Utilities */
@@ -239,36 +308,46 @@ order: 4
     cursor: pointer;
   }
 
-  /* Animations */
-  .d-pop-out {
-    animation: popOut 0.3s cubic-bezier(.17, 1.34, .22, 1.26) forwards;
+  /* Filter Elevator Reveal */
+  .projects-filter-wrapper {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.36s cubic-bezier(0.22, 1, 0.36, 1);
+    overflow: hidden;
+    width: 100%;
   }
 
-  .d-pop-in {
-    animation: popIn 0.2s cubic-bezier(.17, 1.34, .22, 1.26) forwards;
+  .projects-filter-wrapper.is-open {
+    grid-template-rows: 1fr;
   }
 
-  @keyframes popOut {
-    0% {
-      transform: scale(1);
-      opacity: 1;
-    }
-
-    100% {
-      transform: scale(0.8);
-      opacity: 0;
-    }
+  .projects-filter-inner {
+    min-height: 0;
+    overflow: hidden;
   }
 
-  @keyframes popIn {
-    0% {
-      transform: scale(0.8);
-      opacity: 0;
-    }
+  .projects-filter {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-bottom: 0.85em;
+    opacity: 0;
+    transform: translateY(-22px);
+    transition: transform 0.36s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform, opacity;
+  }
 
-    100% {
-      transform: scale(1);
-      opacity: 1;
+  .projects-filter-wrapper.is-open .projects-filter {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .projects-filter-wrapper,
+    .projects-filter {
+      transition: none !important;
+      transform: none !important;
     }
   }
 
@@ -365,27 +444,36 @@ order: 4
   <div class="projects-top-bar">
     <h1 class="projects-top-bar-title">My Projects</h1>
     <div class="search-box-container">
-      <input class="projects-search-box" type="text" placeholder="Search projects..." autocomplete="off"
-        id="projects-search-box" autocorrect="off" autocapitalize="off" spellcheck="false" autofocus>
+      <div class="projects-search-wrap">
+        <input class="projects-search-box" type="text" placeholder="Search projects..." autocomplete="off"
+          id="projects-search-box" autocorrect="off" autocapitalize="off" spellcheck="false" autofocus>
+        <button type="button" class="projects-search-clear" id="projects-search-clear" aria-label="Clear search" title="Clear search">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
       <button class="btn-search-filter" onclick="toggle_projects_filter()" title="Filter by"><i
           class="fa-solid fa-filter" id="clear-filter"></i></button>
     </div>
-    <div class="projects-filter d-none w-100 d-flex align-items-center justify-content-between">
-      <div class="flex-row filter-icon">
-        <i class="fa-solid fa-filter"></i>
-        &nbsp;&nbsp;
-        <b>Filter by</b>
-      </div>
-      <div class="flex-row filter-tags">
-        <div class="filter-tag c-pointer" onclick="filter_by_tag('')">
-          <span id="current-filter-tag">All</span>
-        </div>
-        <div class="filter-tag c-pointer">
-          <span id="current-filter-tag" onclick="filter_by_demo()">Has demo</span>
-        </div>
-        <div class="filter-tag c-pointer d-none" id="filter-by-tag" onclick="filter_by_tag('')">
-          <span class="category project-tag">Tag</span>
-          <i class="fa-solid fa-xmark" id="clear-filter"></i>
+    <div class="projects-filter-wrapper" id="projects-filter-wrapper">
+      <div class="projects-filter-inner">
+        <div class="projects-filter w-100 d-flex align-items-center justify-content-between">
+          <div class="flex-row filter-icon">
+            <i class="fa-solid fa-filter"></i>
+            &nbsp;&nbsp;
+            <b>Filter by</b>
+          </div>
+          <div class="flex-row filter-tags">
+            <div class="filter-tag c-pointer" onclick="filter_by_tag('')">
+              <span id="current-filter-tag">All</span>
+            </div>
+            <div class="filter-tag c-pointer">
+              <span id="current-filter-tag" onclick="filter_by_demo()">Has demo</span>
+            </div>
+            <div class="filter-tag c-pointer d-none" id="filter-by-tag" onclick="filter_by_tag('')">
+              <span class="category project-tag">Tag</span>
+              <i class="fa-solid fa-xmark" id="clear-filter"></i>
+            </div>
+          </div>
         </div>
       </div>
     </div>

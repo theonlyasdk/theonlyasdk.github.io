@@ -239,3 +239,38 @@ search,
     @extend %link-color;
   }
 }
+
+.search-keycap {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  position: absolute;
+  right: 0.65rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  user-select: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 3;
+
+  kbd {
+    font-size: 0.68rem;
+    font-family: inherit;
+    font-weight: 600;
+    line-height: 1;
+    padding: 0.18rem 0.32rem;
+    border-radius: 4px;
+    background: var(--card-bg, rgba(120, 120, 120, 0.15));
+    border: 1px solid var(--btn-border-color, rgba(120, 120, 120, 0.25));
+    color: var(--text-muted-color);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  }
+}
+
+#search.input-focus .search-keycap,
+#search:focus-within .search-keycap,
+#search.has-value .search-keycap {
+  opacity: 0;
+  transform: translateY(-50%) scale(0.85);
+  pointer-events: none;
+}

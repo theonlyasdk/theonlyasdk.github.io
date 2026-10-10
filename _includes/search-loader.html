@@ -72,10 +72,97 @@
 
   /* Note: dependent library will be loaded in `js-selector.html` */
   window.onload = () => {
-    document.getElementById("search").onmouseover = loadSimpleJekyllSearch;
+    var searchEl = document.getElementById("search");
+    if (searchEl) {
+      searchEl.onmouseover = loadSimpleJekyllSearch;
+    }
     if (window.matchMedia("(max-width: 768px)").matches) {
       /* Load library when the user is on mobile and types in the search box */
-      document.getElementById("search").onkeydown = loadSimpleJekyllSearch;
+      if (searchEl) {
+        searchEl.onkeydown = loadSimpleJekyllSearch;
+      }
     }
+
+    /* Global keyboard shortcuts: Ctrl+K / Cmd+K and '/' */
+    (function () {
+      var isMac = /(Mac|iPhone|iPod|iPad)/i.test(navigator.userAgent || navigator.platform || '');
+      var modKey = document.querySelector('.search-kbd-mod');
+      if (modKey && isMac) {
+        modKey.textContent = '⌘';
+      }
+
+      function openGlobalSearch() {
+        if (!loaded) {
+          loadSimpleJekyllSearch();
+        }
+        var searchTrigger = document.getElementById('search-trigger');
+        if (searchTrigger && getComputedStyle(searchTrigger).display !== 'none') {
+          searchTrigger.click();
+        }
+        var searchInput = document.getElementById('search-input');
+        if (searchInput) {
+          setTimeout(function () {
+            searchInput.focus();
+            searchInput.select();
+          }, 15);
+        }
+      }
+
+      document.addEventListener('keydown', function (e) {
+        /* Ctrl+K or Cmd+K */
+        if ((e.ctrlKey || e.metaKey) && e.key && e.key.toLowerCase() === 'k') {
+          e.preventDefault();
+          openGlobalSearch();
+          return;
+        }
+
+        /* '/' when not in an editable input or textarea */
+        if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+          var active = document.activeElement;
+          var isEditing = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable);
+          if (!isEditing) {
+            e.preventDefault();
+            openGlobalSearch();
+            return;
+          }
+        }
+
+        /* Esc / Escape: unfocus search shortcut and dismiss search */
+        if (e.key === 'Escape' || e.key === 'Esc') {
+          var searchInput = document.getElementById('search-input');
+          var isSearchFocused = document.activeElement === searchInput;
+          var isSearchWrapFocused = searchEl && (searchEl.classList.contains('input-focus') || searchEl.classList.contains('has-value'));
+          var resultWrapper = document.getElementById('search-result-wrapper');
+          var isResultOpen = resultWrapper && !resultWrapper.classList.contains('d-none');
+
+          if (isSearchFocused || isSearchWrapFocused || isResultOpen) {
+            e.preventDefault();
+            var searchCancel = document.getElementById('search-cancel');
+            if (searchCancel) {
+              searchCancel.click();
+            }
+            if (searchInput) {
+              searchInput.value = '';
+              searchInput.blur();
+            }
+            if (searchEl) {
+              searchEl.classList.remove('has-value', 'input-focus');
+            }
+            return;
+          }
+        }
+      });
+
+      var searchInput = document.getElementById('search-input');
+      if (searchInput && searchEl) {
+        searchInput.addEventListener('input', function () {
+          if (this.value.trim().length > 0) {
+            searchEl.classList.add('has-value');
+          } else {
+            searchEl.classList.remove('has-value');
+          }
+        });
+      }
+    })();
   };
 </script>

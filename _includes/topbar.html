@@ -65,7 +65,7 @@
       <i class="fas fa-search fa-fw"></i>
     </button>
 
-    <search id="search" class="align-items-center ms-3 ms-lg-0">
+    <search id="search" class="align-items-center ms-3 ms-lg-0 position-relative">
       <i class="fas fa-search fa-fw"></i>
       <input
         class="form-control"
@@ -75,6 +75,9 @@
         autocomplete="off"
         placeholder="{{ site.data.locales[include.lang].search.hint | capitalize }}..."
       >
+      <span class="search-keycap d-none d-lg-inline-flex" id="search-keycap" aria-hidden="true">
+        <kbd class="search-kbd-mod">Ctrl</kbd><kbd class="search-kbd-key">K</kbd>
+      </span>
     </search>
     <button type="button" class="btn btn-link text-decoration-none" id="search-cancel">
       {{- site.data.locales[include.lang].search.cancel -}}

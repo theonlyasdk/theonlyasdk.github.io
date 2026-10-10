@@ -284,13 +284,165 @@ order: 5
     color: var(--text-muted-color);
     margin-bottom: 1.5rem;
   }
+  /* Segmented Resource Tabs */
+  .resource-tabs-wrapper {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin: 1.75rem auto 1.5rem auto;
+  }
+  .resource-tab-bar {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    background: var(--card-header-bg, rgba(120, 120, 120, 0.1));
+    border: 1px solid var(--btn-border-color, rgba(120, 120, 120, 0.18));
+    border-radius: 9999px;
+    padding: 3px;
+    gap: 3px;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.04);
+    max-width: 100%;
+    user-select: none;
+  }
+  .resource-tab-pill {
+    position: absolute;
+    top: 3px;
+    bottom: 3px;
+    left: 0;
+    right: 0;
+    height: auto;
+    background: var(--card-bg, #ffffff);
+    border: 1px solid var(--btn-border-color, rgba(120, 120, 120, 0.15));
+    border-radius: 9999px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+    z-index: 0;
+    pointer-events: none;
+    will-change: left, right;
+  }
+  .resource-tab-btn {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.45rem 1.35rem;
+    min-height: 38px;
+    border: none;
+    background: transparent;
+    border-radius: 9999px;
+    color: var(--text-muted-color);
+    font-size: 0.92rem;
+    font-weight: 600; /* Identical font-weight across both states so text never shifts */
+    font-family: inherit;
+    cursor: pointer;
+    outline: none;
+    white-space: nowrap;
+    opacity: 0.75;
+    transition: color 0.22s ease, opacity 0.22s ease;
+    -webkit-tap-highlight-color: transparent;
+    transform: none !important; /* Strictly no scale animation on text */
+  }
+  .resource-tab-btn i {
+    font-size: 0.9rem;
+    color: inherit;
+    opacity: 0.8;
+    transition: color 0.22s ease, opacity 0.22s ease;
+    transform: none !important; /* Strictly no scale animation on icons */
+  }
+  .resource-tab-btn:hover {
+    color: var(--text-color);
+    opacity: 0.95;
+  }
+  .resource-tab-btn:hover i {
+    opacity: 1;
+  }
+  .resource-tab-btn[aria-selected="true"] {
+    color: var(--heading-color, var(--text-color));
+    opacity: 1;
+    font-weight: 600;
+  }
+  .resource-tab-btn[aria-selected="true"] i {
+    opacity: 1;
+    color: var(--link-color);
+    transform: none !important;
+  }
+  .resource-tab-btn:focus-visible {
+    outline: 2px solid var(--link-color);
+    outline-offset: 2px;
+  }
+  @media all and (max-width: 560px) {
+    .resource-tabs-wrapper {
+      margin: 1.25rem 0 1.25rem 0;
+    }
+    .resource-tab-bar {
+      width: 100%;
+    }
+    .resource-tab-btn {
+      flex: 1 1 0;
+      padding: 0.5rem 0.6rem;
+      font-size: 0.85rem;
+      gap: 0.35rem;
+    }
+  }
+
+  /* Resource Tab Panels - CSS Grid Overlay (Zero layout jump) */
+  .resource-tab-panels {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    width: 100%;
+    position: relative;
+  }
+  .resource-tab-panel {
+    grid-area: 1 / 1 / 2 / 2;
+    display: none;
+    opacity: 0;
+    transform: translateX(0);
+    filter: blur(0);
+    transition:
+      opacity 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+      filter 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform, filter;
+  }
+  .resource-tab-panel.is-active {
+    display: block;
+    opacity: 1;
+    transform: translateX(0);
+    filter: blur(0);
+  }
+  .resource-tab-panel.is-entering-right {
+    display: block;
+    opacity: 0;
+    transform: translateX(6px);
+    filter: blur(2px);
+  }
+  .resource-tab-panel.is-entering-left {
+    display: block;
+    opacity: 0;
+    transform: translateX(-6px);
+    filter: blur(2px);
+  }
+  .resource-tab-panel.is-exiting-left {
+    display: block;
+    opacity: 0;
+    transform: translateX(-6px);
+    filter: blur(2px);
+  }
+  .resource-tab-panel.is-exiting-right {
+    display: block;
+    opacity: 0;
+    transform: translateX(6px);
+    filter: blur(2px);
+  }
   @media (prefers-reduced-motion: reduce) {
-    .guestbook-dialog,
-    .guestbook-content-pane,
-    .guestbook-overlay,
-    .guestbook-dialog * {
-      animation: none !important;
+    .resource-tab-pill,
+    .resource-tab-panel,
+    .resource-tab-btn,
+    .resource-tab-btn i {
       transition: none !important;
+      transform: none !important;
       filter: none !important;
     }
   }
@@ -327,6 +479,24 @@ order: 5
   })();
 </script>
 
+<div class="resource-tabs-wrapper">
+  <div class="resource-tab-bar" role="tablist" aria-label="Resource categories">
+    <span class="resource-tab-pill" aria-hidden="true"></span>
+    <button type="button" class="resource-tab-btn" role="tab" id="tab-my-resources" aria-selected="true" aria-controls="tabpanel-my-resources" data-tab="my-resources" tabindex="0">
+      <i class="fa-solid fa-folder-open"></i>
+      <span>My Resources</span>
+    </button>
+    <button type="button" class="resource-tab-btn" role="tab" id="tab-other-resources" aria-selected="false" aria-controls="tabpanel-other-resources" data-tab="other-resources" tabindex="-1">
+      <i class="fa-solid fa-compass"></i>
+      <span>Other Cool Resources</span>
+    </button>
+  </div>
+</div>
+
+<div class="resource-tab-panels">
+
+<div id="tabpanel-my-resources" class="resource-tab-panel is-active" role="tabpanel" aria-labelledby="tab-my-resources" markdown="1">
+
 > Pardon our dust — the Tutorials wing is still under construction!
 {: .prompt-warning }
 
@@ -335,33 +505,219 @@ order: 5
 Short, print-friendly references for the desk or the workshop wall.
 
 - 🖨 **[Printable Page Templates](/resources/page-designs/)** — Solid fills, bordered pages, assignment trackers, PAL test chart - print-ready PDF downloads!<span class="post-tag shake-new">NEW!</span>
-- ★ **[Linux Command Cheatsheet](#)** — the 20% of commands that cover 80% of terminal work.
-- ★ **[Git Survival Sheet](#)** — init to rebase, plus how to undo almost anything.
-- ★ **[Regex Quick Reference](#)** — character classes, quantifiers and lookarounds on one page.
+- ★ <span class="text-muted">**Linux Command Cheatsheet**</span> <span class="post-tag">Coming Soon</span> — the 20% of commands that cover 80% of terminal work.
+- ★ <span class="text-muted">**Git Survival Sheet**</span> <span class="post-tag">Coming Soon</span> — init to rebase, plus how to undo almost anything.
+- ★ <span class="text-muted">**Regex Quick Reference**</span> <span class="post-tag">Coming Soon</span> — character classes, quantifiers and lookarounds on one page.
 
 ## ✦ Tutorials
 
 Longer guides worth working through end to end.
 
-- ★ **[Terminal Basics](#)** — from zero to comfortable on the command line. <span class="post-tag shake-new">NEW!</span>
-- ★ **[Dotfiles From Scratch](#)** — version-control your setup like a grown-up.
-- ★ **[Self-Hosting 101](#)** — put your own services on your own hardware.
+- ★ <span class="text-muted">**Terminal Basics**</span> <span class="post-tag">Coming Soon</span> — from zero to comfortable on the command line.
+- ★ <span class="text-muted">**Dotfiles From Scratch**</span> <span class="post-tag">Coming Soon</span> — version-control your setup like a grown-up.
+- ★ <span class="text-muted">**Self-Hosting 101**</span> <span class="post-tag">Coming Soon</span> — put your own services on your own hardware.
 
-## ✦ Collections
+## ✦ Reading Shelf
+
+- ★ <span class="text-muted">**My Reading Shelf**</span> <span class="post-tag">Coming Soon</span> — essays and docs I re-read every year.
+
+</div>
+
+<div id="tabpanel-other-resources" class="resource-tab-panel" role="tabpanel" aria-labelledby="tab-other-resources" hidden markdown="1">
+
+## ✦ Curated Collections
 
 Curated piles of links for rabbit-hole days.
 
-- ★ **[Awesome Self-Hosted](#)** — community-maintained list of self-hostable software.
-- ★ **[Awesome Command Line](#)** — tools, dotfiles and reading for terminal enjoyers.
-- ★ **[My Reading Shelf](#)** — essays and docs I re-read every year.
+- ★ **[Awesome Self-Hosted](https://github.com/awesome-selfhosted/awesome-selfhosted){:target="_blank" rel="noopener"}** — community-maintained list of self-hostable software.
+- ★ **[Awesome Command Line](https://github.com/alebcizr/awesome-cli){:target="_blank" rel="noopener"}** — tools, dotfiles and reading for terminal enjoyers.
 
 ## ✦ Tools & References
 
 Bookmark-grade utilities and lookup pages.
 
-- ★ **[Explainshell](#)** — paste a command, learn what each flag does.
-- ★ **[DevDocs](#)** — offline-capable API documentation in one place.
-- ★ **[Can I Use](#)** — browser support tables for web features.
+- ★ **[Explainshell](https://explainshell.com/){:target="_blank" rel="noopener"}** — paste a command, learn what each flag does.
+- ★ **[DevDocs](https://devdocs.io/){:target="_blank" rel="noopener"}** — offline-capable API documentation in one place.
+- ★ **[Can I Use](https://caniuse.com/){:target="_blank" rel="noopener"}** — browser support tables for web features.
+
+</div>
+
+</div>
+
+<script>
+  /* Resource Tabs Orchestration */
+  (function () {
+    var bar = document.querySelector('.resource-tab-bar');
+    if (!bar) return;
+    var pill = bar.querySelector('.resource-tab-pill');
+    var tabs = Array.prototype.slice.call(bar.querySelectorAll('.resource-tab-btn'));
+    var panels = {
+      'my-resources': document.getElementById('tabpanel-my-resources'),
+      'other-resources': document.getElementById('tabpanel-other-resources')
+    };
+
+    var currentTabId = 'my-resources';
+    var switchTimer = null;
+
+    function movePill(tab, animate, movingRight) {
+      if (!tab || !pill || !bar) return;
+      var targetLeft = tab.offsetLeft;
+      var targetRight = bar.offsetWidth - (tab.offsetLeft + tab.offsetWidth);
+
+      if (!animate) {
+        pill.style.transition = 'none';
+        pill.style.left = targetLeft + 'px';
+        pill.style.right = targetRight + 'px';
+        void pill.offsetWidth; /* Force reflow */
+        return;
+      }
+
+      /* Blob stick stretch animation:
+         The leading edge moves immediately to the clicked tab,
+         while the trailing edge follows with a slight delay,
+         creating a fluid stretchy slug / blob stick effect. */
+      var leadDur = '340ms';
+      var trailDur = '380ms';
+      var trailDelay = '80ms';
+      var ease = 'cubic-bezier(0.25, 1, 0.35, 1)';
+
+      if (movingRight) {
+        pill.style.transition =
+          'right ' + leadDur + ' ' + ease + ' 0ms, ' +
+          'left ' + trailDur + ' ' + ease + ' ' + trailDelay;
+      } else {
+        pill.style.transition =
+          'left ' + leadDur + ' ' + ease + ' 0ms, ' +
+          'right ' + trailDur + ' ' + ease + ' ' + trailDelay;
+      }
+
+      pill.style.left = targetLeft + 'px';
+      pill.style.right = targetRight + 'px';
+    }
+
+    function switchTab(newTabId, animate) {
+      if (newTabId === currentTabId && animate) return;
+      var newTab = bar.querySelector('[data-tab="' + newTabId + '"]');
+      if (!newTab) return;
+
+      if (switchTimer) {
+        clearTimeout(switchTimer);
+        switchTimer = null;
+      }
+
+      var oldTabId = currentTabId;
+      var oldPanel = panels[oldTabId];
+      var newPanel = panels[newTabId];
+
+      var oldIndex = tabs.indexOf(bar.querySelector('[data-tab="' + oldTabId + '"]'));
+      var newIndex = tabs.indexOf(newTab);
+      var movingRight = newIndex >= oldIndex;
+
+      currentTabId = newTabId;
+
+      tabs.forEach(function (t) {
+        var isSelected = t.getAttribute('data-tab') === newTabId;
+        t.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+        t.setAttribute('tabindex', isSelected ? '0' : '-1');
+      });
+
+      movePill(newTab, animate, movingRight);
+
+      try {
+        localStorage.setItem('resources-active-tab', newTabId);
+      } catch (e) {}
+
+      if (!animate || !oldPanel || !newPanel) {
+        if (oldPanel) {
+          oldPanel.className = 'resource-tab-panel';
+          oldPanel.hidden = true;
+          oldPanel.style.display = 'none';
+        }
+        if (newPanel) {
+          newPanel.className = 'resource-tab-panel is-active';
+          newPanel.hidden = false;
+          newPanel.style.display = 'block';
+        }
+        return;
+      }
+
+      /* Both panels occupy grid-area: 1/1 during transition — ZERO vertical pushing or layout jumping */
+      oldPanel.className = 'resource-tab-panel ' + (movingRight ? 'is-exiting-left' : 'is-exiting-right');
+
+      newPanel.hidden = false;
+      newPanel.style.display = 'block';
+      newPanel.className = 'resource-tab-panel ' + (movingRight ? 'is-entering-right' : 'is-entering-left');
+      void newPanel.offsetWidth; /* Force reflow before transition */
+
+      requestAnimationFrame(function () {
+        newPanel.className = 'resource-tab-panel is-active';
+      });
+
+      switchTimer = setTimeout(function () {
+        if (oldPanel && currentTabId !== oldTabId) {
+          oldPanel.className = 'resource-tab-panel';
+          oldPanel.hidden = true;
+          oldPanel.style.display = 'none';
+        }
+        switchTimer = null;
+      }, 300);
+    }
+
+    /* Keyboard navigation with Left/Right arrow keys */
+    bar.addEventListener('keydown', function (e) {
+      var activeTab = bar.querySelector('[aria-selected="true"]');
+      var idx = tabs.indexOf(activeTab);
+      if (idx === -1) return;
+
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        var nextIdx = (idx + 1) % tabs.length;
+        tabs[nextIdx].focus();
+        switchTab(tabs[nextIdx].getAttribute('data-tab'), true);
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        var prevIdx = (idx - 1 + tabs.length) % tabs.length;
+        tabs[prevIdx].focus();
+        switchTab(tabs[prevIdx].getAttribute('data-tab'), true);
+      }
+    });
+
+    tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        var id = this.getAttribute('data-tab');
+        switchTab(id, true);
+        if (history.replaceState) {
+          history.replaceState(null, '', '#' + id);
+        }
+      });
+    });
+
+    /* Read initial tab from URL hash or localStorage */
+    var initialTab = 'my-resources';
+    var hash = window.location.hash.replace('#', '');
+    if (hash === 'other-resources' || hash === 'other-cool-resources') {
+      initialTab = 'other-resources';
+    } else if (hash === 'my-resources') {
+      initialTab = 'my-resources';
+    } else {
+      try {
+        var saved = localStorage.getItem('resources-active-tab');
+        if (saved && panels[saved]) initialTab = saved;
+      } catch (e) {}
+    }
+
+    var activeBtn = bar.querySelector('[data-tab="' + initialTab + '"]');
+    switchTab(initialTab, false);
+    requestAnimationFrame(function () {
+      movePill(activeBtn, false);
+    });
+
+    window.addEventListener('resize', function () {
+      var currentBtn = bar.querySelector('[data-tab="' + currentTabId + '"]');
+      movePill(currentBtn, false);
+    });
+  })();
+</script>
 
 ---
 
