@@ -307,7 +307,7 @@ order: 5
 <p class="text-center">You are visitor <strong>#<span id="hit-count">1</span></strong>. <em>Last updated: {{ 'now' | date: '%B %d, %Y' }}.</em></p>
 
 <script>
-  // Global hit counter (CountAPI, no signup) with per-browser fallback.
+  /* Global hit counter (CountAPI, no signup) with per-browser fallback. */
   (function () {
     var el = document.getElementById('hit-count');
     function localFallback() {
@@ -505,7 +505,7 @@ Bookmark-grade utilities and lookup pages.
       var targetHeight = dialog.getBoundingClientRect().height;
       dialog.style.height = startHeight + 'px';
 
-      // Force layout reflow before tweening height and crossfading in
+      /* Force layout reflow before tweening height and crossfading in */
       dialog.offsetHeight;
 
       dialog.style.height = targetHeight + 'px';

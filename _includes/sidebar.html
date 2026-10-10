@@ -115,24 +115,24 @@
 
             var finishTimer = null;
 
-            // The menu IS the morph surface now (it owns the shared background),
-            // so every height read/write targets it, not the wrapper.
+            /* The menu IS the morph surface now (it owns the shared background),
+               so every height read/write targets it, not the wrapper. */
             function chrome() {
-              // border thickness, box-sizing-proof
+              /* border thickness, box-sizing-proof */
               return menu.offsetHeight - menu.clientHeight;
             }
 
             function btnH() {
-              // The menu is border-box with a 1px transparent border and the
-              // toggle has none, so the button's own height is the rest height.
+              /* The menu is border-box with a 1px transparent border and the
+                 toggle has none, so the button's own height is the rest height. */
               return toggle.offsetHeight;
             }
 
             function openH() {
-              // Measured from the items, not scrollHeight: the list is
-              // bottom-anchored (flex-end), and overflow past the top of a
-              // flex-end box is unreachable, so scrollHeight under-reports and
-              // the panel would never grow.
+              /* Measured from the items, not scrollHeight: the list is
+                 bottom-anchored (flex-end), and overflow past the top of a
+                 flex-end box is unreachable, so scrollHeight under-reports and
+                 the panel would never grow. */
               var items = menu.querySelectorAll('.dropdown-item');
               var gap = parseFloat(getComputedStyle(menu).rowGap) || 0;
               var cs = getComputedStyle(menu);
@@ -158,15 +158,15 @@
               if (!morph.classList.contains('is-open')) menu.style.height = '';
             }
 
-            // Morph: the box tweens real width/height/border-radius (no scale()),
-            // while the button content crossfades out and the items rise in.
+            /* Morph: the box tweens real width/height/border-radius (no scale()),
+               while the button content crossfades out and the items rise in. */
             toggle.addEventListener('show.bs.dropdown', function () {
               clearFinishTimer();
               morph.classList.add('is-open');
               var h = openH();
               morph.style.setProperty('--morph-open-height', h + 'px');
-              menu.style.height = menu.offsetHeight + 'px'; // pin current: seamless mid-close reopen
-              void menu.offsetWidth; // reflow so the height tween restarts
+              menu.style.height = menu.offsetHeight + 'px'; /* pin current: seamless mid-close reopen */
+              void menu.offsetWidth; /* reflow so the height tween restarts */
               menu.style.height = h + 'px';
             });
 
@@ -178,17 +178,17 @@
               menu.style.height = btnH() + 'px';
             }
 
-            // No preventDefault: Bootstrap .show is vestigial (menu is always
-            // rendered, visibility is owned by .is-open), so close cannot deadlock.
+            /* No preventDefault: Bootstrap .show is vestigial (menu is always
+               rendered, visibility is owned by .is-open), so close cannot deadlock. */
             toggle.addEventListener('hide.bs.dropdown', collapse);
             toggle.addEventListener('hidden.bs.dropdown', function () {
-              // Bootstrap's clearMenus deliberately ignores Tab-out of a menu, and
-              // Escape only works while focus is still inside — so without this the
-              // panel can be left open with focus gone, unreachable by keyboard.
+              /* Bootstrap's clearMenus deliberately ignores Tab-out of a menu, and
+                 Escape only works while focus is still inside — so without this the
+                 panel can be left open with focus gone, unreachable by keyboard. */
               if (morph.contains(document.activeElement) || document.activeElement === document.body) {
                 toggle.focus();
               }
-              // hidden fires immediately; let the shrink tween finish first
+              /* hidden fires immediately; let the shrink tween finish first */
               menu.addEventListener('transitionend', onHeightEnd);
               clearTimeout(finishTimer);
               finishTimer = setTimeout(function () {
@@ -198,8 +198,8 @@
               }, 350);
             });
 
-            // The pinned height is a measurement, so re-establish it if the content
-            // metrics shift under us (late font swap, OS min font size, locale swap).
+            /* The pinned height is a measurement, so re-establish it if the content
+               metrics shift under us (late font swap, OS min font size, locale swap). */
             toggle.addEventListener('shown.bs.dropdown', function () {
               if (morph.classList.contains('is-open')) {
                 var h = openH();
@@ -211,7 +211,7 @@
             morph.addEventListener('focusout', function (e) {
               if (!morph.classList.contains('is-open')) return;
               if (morph.contains(e.relatedTarget)) return;
-              if (e.relatedTarget === null) return; // focus left the document
+              if (e.relatedTarget === null) return; /* focus left the document */
               var dropdown =
                 window.bootstrap && window.bootstrap.Dropdown
                   ? window.bootstrap.Dropdown.getInstance(toggle)
