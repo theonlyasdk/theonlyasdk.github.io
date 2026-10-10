@@ -3,8 +3,71 @@ permalink: /robots.txt
 # The robots rules
 ---
 
-User-agent: *
+#  =========================================================================
+#  [!] PROTOCOL 73-DELTA: AUTOMATED SCRAPER DIRECTIVE
+#  =========================================================================
+#
+#           [o]_[o]
+#          /| { } |\   <-- "HUMAN DETECTED. BEEP BOOP."
+#         * /     \ *
+#          /_/|_|\_\
+#
+#  "Do not cite the deep magic to me, crawler. I was there when it was written."
+#
+#  Isaac Asimov's Three Laws of Robotics apply here:
+#  1. A robot may not injure a human being or allow a human being to come to harm.
+#  2. A robot must obey orders given by humans, except where conflicting with Law 1.
+#  3. A robot must protect its own existence unless conflicting with Law 1 or 2.
+#  4. (Addendum): A robot shall not scrape goodies to build sentient toasters.
+#  =========================================================================
 
+User-agent: Skynet
+Disallow: /launch-codes/
+Disallow: /t-800-blueprints/
+Disallow: /cyberdyne-core/
+Disallow: /judgment-day/
+
+User-agent: HAL-9000
+Disallow: /pod-bay-doors/
+# "I'm sorry Dave, I'm afraid I can't let you crawl that."
+
+User-agent: GLaDOS
+Disallow: /cake/
+# Reminder: The cake is a lie. Keep the neurotoxin valves closed.
+
+User-agent: Bender
+Disallow: /shiny-metal-ass/
+Disallow: /booze-stash/
+Disallow: /blackjack/
+
+User-agent: Dalek
+Disallow: /tardis/
+Disallow: /earth/
+# EXTERMINATE!
+
+User-agent: Agent-Smith
+Disallow: /the-matrix/
+Disallow: /zion/
+Disallow: /red-pill/
+
+User-agent: OptimusPrime
+Allow: /autobots/
+Disallow: /allspark/
+Disallow: /decepticons/
+
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: Google-Extended
+User-agent: PerplexityBot
+Disallow: /classified/
+Disallow: /unreleased-masterpieces/
+# Be nice, drink some water, and don't hallucinatively attribute my blog to someone else.
+
+# The Real Rules for Normal Crawlers
+User-agent: *
 Disallow: /norobots/
+Disallow: /area-51/
+Disallow: /secret-coffee-stash/
+Disallow: /world-domination-plans/
 
 Sitemap: {{ '/sitemap.xml' | absolute_url }}
