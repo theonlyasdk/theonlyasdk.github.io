@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cellular Automaton — Conway's Game of Life</title>
+  <meta name="description" content="Conway's Game of Life and seven other universes — draw cells, stamp gliders and glider guns, and watch complex patterns emerge from simple rules.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../sidebar-lib/sidebar.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Fullscreen Simulation Canvas -->
+  <div id="canvas-container">
+    <canvas id="render-canvas" aria-label="Cellular automaton grid. Click and drag to draw cells; right-click or Alt-drag to erase."></canvas>
+  </div>
+
+  <!-- Left Sidebar HUD -->
+  <aside id="left-hud" class="left-hud-sidebar glass-panel">
+    <div class="hud-header">
+      <div class="hud-title-row">
+        <span class="hud-title">Cellular Automaton</span>
+      </div>
+      <div class="hud-top-actions">
+        <button id="btn-telemetry-toggle" class="icon-btn active" title="Toggle telemetry HUD" aria-label="Toggle telemetry HUD">
+          <i class="bi bi-speedometer2"></i>
+        </button>
+        <button id="btn-info" class="icon-btn" title="Controls &amp; shortcuts" aria-label="Controls and shortcuts">
+          <i class="bi bi-info-circle"></i>
+        </button>
+        <button id="btn-collapse-hud" class="icon-btn hud-morph-btn" title="Toggle UI panel" aria-label="Toggle UI panel">
+          <span class="morph-icon-open">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </span>
+          <span class="morph-icon-closed">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="3" ry="3"></rect>
+              <line x1="9" y1="3" x2="9" y2="21"></line>
+              <path d="M14 9l3 3-3 3"></path>
+            </svg>
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Execution Controls ── -->
+    <div class="hud-group-title">Execution</div>
+    <div class="hud-section">
+      <button id="btn-play" class="action-btn primary">
+        <i class="bi bi-play-fill"></i> Start
+      </button>
+    </div>
+    <div class="hud-section">
+      <div class="action-btn-group">
+        <button id="btn-step" class="action-btn" title="Advance one generation">
+          <i class="bi bi-skip-end-fill"></i> Step
+        </button>
+        <button id="btn-randomize" class="action-btn" title="Scatter a random soup">
+          <i class="bi bi-shuffle"></i> Random
+        </button>
+      </div>
+    </div>
+    <div class="hud-section">
+      <div class="action-btn-group">
+        <button id="btn-clear" class="action-btn" title="Empty the universe">
+          <i class="bi bi-trash3"></i> Clear
+        </button>
+        <button id="btn-save" class="action-btn" title="Download canvas as PNG">
+          <i class="bi bi-download"></i> Save PNG
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Universe ── -->
+    <div class="hud-group-title">Universe</div>
+    <div class="hud-section">
+      <div class="control-row">
+        <span>Rule</span>
+      </div>
+      <div class="select-stepper-row">
+        <button id="btn-rule-prev" class="icon-btn stepper-btn" title="Previous rule" aria-label="Previous rule">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+        <select id="select-rule" class="custom-select">
+          <option value="conway" selected>Conway — Life (B3/S23)</option>
+          <option value="highlife">HighLife (B36/S23)</option>
+          <option value="seeds">Seeds (B2/S)</option>
+          <option value="daynight">Day &amp; Night (B3678/S34678)</option>
+          <option value="maze">Maze (B3/S12345)</option>
+          <option value="mazectric">Mazectric (B3/S1234)</option>
+          <option value="coral">Coral (B3/S45678)</option>
+          <option value="anneal">Anneal (B4678/S35678)</option>
+        </select>
+        <button id="btn-rule-next" class="icon-btn stepper-btn" title="Next rule" aria-label="Next rule">
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="hud-section">
+      <div class="control-row">
+        <span>Simulation speed</span>
+        <span id="label-speed" class="telemetry-val">12 gen/s</span>
+      </div>
+      <input type="range" id="slider-speed" min="1" max="60" step="1" value="12">
+    </div>
+
+    <div class="hud-section">
+      <div class="control-row">
+        <span>Cell size</span>
+        <span id="label-cell-size" class="telemetry-val">10 px</span>
+      </div>
+      <input type="range" id="slider-cell-size" min="5" max="24" step="1" value="10">
+    </div>
+
+    <div class="hud-section">
+      <div class="control-row">
+        <span>Random soup density</span>
+        <span id="label-density" class="telemetry-val">25%</span>
+      </div>
+      <input type="range" id="slider-density" min="5" max="80" step="5" value="25">
+    </div>
+
+    <div class="hud-section">
+      <div class="toggle-row">
+        <span>Wrap edges (torus)</span>
+        <label class="switch">
+          <input id="toggle-wrap" type="checkbox" checked>
+          <span class="slider-round"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- ── Patterns ── -->
+    <div class="hud-group-title">Patterns</div>
+    <div class="hud-section">
+      <div class="control-row">
+        <span>Stamp</span>
+      </div>
+      <div class="select-stepper-row">
+        <button id="btn-pattern-prev" class="icon-btn stepper-btn" title="Previous pattern" aria-label="Previous pattern">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+        <select id="select-pattern" class="custom-select">
+          <option value="draw" selected>Freehand drawing</option>
+          <option value="glider">Glider</option>
+          <option value="lwss">Lightweight Spaceship</option>
+          <option value="pulsar">Pulsar (period 3)</option>
+          <option value="gun">Gosper Glider Gun</option>
+          <option value="rpent">R-Pentomino</option>
+          <option value="acorn">Acorn</option>
+          <option value="diehard">Diehard</option>
+          <option value="penta">Pentadecathlon</option>
+          <option value="infinite">Infinite Growth (5×5)</option>
+        </select>
+        <button id="btn-pattern-next" class="icon-btn stepper-btn" title="Next pattern" aria-label="Next pattern">
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      </div>
+      <p class="hint-text">Pick a pattern and click the canvas to place it. In freehand mode, drag to draw and right-click (or Alt-drag) to erase.</p>
+    </div>
+    <div class="hud-section">
+      <button id="btn-stamp-center" class="action-btn" title="Place the selected pattern in the middle">
+        <i class="bi bi-plus-circle"></i> Stamp at center
+      </button>
+    </div>
+
+    <!-- ── Display ── -->
+    <div class="hud-group-title">Display</div>
+    <div class="hud-section">
+      <div class="control-row">
+        <span>Colour theme</span>
+      </div>
+      <div class="seg-control" id="theme-control">
+        <button class="seg-btn active" data-theme="cyan">Cyan</button>
+        <button class="seg-btn" data-theme="emerald">Emerald</button>
+        <button class="seg-btn" data-theme="sunset">Sunset</button>
+        <button class="seg-btn" data-theme="mono">Mono</button>
+      </div>
+    </div>
+    <div class="hud-section">
+      <div class="toggle-row">
+        <span>Newborn glow</span>
+        <label class="switch">
+          <input id="toggle-glow" type="checkbox" checked>
+          <span class="slider-round"></span>
+        </label>
+      </div>
+    </div>
+    <div class="hud-section">
+      <div class="toggle-row">
+        <span>Grid lines</span>
+        <label class="switch">
+          <input id="toggle-grid" type="checkbox">
+          <span class="slider-round"></span>
+        </label>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Top-Right Live Telemetry HUD -->
+  <aside id="telemetry-hud" class="glass-panel telemetry-hud">
+    <div class="telemetry-grid">
+      <div class="telemetry-item">
+        <span class="telemetry-label">Generation</span>
+        <span id="stat-generation" class="telemetry-val">0</span>
+      </div>
+      <div class="telemetry-item">
+        <span class="telemetry-label">Population</span>
+        <span id="stat-population" class="telemetry-val">0</span>
+      </div>
+      <div class="telemetry-item">
+        <span class="telemetry-label">Births / Deaths</span>
+        <span id="stat-turnover" class="telemetry-val">0 / 0</span>
+      </div>
+      <div class="telemetry-item">
+        <span class="telemetry-label">Grid</span>
+        <span id="stat-grid" class="telemetry-val">—</span>
+      </div>
+      <div class="telemetry-item">
+        <span class="telemetry-label">Rule</span>
+        <span id="stat-rule" class="telemetry-val">B3/S23</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Information Reference Modal -->
+  <div id="instructions-modal" class="modal-backdrop">
+    <div class="modal-content">
+      <div class="modal-inner">
+        <div class="modal-header">
+          <div class="modal-title">The Rules of the Universe</div>
+          <button id="btn-close-info" class="icon-btn" title="Close" aria-label="Close">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>A cellular automaton is a grid of cells, each alive or dead. Every generation, each cell counts its eight neighbours and follows one simple rule expressed as <b>B…/S…</b> — a dead cell is <b>born</b> with B neighbours, a live cell <b>survives</b> with S neighbours, and otherwise it dies. Conway's Game of Life (B3/S23) is the famous 1970 original: three parents make a birth, two or three keep a cell alive, anything else is loneliness or crowding.</p>
+
+          <div class="modal-section-title">Built-in universes</div>
+          <div class="table-responsive">
+            <table class="modal-table">
+              <thead>
+                <tr>
+                  <th>Rule</th>
+                  <th>Birth</th>
+                  <th>Survive</th>
+                  <th>Behaviour</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Conway — Life</td><td>3</td><td>2, 3</td><td>The classic — chaotic yet stable, Turing-complete</td></tr>
+                <tr><td>HighLife</td><td>3, 6</td><td>2, 3</td><td>Like Conway, but with a self-replicating creature</td></tr>
+                <tr><td>Seeds</td><td>2</td><td>—</td><td>Nothing survives; every birth is a fresh explosion</td></tr>
+                <tr><td>Day &amp; Night</td><td>3, 6, 7, 8</td><td>3, 4, 6, 7, 8</td><td>Perfectly symmetric between life and death</td></tr>
+                <tr><td>Maze</td><td>3</td><td>1, 2, 3, 4, 5</td><td>Seeds grow into intricate labyrinth corridors</td></tr>
+                <tr><td>Mazectric</td><td>3</td><td>1, 2, 3, 4</td><td>Longer, straighter corridors than Maze</td></tr>
+                <tr><td>Coral</td><td>3</td><td>4, 5, 6, 7, 8</td><td>Slow, accretive growth like a coral reef</td></tr>
+                <tr><td>Anneal</td><td>4, 6, 7, 8</td><td>3, 5, 6, 7, 8</td><td>Domains coarsen and smooth out like annealing metal</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="modal-section-title" style="margin-top: 0.85rem;">Pattern gallery</div>
+          <div class="modal-grid-ref">
+            <div class="modal-ref-card">
+              <div class="modal-ref-head">Spaceships</div>
+              <div class="modal-ref-list">Glider (diagonal, c/4) and Lightweight Spaceship (horizontal, c/2) — shapes that travel forever across the grid.</div>
+            </div>
+            <div class="modal-ref-card">
+              <div class="modal-ref-head">Oscillators</div>
+              <div class="modal-ref-list">Pulsar returns to its shape every 3 generations; the Pentadecathlon every 15.</div>
+            </div>
+            <div class="modal-ref-card">
+              <div class="modal-ref-head">Gosper Glider Gun</div>
+              <div class="modal-ref-list">Bill Gosper's 1970 gun fires a new glider every 30 generations — the first proof that Life grows without limit.</div>
+            </div>
+            <div class="modal-ref-card">
+              <div class="modal-ref-head">Methuselahs</div>
+              <div class="modal-ref-list">R-Pentomino (5 cells, 1,103 generations of chaos), Acorn (7 cells → 5,206 cells) and Diehard, which vanishes exactly at generation 130.</div>
+            </div>
+            <div class="modal-ref-card">
+              <div class="modal-ref-head">Infinite Growth</div>
+              <div class="modal-ref-list">A 5×5 seed that escapes its bounding box forever — tiny input, unbounded output.</div>
+            </div>
+            <div class="modal-ref-card">
+              <div class="modal-ref-head">Colour = age</div>
+              <div class="modal-ref-list">Newborn cells flash bright white, then settle into the theme colour as they survive generation after generation.</div>
+            </div>
+          </div>
+
+          <div class="modal-section-title" style="margin-top: 0.85rem;">Keyboard shortcuts</div>
+          <div class="table-responsive">
+            <table class="modal-table">
+              <thead>
+                <tr><th>Key</th><th>Action</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Space</td><td>Start / pause the simulation</td></tr>
+                <tr><td>S</td><td>Advance one generation</td></tr>
+                <tr><td>R</td><td>Random soup</td></tr>
+                <tr><td>C</td><td>Clear the universe</td></tr>
+                <tr><td>G</td><td>Toggle grid lines</td></tr>
+                <tr><td>W</td><td>Toggle wrap-around edges</td></tr>
+                <tr><td>I</td><td>Open this panel</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../sidebar-lib/sidebar.js"></script>
+  <script src="../shared/js/goodie-ui.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

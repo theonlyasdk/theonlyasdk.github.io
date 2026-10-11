@@ -71,16 +71,20 @@
   }
 
   /* Note: dependent library will be loaded in `js-selector.html` */
-  window.onload = () => {
+  function initSearchLoader() {
     var searchEl = document.getElementById("search");
+    var searchInput = document.getElementById('search-input');
+    var searchTrigger = document.getElementById('search-trigger');
+
     if (searchEl) {
-      searchEl.onmouseover = loadSimpleJekyllSearch;
+      searchEl.addEventListener('mouseenter', loadSimpleJekyllSearch);
+      searchEl.addEventListener('focusin', loadSimpleJekyllSearch);
     }
-    if (window.matchMedia("(max-width: 768px)").matches) {
-      /* Load library when the user is on mobile and types in the search box */
-      if (searchEl) {
-        searchEl.onkeydown = loadSimpleJekyllSearch;
-      }
+    if (searchInput) {
+      searchInput.addEventListener('focus', loadSimpleJekyllSearch);
+    }
+    if (searchTrigger) {
+      searchTrigger.addEventListener('click', loadSimpleJekyllSearch);
     }
 
     /* Global keyboard shortcuts: Ctrl+K / Cmd+K and '/' */
@@ -95,15 +99,15 @@
         if (!loaded) {
           loadSimpleJekyllSearch();
         }
-        var searchTrigger = document.getElementById('search-trigger');
-        if (searchTrigger && getComputedStyle(searchTrigger).display !== 'none') {
-          searchTrigger.click();
+        var searchTriggerEl = document.getElementById('search-trigger');
+        if (searchTriggerEl && getComputedStyle(searchTriggerEl).display !== 'none') {
+          searchTriggerEl.click();
         }
-        var searchInput = document.getElementById('search-input');
-        if (searchInput) {
+        var searchInputEl = document.getElementById('search-input');
+        if (searchInputEl) {
           setTimeout(function () {
-            searchInput.focus();
-            searchInput.select();
+            searchInputEl.focus();
+            searchInputEl.select();
           }, 15);
         }
       }
@@ -129,8 +133,8 @@
 
         /* Esc / Escape: unfocus search shortcut and dismiss search */
         if (e.key === 'Escape' || e.key === 'Esc') {
-          var searchInput = document.getElementById('search-input');
-          var isSearchFocused = document.activeElement === searchInput;
+          var inputEl = document.getElementById('search-input');
+          var isSearchFocused = document.activeElement === inputEl;
           var isSearchWrapFocused = searchEl && (searchEl.classList.contains('input-focus') || searchEl.classList.contains('has-value'));
           var resultWrapper = document.getElementById('search-result-wrapper');
           var isResultOpen = resultWrapper && !resultWrapper.classList.contains('d-none');
@@ -141,9 +145,9 @@
             if (searchCancel) {
               searchCancel.click();
             }
-            if (searchInput) {
-              searchInput.value = '';
-              searchInput.blur();
+            if (inputEl) {
+              inputEl.value = '';
+              inputEl.blur();
             }
             if (searchEl) {
               searchEl.classList.remove('has-value', 'input-focus');
@@ -153,7 +157,6 @@
         }
       });
 
-      var searchInput = document.getElementById('search-input');
       if (searchInput && searchEl) {
         searchInput.addEventListener('input', function () {
           if (this.value.trim().length > 0) {
@@ -164,5 +167,11 @@
         });
       }
     })();
-  };
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSearchLoader);
+  } else {
+    initSearchLoader();
+  }
 </script>

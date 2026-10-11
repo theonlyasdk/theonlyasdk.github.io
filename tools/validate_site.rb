@@ -26,6 +26,13 @@ end
 
 $failures = 0
 $total = 0
+
+# Soft performance warnings (do not abort - they indicate size debt, not breakage)
+Dir['assets/img/goodies/*.png'].each do |f|
+  warn "preview large (>300KB): #{f} (#{File.size(f) / 1024} KB)" if File.size(f) > 300 * 1024
+  warn "webp missing: #{f}" unless File.exist?(f.sub(/\.png$/, '.webp'))
+end
+
 DATA_FILES.each do |data_file, fields|
   label = File.basename(data_file, '.yml')
   items = YAML.safe_load(File.read(data_file), permitted_classes: [], aliases: false)

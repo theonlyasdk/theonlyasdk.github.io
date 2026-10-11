@@ -1,0 +1,70 @@
+@import url('../../sorting-visualizer/css/style.css');
+
+#render-canvas {
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.hint-text {
+  color: var(--text-faint);
+  font-size: 0.72rem;
+  line-height: 1.45;
+  padding: 0.15rem 0.15rem 0;
+  margin: 0;
+}
+
+/* Top-Right Telemetry HUD */
+.telemetry-hud {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 230px;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  background: var(--bg-panel);
+  box-shadow: none !important;
+  opacity: 0.5;
+  transition:
+    opacity 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+  z-index: 10;
+}
+
+.telemetry-hud:hover {
+  opacity: 1.0 !important;
+  background: var(--bg-control);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+}
+
+.telemetry-hud.hidden {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: scale(0.92);
+}
+
+.telemetry-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.45rem 0.8rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 720px) {
+  .telemetry-hud {
+    top: auto;
+    bottom: 1rem;
+    right: 1rem;
+    width: 190px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

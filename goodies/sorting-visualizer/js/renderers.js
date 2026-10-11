@@ -117,6 +117,9 @@ class SortingRenderer {
     this.canvas.width = this.width * dpr;
     this.canvas.height = this.height * dpr;
     this.ctx.scale(dpr, dpr);
+    /* With render-on-demand in SortingApp, geometry/theme changes must
+       flag a redraw, otherwise an idle canvas shows stale pixels. */
+    if (this.onCanvasInvalidated) this.onCanvasInvalidated();
   }
 
   setMode(mode) {

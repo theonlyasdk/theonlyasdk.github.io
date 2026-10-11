@@ -86,6 +86,19 @@ class TerrainApp {
     this.historyLength = 40;
     this.lastQualityAdjust = 0;
     this.currentScale = 1.0;
+    /* Battery/kindness: pause the whole sim while the tab is hidden, and
+       halve the frame rate for users who opt out of motion. Rendering
+       resumes untouched on visibility/focus; no state reset needed. */
+    this.hidden = false;
+    this.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (this.reducedMotion) this.targetFps = Math.min(this.targetFps, 30);
+    document.addEventListener('visibilitychange', () => {
+      this.hidden = document.hidden;
+      if (!this.hidden) {
+        // Drop accumulated delta so the world doesn't teleport on return
+        this.clock.getDelta();
+      }
+    });
     this.detectScreenRefresh();
   }
 
@@ -277,7 +290,11 @@ class TerrainApp {
   animate() {
     requestAnimationFrame(() => this.animate());
 
-    const delta = this.clock.getDelta();
+    if (this.hidden) return; // frozen while tab hidden; resume via clock reset
+
+    /* reducedMotion halves targetFps (set in initPerformanceMonitor); big
+       deltas (tab-switch hiccups) are clamped so nothing teleports. */
+    const delta = Math.min(this.clock.getDelta(), 1 / 25);
     const elapsedTime = this.clock.getElapsedTime();
 
     this.controls.update(delta);

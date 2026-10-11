@@ -108,30 +108,32 @@
         if (node.visible && !shouldBeVisible) {
           // Ghost for fading out
           const rect = firstRects.get(node);
-          const ghost = node.card.cloneNode(true);
-          ghost.style.position = 'absolute';
-          ghost.style.margin = '0';
-          ghost.style.left = (rect.left + window.scrollX) + 'px';
-          ghost.style.top = (rect.top + window.scrollY) + 'px';
-          ghost.style.width = rect.width + 'px';
-          ghost.style.height = rect.height + 'px';
-          ghost.style.pointerEvents = 'none';
-          ghost.style.zIndex = '100';
-          ghost.style.animation = 'none'; // Force kill CSS animations so they don't fight the fade out
-          ghost.style.transition = 'opacity 250ms cubic-bezier(0.22, 1, 0.36, 1)'; // No transform scale
-          
-          document.body.appendChild(ghost);
-          
-          // Trigger reflow
-          void ghost.offsetWidth;
-          
-          requestAnimationFrame(() => {
-            ghost.style.opacity = '0';
-          });
-          
-          setTimeout(() => {
-            if (ghost.parentNode) ghost.parentNode.removeChild(ghost);
-          }, 300);
+          if (rect) {
+            const ghost = node.card.cloneNode(true);
+            ghost.style.position = 'absolute';
+            ghost.style.margin = '0';
+            ghost.style.left = (rect.left + window.scrollX) + 'px';
+            ghost.style.top = (rect.top + window.scrollY) + 'px';
+            ghost.style.width = rect.width + 'px';
+            ghost.style.height = rect.height + 'px';
+            ghost.style.pointerEvents = 'none';
+            ghost.style.zIndex = '100';
+            ghost.style.animation = 'none'; // Force kill CSS animations so they don't fight the fade out
+            ghost.style.transition = 'opacity 250ms cubic-bezier(0.22, 1, 0.36, 1)'; // No transform scale
+            
+            document.body.appendChild(ghost);
+            
+            // Trigger reflow
+            void ghost.offsetWidth;
+            
+            requestAnimationFrame(() => {
+              ghost.style.opacity = '0';
+            });
+            
+            setTimeout(() => {
+              if (ghost.parentNode) ghost.parentNode.removeChild(ghost);
+            }, 300);
+          }
         }
         
         if (!node.visible && shouldBeVisible) {
@@ -180,6 +182,7 @@
           // Element was visible and is STILL visible: calculate FLIP Invert
           const lastRect = node.card.getBoundingClientRect();
           const firstRect = firstRects.get(node);
+          if (!firstRect) return;
           
           const dx = firstRect.left - lastRect.left;
           const dy = firstRect.top - lastRect.top;

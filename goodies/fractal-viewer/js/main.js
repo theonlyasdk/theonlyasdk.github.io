@@ -464,7 +464,11 @@ const lowPowerHost = (navigator.hardwareConcurrency && navigator.hardwareConcurr
 function renderSize() {
   if (state.resolution === 'custom') return { width: state.customWidth, height: state.customHeight };
   const factor = state.resolution === 'auto' ? 1 : Number(state.resolution);
-  const deviceScale = Math.min(window.devicePixelRatio || 1, 2) * factor;
+  /* Perf: fill rate dominates frame time (full-screen fragment loop per
+     pixel). Deep-zoom superyacht users keep 2x DPR; low-power hosts cap
+     at 1.5x which is still Retina-sharp and cuts fill ~44%. */
+  const dprCap = lowPowerHost ? 1.5 : 2;
+  const deviceScale = Math.min(window.devicePixelRatio || 1, dprCap) * factor;
   return { width: Math.floor(innerWidth * deviceScale), height: Math.floor(innerHeight * deviceScale) };
 }
 

@@ -11,16 +11,35 @@
 
   function imageFallback(image) {
     image.hidden = true;
+    const container = image.closest('.card-cover') || image.parentElement;
     const fallback = document.createElement('div');
     fallback.className = 'goodie-image-fallback';
     fallback.textContent = 'Preview unavailable. The goodie is still available.';
-    image.parentElement.appendChild(fallback);
+    container.appendChild(fallback);
   }
 
   function buildGoodieCard(goodie, index) {
     const card = document.createElement('div'); card.className = 'goodie-card'; card.tabIndex = 0; card.setAttribute('role', 'button'); card.style.setProperty('--anim-delay', `${((index + 1) * .1).toFixed(1)}s`);
     const cover = document.createElement('div'); cover.className = 'card-cover';
-    const image = document.createElement('img'); image.src = siteUrl(goodie.image); image.alt = goodie.name; image.loading = 'lazy'; image.width = 400; image.height = 200; image.addEventListener('error', () => imageFallback(image), { once: true }); cover.appendChild(image);
+    /* Previews ship in three flavours: a 480px WebP thumbnail for cards,
+       a 960px WebP for large viewports, and the original PNG as last
+       resort. <picture> picks the first supported format; if a WebP file
+       were ever missing the browser just falls through to the PNG src. */
+    const thumb = siteUrl(goodie.image.replace(/\.png$/, '.480.webp'));
+    const fullWebp = siteUrl(goodie.image.replace(/\.png$/, '.webp'));
+    const picture = document.createElement('picture');
+    const sources = [
+      { srcset: thumb, media: '(max-width: 576px)' },
+      { srcset: `${thumb} 480w, ${fullWebp} 960w`, sizes: '(min-width: 577px) 400px' }
+    ];
+    sources.forEach(({ srcset, ...rest }) => {
+      const source = document.createElement('source');
+      source.type = 'image/webp';
+      source.srcset = srcset;
+      Object.entries(rest).forEach(([k, v]) => source.setAttribute(k, v));
+      picture.appendChild(source);
+    });
+    const image = document.createElement('img'); image.src = siteUrl(goodie.image); image.alt = goodie.name; image.loading = 'lazy'; image.decoding = 'async'; image.width = 400; image.height = 200; image.addEventListener('error', () => imageFallback(image), { once: true }); picture.appendChild(image); cover.appendChild(picture);
     if (goodie.credits) { const info = document.createElement('button'); info.type = 'button'; info.className = 'goodie-info-btn'; info.title = 'View credits & license'; info.setAttribute('aria-label', 'View credits and license'); info.innerHTML = '<svg class="goodie-info-icon" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 1024 1024"><path d="M0 0h1024v1024H0z" fill="none" /><path fill="currentColor" d="M448 224a64 64 0 1 0 128 0a64 64 0 1 0-128 0m96 168h-64c-4.4 0-8 3.6-8 8v464c0 4.4 3.6 8 8 8h64c4.4 0 8-3.6 8-8V400c0-4.4-3.6-8-8-8" /></svg><span class="goodie-info-text">Credits</span>'; info.addEventListener('click', event => { event.stopPropagation(); openCreditsDialog(goodie.name); }); cover.appendChild(info); }
     const title = document.createElement('h5'); title.className = 'card-title'; title.textContent = goodie.name;
     const description = document.createElement('p'); description.className = 'text-muted small'; description.textContent = goodie.description;

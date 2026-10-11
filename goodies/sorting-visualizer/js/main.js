@@ -8,6 +8,10 @@ class SortingApp {
     this.renderer = new SortingRenderer(this.canvas);
     this.audio = new SortingAudioEngine();
 
+    /* Renderer geometry changes (resize, mode/theme switches) flag a
+       one-shot redraw through this hook. */
+    this.renderer.onCanvasInvalidated = () => this.invalidate();
+
     this.arraySize = 128;
     this.speed = 8; // operations per frame
     this.currentAlgoKey = 'quick';
@@ -256,12 +260,36 @@ class SortingApp {
     this.renderer.render(this.array, this.maxVal, this.activeStates);
   }
 
+  /* Mark the canvas dirty so the next idle animate() tick redraws once
+     (resize, theme flip, algorithm change…). Cheap no-op when playing. */
+  invalidate() {
+    this._needsRender = true;
+  }
+
   animate() {
     requestAnimationFrame(() => this.animate());
 
     const now = performance.now();
     const dt = (now - this.lastFrameTime) / 1000;
     this.lastFrameTime = now;
+
+    /* Render-on-demand: when idle (not playing, not sweeping, and the
+       sorted-glow fade finished), skip the full canvas redraw per frame.
+       The RAF loop stays alive - one early return costs nothing and keeps
+       stats sampling + glow decay meaningful when they do run. */
+    const idle = !this.isPlaying && !this.isSweeping && !this.isSorted;
+    if (idle) {
+      /* Still re-render once when state changed (e.g. resize-driven).
+       renderCurrent() is cheap enough at one call, but not 60/s. */
+      if (this._needsRender) {
+        this._needsRender = false;
+        this.renderCurrent();
+      }
+      if (now - this.lastFpsSampleTime >= 500) {
+        if (this.ui) this.ui.updateStats(this.stats);
+      }
+      return;
+    }
 
     if (this.isPlaying && !this.isSorted) {
       this.stats.elapsedTime += dt;

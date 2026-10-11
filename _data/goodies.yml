@@ -16,6 +16,7 @@
   category: Experiments
   description: Explore complex patterns emerging from simple rules in a grid-based universe.
   image: /assets/img/goodies/cellular_automaton.png
+  iframe_url: /goodies/cellular-automaton/index.html
 
 - name: Procedural terrain
   category: Demos

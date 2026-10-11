@@ -5,9 +5,9 @@ layout: compress
 {% assign favicon_path = "/assets/img/favicons" | relative_url %}
 
 {
-    "name": "ASDK's Personal Blog",
-    "short_name": "ASDK's Blog",
-    "description": "{{ site.description }}",
+    "name": "{{ site.title }}",
+    "short_name": "ASDK",
+    "description": "{{ site.tagline | default: site.description }}",
     "icons": [
         {
             "src": "{{ favicon_path }}/android-chrome-192x192.png",
@@ -29,8 +29,8 @@ layout: compress
         }
     ],
     "start_url": "{{ '/index.html' | relative_url }}",
-    "theme_color": "#2a1e6b",
-    "background_color": "#ffffff",
+    "theme_color": "#1b1b1e",
+    "background_color": "#1b1b1e",
     "display": "fullscreen",
     "orientation": "portrait",
     "scope": "/",

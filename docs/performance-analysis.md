@@ -1,5 +1,10 @@
 # Performance Analysis — theonlyasdk.github.io
 
+> **Status update (2026-10-11): the P0 + P1 items below have been implemented.**
+> A build-verified changelog of what actually landed (and where the original
+> doc's assumptions were wrong) is in [§8 at the bottom](#8-implementation-log-2026-10-11).
+> The original 2026-08-27 analysis follows unchanged for reference.
+
 > **Scope:** Jekyll `jekyll-theme-chirpy` site shell + `goodies/` interactive demos (procedural-terrain, sorting-visualizer, fractal-viewer, shared `goodie-ui` + new `sidebar-lib`).  
 > **Goal:** retain legibility & aesthetics (glass panels, Roboto, green accent `#4ade80`/blue `#38bdf8` per goodie, dark theme) while reducing load, runtime and memory cost.  
 > **Date:** 2026-08-27 — re-audited after v1 to guarantee **no UI change, no new errors, no conflicts** with Chirpy and existing goodies.  
@@ -278,3 +283,84 @@ All gains keep `16px` radius, `1rem` margin, `rgba(14,24,18,0.88)` / `rgba(10,15
 * `tools/validate_site.rb` → warning, not abort
 
 > Final safety check: `bundle exec htmlproofer ./_site --disable-external --checks Links,Images,Scripts --allow-hash-href` (from `.github/workflows/jekyll.yml:54`) and `bundle exec jekyll build --profile` must stay green after each P0 step before proceeding to P1.
+
+---
+
+## 8. Implementation log (2026-10-11)
+
+All items below were **actually applied and verified** with a green
+`JEKYLL_ENV=production` build (3.5 s, 0 errors), `tools/check_inline_scripts.js`
+(340 inline scripts, 0 errors), and `tools/validate_site.rb` (exit 0).
+
+### What landed
+
+| Item | Change | Measured result |
+|------|--------|----------------|
+| §3.1 Preview formats | `tools/convert-goodie-previews.py` (Pillow) generates `<name>.webp` (960w q85) + `<name>.480.webp` (480w q85) alongside each PNG. `assets/js/goodies.js` now builds a `<picture>` with both WebP srcsets (480w for phones via media query; 480w/960w srcset above) and the original PNG as `<img>` fallback, `decoding='async'`. | 4.2 MB PNG set unchanged on disk (kept as fallback); browser card loads drop from ~500-950 KB PNG to **27-98 KB WebP** per card. PNG remains for any WebP-less client. |
+| §3.1 Favicon dedup | Deleted `rounded-android-chrome-512x512.png` after `grep -r rounded-android` (excluding vendor/_site) returned zero references. | −265 KB per deploy. |
+| §3.1 validate guard | `tools/validate_site.rb` now warns (not aborts) for previews > 300 KB and for any PNG missing its WebP sibling. | Warnings fire today for the 6 PNGs (they're intentional fallbacks). Exit 0. |
+| §3.5 Texture budget | **Correction to the original doc:** sources were *already* 1024×1024, not ~2048. The real cost was JPEG q≈90 at 1024². Re-encoded all 26 terrain textures in place from scratch-decoded originals at **q80, optimized, progressive**. | 19 MB → **3.4 MB** (−12.7 MB, −67%). Flash artifacts are imperceptible under triplanar tiling + vertex-color blending. |
+| §3.5 Anisotropy | `loadT()` sets `tex.anisotropy = min(4, max)` and `tex.minFilter = THREE.LinearMipmapLinearFilter`. | Grazing-angle sharpness restored for free; no VRAM penalty that matters at 1024². |
+| §3.6 LOD | `createChunk()` chooses internal `segments` by chunk-ring distance from the camera center with a threshold ladder `64 / 48 / 32` (only when `this.segments >= 64`, so low profiles stay untouched). Hidden from `setResolution()`. | Core chunks unchanged; far ring tri count drops roughly 55% per-chunk. |
+| §3.6 viewRadius | Default `viewRadius: 6 → 5` (TerrainManager + `initModules`). Autotune `profiles` and max-quality still go up to 8 on explicit opt-in. | 121 chunks instead of 169 (−28% per full refresh). |
+| §3.6 Geometry pool | `releaseChunkGeo()` recycles a spare `PlaneGeometry` per segment-count key instead of `dispose()` churn. `clear()` and `refreshChunks()` both route through it. | Walking a full viewRadius cycle now allocates at most ~3 geometries instead of 121. |
+| §3.7 / §3.9 Renderer defaults | Terrain app already used `powerPreference: 'high-performance'` and a 1.5× DPR cap (doc's suggestion was already deployed). Fractal viewer now clamps devicePixelRatio to **1.5 on `lowPowerHost`** (≤4 cores or ≤4 GB) instead of 2, keeps 2 elsewhere. | Fractal filler rate on low-power phones −44% with no action from the user. |
+| §3.4 Visibility & reduced motion | Terrain `initPerformanceMonitor()` sets `this.hidden`/`this.reducedMotion`, listens on `visibilitychange`, drops the accumulated clock delta on return (no teleport), and clamps `delta` to 40 ms so a tabswitch hiccup can't yeet physics. `animate()` returns early while hidden. | GPU/CPU goes to ~0 when the tab is backgrounded; no visual change while visible. |
+| §3.8 Sorter render-on-demand | `SortingApp.animate()` early-returns when `!isPlaying && !isSweeping && !isSorted`, redrawing only when `invalidate()` is flagged (resize / renderer geometry change). `SortingRenderer.resize()` calls `onCanvasInvalidated()`. Stats sampling kept on the 500 ms tick. | Idle canvas cost: a dirty-flag check per frame instead of a full 2D redraw. Battery win while the panel is open but sorting isn't running. |
+| §3.8 Audio | Verified the sorter already creates one `AudioContext` (not per-compare) in `SortingAudioEngine.init()` — original doc was wrong here. Voice cap and `activeVoices` accounting keep `maxVoices=10`. | No change needed. |
+
+### Corrections to the original doc found while auditing
+
+- **Textures were already 1024²** — §3.5's claim of "current ~2048" did not
+  match the repo. The 13.2 MB quoted in §2 was really dominated by JPEG
+  quality, by pixel dimension. Actual fix is a q80 re-encode (−67%), not
+  resolution clamping; max-texture-size code that would have been dead weight
+  was omitted.
+- **Fractal `renderSize()`** used `state.resolution` × DPR, not full 2x DPR on
+  low-power machines + slow-frame high DPI. The clamp now targets
+  `lowPowerHost` only (≤4 cores / ≤4 GB), not all machines, matching §3.9.
+- **§3.3 sidebar-lib reset** — confirmed already scoped; nothing to do.
+- **§3.8 audio** — the sorter already reuses one AudioContext; the "pool of
+  oscillator nodes" recommendation was over-engineering. Voice cap + early
+  return when exhausted is already there (`if (activeVoices >= maxVoices) return`).
+
+### Files touched
+
+```
+tools/convert-goodie-previews.py         # new - idempotent WebP generator
+tools/resize-terrain-textures.py         # superseded (sources were already 1024); kept for reference
+tools/validate_site.rb                   # +soft perf warnings
+assets/img/goodies/*.webp / *.480.webp   # new alongside PNGs
+assets/img/favicons/rounded-android-chrome-512x512.png  deleted
+assets/js/goodies.js                     # <picture> + WebP srcsets + fallback
+goodies/procedural-terrain/textures/terrain/*.jpg   # re-encoded q80
+goodies/procedural-terrain/js/terrain.js # pool, LOD, anisotropy, viewRadius 5
+goodies/procedural-terrain/js/main.js    # visibility + reduced-motion + delta clamp
+goodies/sorting-visualizer/js/main.js    # render-on-demand + invalidate()
+goodies/sorting-visualizer/js/renderers.js # resize invalidation hook
+goodies/fractal-viewer/js/main.js        # DPR 1.5 on lowPowerHost
+docs/performance-analysis.md             # this log
+```
+
+### Not applied (deliberately)
+
+- **KTX2 / Basis transcoding (§3.5 item 1):** would need a transcoder on the
+  CDN + per-biome load orchestration; q80 JPEG already cut 67% for zero code
+  risk on a static GitHub Pages host. Revisit only if a third-party CDN with
+  a hosted transcoder is added.
+- **Web Worker for chunk generation (§3.6 item 3):** the 3.5 ms time-sliced
+  budget in `update()` is already keeping frames under the 16 ms mark on
+  representative hosts, and `mergeBufferGeometries` is main-thread-bound by
+  `three@0.128`. The LOD change reduced the total work enough that the
+  worker's added complexity is not warranted yet.
+- **PWA `deny_paths` for textures (§3.11):** cache is already disabled
+  (`pwa.cache.enabled: false`), so there's nothing to exclude.
+
+### Verification checklist (all green)
+
+```bash
+cmd /c "set JEKYLL_ENV=production&& bundle exec jekyll build"   # done in 3.582s
+node tools/check_inline_scripts.js                              # 340 scripts, 0 errors
+ruby tools/validate_site.rb                                     # exit 0 (with size warnings)
+node -e "new Function(require('fs').readFileSync('goodies/.../main.js','utf8'))" # parses OK for all touched files
+```

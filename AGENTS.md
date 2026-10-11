@@ -17,13 +17,14 @@ This document outlines architectural constraints and coding rules for AI coding 
   `Uncaught SyntaxError: Unexpected end of input` (typically on line 1).
 
 ### Mandatory Rules
-1. **Always use block comments (`/* ... */`)** for any comments inside `<script>` tags, or place scripts in external `.js` files.
+1. **Always use block comments (`/* ... */`)** for any comments inside `<script>` tags or inline JS in templates, or place scripts in external `.js` files.
 2. **Always include explicit semicolons (`;`)** at statement boundaries. Do not rely on Automatic Semicolon Insertion (ASI) across newlines that will be collapsed into single spaces.
 3. This applies to all template files:
    - `_includes/**/*.html`
    - `_layouts/**/*.html`
    - `_tabs/**/*.html`, `_tabs/**/*.md`
    - `_posts/**/*.md`
+4. When editing any inline `<script>` in a template, run `node tools/check_inline_scripts.js` before committing so compressed production builds do not silently break.
 
 ---
 
