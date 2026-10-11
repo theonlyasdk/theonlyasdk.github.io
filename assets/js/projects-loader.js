@@ -744,28 +744,11 @@ function setup_projects_view_toggle() {
   /* Scoped to .layout-toggle, not .view-toggle: the All / Has demo filter is also
      a .view-toggle and lives in this same bar, so the looser selector would only
      work by virtue of DOM order. */
-const bar = document.querySelector('.projects-top-bar .layout-toggle');
+  const bar = document.querySelector('.projects-top-bar .layout-toggle');
   const container = document.getElementById('projects-list');
   if (!bar || !container) return;
 
-  const pill = bar.querySelector('.t-tabs-pill');
   const tabs = Array.from(bar.querySelectorAll('.t-tab'));
-  const activeTab = () => tabs.find(t => t.getAttribute('aria-pressed') === 'true') || tabs[0];
-
-  function moveTo(tab, animate) {
-    if (!pill || !tab) return;
-    if (!animate) {
-      const prev = pill.style.transition;
-      pill.style.transition = 'none';
-      pill.style.transform = `translateX(${tab.offsetLeft}px)`;
-      pill.style.width = `${tab.offsetWidth}px`;
-      void pill.offsetWidth;
-      pill.style.transition = prev;
-    } else {
-      pill.style.transform = `translateX(${tab.offsetLeft}px)`;
-      pill.style.width = `${tab.offsetWidth}px`;
-    }
-  }
 
   function applyView(view) {
     const isList = view === 'list';
@@ -786,39 +769,52 @@ const bar = document.querySelector('.projects-top-bar .layout-toggle');
     }
   }
 
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabs.forEach(t => t.setAttribute('aria-pressed', t === tab ? 'true' : 'false'));
-      moveTo(tab, true);
-      applyView(tab.dataset.view);
-    });
-  });
-
-  bar.addEventListener('keydown', (event) => {
-    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
-    const current = activeTab();
-    const idx = tabs.indexOf(current);
-    const nextIdx = (idx + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
-    const nextTab = tabs[nextIdx];
-    nextTab.focus();
-    nextTab.click();
-    event.preventDefault();
-  });
-
   let savedView = null;
   try {
     savedView = localStorage.getItem('projects-view');
   } catch (e) {}
 
   const initialTab = tabs.find(t => t.dataset.view === savedView) || tabs[0];
-  tabs.forEach(t => t.setAttribute('aria-pressed', t === initialTab ? 'true' : 'false'));
-  applyView(initialTab.dataset.view);
+  const initialIndex = Math.max(0, tabs.indexOf(initialTab));
 
-  requestAnimationFrame(() => moveTo(initialTab, false));
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(() => moveTo(activeTab(), false));
+  /* Restore the saved layout BEFORE the engine measures, so the card morph is
+     never kicked off by the initial paint and the pill lands on the slot that
+     matches what is actually on screen. */
+  tabs.forEach((t, i) => t.setAttribute('aria-pressed', i === initialIndex ? 'true' : 'false'));
+  if (initialTab.dataset.view === 'list') {
+    container.classList.add('list-view');
+    container.classList.remove('grid-view');
   }
-  window.addEventListener('resize', () => moveTo(activeTab(), false));
+
+  /* Same engine as the All / Has demo toggle, so this one is draggable and
+     flicks too. Click, arrow keys and Home/End are handled by the engine. */
+  const segment = window.RubberSegment
+    ? window.RubberSegment.create({
+        track: bar,
+        pill: bar.querySelector('.t-tabs-pill'),
+        items: tabs,
+        inset: 3,
+        stretch: 100,
+        squash: 3,
+        speed: 1,
+        glide: 75,
+        draggable: true,
+        onChange: index => {
+          const tab = tabs[index];
+          if (!tab) return;
+          /* The engine owns the thumb, not the ARIA state - the active-tab
+             highlight is CSS-driven off [aria-pressed="true"], so it has to be
+             moved here or a drag would move the pill and light up nothing. */
+          tabs.forEach((t, i) => t.setAttribute('aria-pressed', i === index ? 'true' : 'false'));
+          applyView(tab.dataset.view);
+        }
+      })
+    : null;
+
+  /* setValue jumps the thumb with no animation, which is what we want on load.
+     Without it the engine would sit on slot 0 while the restored layout is
+     list view. */
+  if (segment) segment.setValue(initialIndex);
 }
 
 /* All / Has demo segmented toggle. Motion comes from the shared RubberSegment
