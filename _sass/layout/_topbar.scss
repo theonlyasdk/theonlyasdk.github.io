@@ -21,6 +21,16 @@
     box-shadow: var(--topbar-shadow);
     position: sticky;
     top: 0;
+
+    /* Full-bleed. Below lg this becomes a sticky bar with its own shadow, but
+       it still sits inside .container, whose half-gutter padding left a ~12px
+       gap at each edge - so the page showed through either side of a bar that
+       is meant to look pinned to the screen. Cancel the gutter here and give
+       it back as padding on the inner #topbar (below) so the contents stay
+       aligned with the content column. Uses Bootstrap's own gutter variable
+       rather than a hardcoded 12px so it tracks any gutter override. */
+    margin-left: calc(var(--bs-gutter-x) * -0.5);
+    margin-right: calc(var(--bs-gutter-x) * -0.5);
   }
 }
 
@@ -66,6 +76,12 @@
 
   @include bp.lt(bp.get(lg)) {
     max-width: 100%;
+
+    /* Receives the gutter that #topbar-wrapper gave up, so the buttons and
+       title line up with the content below. px-lg-3 only applies from lg up,
+       where the wrapper is back inside the container and needs no help. */
+    padding-left: calc(var(--bs-gutter-x) * 0.5);
+    padding-right: calc(var(--bs-gutter-x) * 0.5);
   }
 }
 
