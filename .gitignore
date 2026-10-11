@@ -6,3 +6,17 @@ Gemfile.lock
 .vscode
 /vendor
 *.log
+
+# Agent-specific tooling state (keep .agents/ tracked - it holds shared skills)
+.freebuff/
+.claude/
+.cursor/
+.codex/
+.gemini/
+.copilot/
+.windsurf/
+.aider*
+.continue/
+.roo/
+.cline/
+.opencode/

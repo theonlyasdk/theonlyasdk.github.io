@@ -1,0 +1,359 @@
+/* Toast notifications
+ *
+ * A port of Base UI's stacked Toast to the site's design tokens.
+ * https://base-ui.com/react/components/toast
+ *
+ * The stacking model is copied from Base UI's own demo stylesheet rather than
+ * approximated, because it is load-bearing:
+ *
+ *   --toast-index          0 is the frontmost (newest) toast. Drives the
+ *                          scale ramp, the peek offset, and the z-index.
+ *   --toast-height         Each toast's measured natural height (px).
+ *   --toast-frontmost-height  Height of toast 0, set on the viewport. Collapsed
+ *                          toasts clamp their height to it, which is what makes
+ *                          the stack read as one card.
+ *   --toast-offset-y       Cumulative natural height of everything in front.
+ *                          Only used once the stack expands.
+ *   --toast-swipe-movement-x / -y  Live pointer offset during a swipe.
+ *
+ * Collapsed, toast N sits `N * --peek` higher and is scaled down by 0.1 per
+ * step, with a `--shrink` term that cancels the part of the scale which would
+ * otherwise eat into the peek. On hover or focus the viewport sets
+ * `data-expanded`, and every toast spreads out to its natural height with
+ * `--gap` between them while its content fades back in.
+ *
+ * NAMESPACE WARNING: Bootstrap ships a `.toast` component whose
+ * `.toast:not(.show) { display: none }` rule out-specifies a bare `.toast` rule
+ * and silently hides these. Do not shorten `.toast-item` back to `.toast`.
+ * Every rule is nested under `.toast-viewport` so nothing leaks site-wide.
+ * This is the same collision handled for `.tooltip-inner` in `_base.scss`.
+ */
+
+@use '../abstracts/variables' as v;
+@use '../abstracts/breakpoints' as bp;
+
+.toast-viewport {
+  /* Declared in px so assets/js/toast.js can read them back numerically. */
+  --toast-gap: 12px;
+  --toast-peek: 12px;
+  --toast-limit: 3;
+  /* Tighter than the collapsed peek so the expanded stack reads as one group
+     rather than a list of separate cards. */
+  --toast-expanded-gap: 6px;
+  /* Hover strip below the anchor, used by the JS hit test. */
+  --toast-hit-strip: 16px;
+
+  position: fixed;
+  z-index: 1080;
+  width: calc(100vw - 2rem);
+  margin: 0 auto;
+  top: auto;
+  bottom: 1rem;
+  right: 1rem;
+  left: auto;
+  outline: none;
+
+  @include bp.sm {
+    bottom: 2rem;
+    right: 2rem;
+    width: 22.5rem;
+  }
+
+  .toast-item {
+    /* Scale ramp + peek + shrink compensation, per Base UI. */
+    --scale: calc(max(0, 1 - (var(--toast-index) * 0.1)));
+    --shrink: calc(1 - var(--scale));
+    --height: var(--toast-frontmost-height, var(--toast-height));
+    --offset-y: calc(
+      (var(--toast-offset-y) * -1) +
+        (var(--toast-index) * var(--toast-expanded-gap) * -1) +
+        var(--toast-swipe-movement-y, 0px)
+    );
+
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid var(--main-border-color);
+    border-radius: v.$radius-lg;
+    background: var(--card-bg, var(--main-bg));
+    color: var(--text-color);
+    box-shadow: var(--card-shadow);
+    transform-origin: bottom center;
+    cursor: default;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+
+    z-index: calc(1000 - var(--toast-index));
+    height: var(--height);
+    transform: translateX(var(--toast-swipe-movement-x, 0px))
+      translateY(
+        calc(
+          var(--toast-swipe-movement-y, 0px) - (var(--toast-index) * var(--toast-peek)) -
+            (var(--shrink) * var(--height))
+        )
+      )
+      scale(var(--scale));
+
+    transition:
+      transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.5s,
+      height 0.15s;
+
+    /* Expanded: spread to natural height at the computed offset. */
+    &[data-expanded] {
+      height: var(--toast-height);
+      transform: translateX(var(--toast-swipe-movement-x, 0px))
+        translateY(var(--offset-y));
+    }
+
+    &[data-starting-style],
+    &[data-ending-style] {
+      transform: translateY(150%);
+    }
+
+    &[data-limited] {
+      opacity: 0;
+    }
+
+    &[data-ending-style] {
+      opacity: 0;
+
+      &[data-swipe-direction='up'] {
+        transform: translateY(calc(var(--toast-swipe-movement-y, 0px) - 150%));
+      }
+
+      &[data-swipe-direction='left'] {
+        transform: translateX(calc(var(--toast-swipe-movement-x, 0px) - 150%))
+          translateY(var(--offset-y));
+      }
+
+      &[data-swipe-direction='right'] {
+        transform: translateX(calc(var(--toast-swipe-movement-x, 0px) + 150%))
+          translateY(var(--offset-y));
+      }
+
+      &[data-swipe-direction='down'] {
+        transform: translateY(calc(var(--toast-swipe-movement-y, 0px) + 150%));
+      }
+    }
+
+    /* Extends the hover target over the gap so the collapsed stack stays
+       grabbable where it is visually peeked. */
+    &::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      height: calc(var(--toast-gap) + 1px);
+    }
+
+    /* Drag-to-dismiss (Sonner). The transition is dropped mid-drag so the card
+       tracks the pointer 1:1 instead of easing behind it. `touch-action: none`
+       stops the page scrolling out from under a touch drag. */
+    &[data-swiping] {
+      transition: none;
+    }
+
+    &[data-swiped] {
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* While dragging, the card is lifted out of the stack and needs to keep
+       painting over its neighbours rather than being clipped by them. */
+    &[data-swiping]::before {
+      content: '';
+      position: absolute;
+      left: -100%;
+      right: -100%;
+      top: 50%;
+      height: 100%;
+      z-index: -1;
+      transform: scaleY(3) translateY(-50%);
+      pointer-events: none;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--link-color);
+      outline-offset: -1px;
+    }
+  }
+
+  .toast-content {
+    /* Pinned to the toast's *current* height so the close button stays centred
+       in the visible box. In normal flow it would centre against the full
+       natural height and get pushed out of the clipped collapsed stack.
+       Natural height is therefore measured from .toast-text in toast.js. */
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    box-sizing: border-box;
+    overflow: hidden;
+    transition: opacity 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+
+    &[data-behind] {
+      opacity: 0;
+    }
+
+    &[data-expanded] {
+      opacity: 1;
+    }
+  }
+
+  .toast-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .toast-icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.05rem;
+    line-height: 1;
+    color: var(--toast-icon-color, var(--text-muted-color));
+  }
+
+  /* Hugeicons symbols injected from assets/icons/hugeicons.svg. */
+  .toast-icon-svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    display: block;
+    fill: none;
+    stroke: currentColor;
+  }
+
+  .toast-item[data-type='loading'] .toast-icon-svg {
+    animation: toast-spin 1s linear infinite;
+  }
+
+  @keyframes toast-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .toast-title {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 700;
+    line-height: 1.25rem;
+    color: var(--heading-color, var(--text-color));
+  }
+
+  .toast-description {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: var(--text-muted-color);
+  }
+
+  .toast-action {
+    flex-shrink: 0;
+    align-self: center;
+    padding: 0.4rem 0.7rem;
+    border: 1px solid var(--btn-border-color, var(--main-border-color));
+    border-radius: v.$radius-sm;
+    background: var(--button-bg, transparent);
+    color: var(--text-color);
+    font-family: inherit;
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background: var(--card-bg-active, var(--sidebar-hover-bg));
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--link-color);
+      outline-offset: -1px;
+    }
+  }
+
+  .toast-close {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: 2rem;
+    padding: 0 0.75rem;
+    border: 1px solid var(--btn-border-color, var(--main-border-color));
+    border-radius: v.$radius-sm;
+    background: var(--button-bg, transparent);
+    color: var(--text-color);
+    font-family: inherit;
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background: var(--card-bg-active, var(--sidebar-hover-bg));
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--link-color);
+      outline-offset: -1px;
+    }
+  }
+
+  /* Type accents */
+  .toast-item[data-type='success'] {
+    --toast-icon-color: #2e9e4f;
+  }
+
+  .toast-item[data-type='error'] {
+    --toast-icon-color: #d9534f;
+  }
+
+  .toast-item[data-type='warning'] {
+    --toast-icon-color: #d99a00;
+  }
+
+  .toast-item[data-type='info'] {
+    --toast-icon-color: var(--link-color);
+  }
+
+  .toast-item[data-type='loading'] {
+    --toast-icon-color: var(--text-muted-color);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast-viewport {
+    .toast-item {
+      transition: opacity 0.15s linear;
+
+      &[data-starting-style] {
+        transform: none;
+      }
+
+      &[data-ending-style] {
+        transform: none;
+      }
+    }
+
+    .toast-content {
+      transition: none;
+    }
+  }
+}

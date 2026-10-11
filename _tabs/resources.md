@@ -92,10 +92,18 @@ order: 5
     box-shadow: var(--card-shadow, 0 16px 36px rgba(0, 0, 0, 0.25));
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    /* Visible, not hidden: the DodgeField close button flees outside this box.
+       The overlay is position:fixed and the body is scroll-locked while the
+       dialog is open, so escaping never produces a scrollbar. */
+    overflow: visible;
     animation: gbZoomIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
     transition: height 0.35s cubic-bezier(0.22, 1, 0.36, 1);
     will-change: height;
+  }
+  /* overflow is visible now, so round the header itself to keep the corner
+     border from overshooting the dialog's radius. */
+  .guestbook-header {
+    border-radius: 15px 15px 0 0;
   }
   .guestbook-overlay.closing .guestbook-dialog {
     animation: gbFadeOut 0.2s ease-out both;
@@ -261,6 +269,35 @@ order: 5
   }
   .guestbook-submit-btn:active {
     transform: scale(0.98);
+  }
+  /* The post-submit Close button wears the same primary look as Submit.
+     Capped short of full width so it has somewhere to run - a full-width
+     button has no room to dodge inside a dialog-sized field.
+     Only `filter` transitions here on purpose: the DodgeField owns `transform`,
+     and a transform transition would fight the dodge glide. */
+  .guestbook-dodge-btn {
+    display: block;
+    width: 100%;
+    max-width: 200px;
+    margin: 0 auto;
+    padding: 0.65rem 1rem;
+    border-radius: 8px;
+    background: var(--link-color);
+    color: #ffffff !important;
+    border: none;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.95rem;
+    line-height: 1.25rem;
+    cursor: pointer;
+    transition: filter 0.15s;
+  }
+  .guestbook-dodge-btn:hover {
+    filter: brightness(1.1);
+  }
+  .guestbook-dodge-btn[data-caught='true'] {
+    background: var(--text-color);
+    color: var(--main-bg, #18181b) !important;
   }
   .guestbook-success-state {
     padding: 1.5rem 1rem;
@@ -456,26 +493,25 @@ order: 5
   <span class="post-tag">bookmark-worthy</span>
 </p>
 
-<p class="text-center">You are visitor <strong>#<span id="hit-count">1</span></strong>. <em>Last updated: {{ 'now' | date: '%B %d, %Y' }}.</em></p>
+<p class="text-center">Page updated <em>{{ 'now' | date: '%B %d, %Y' }}</em>. You've visited this page <strong id="resources-visits-count"><span id="resources-visits">1</span> time</strong> from this browser.</p>
 
 <script>
-  /* Global hit counter (CountAPI, no signup) with per-browser fallback. */
+  /* Not a global hit counter. Counts only this browser's visits to the
+     Resources page, kept in localStorage so the number stays honest. */
   (function () {
-    var el = document.getElementById('hit-count');
-    function localFallback() {
-      try {
-        var n = parseInt(localStorage.getItem('resources-hits') || '0', 10) + 1;
-        localStorage.setItem('resources-hits', String(n));
-        el.textContent = n;
-      } catch (e) { el.textContent = '1'; }
+    var el = document.getElementById('resources-visits');
+    var countEl = document.getElementById('resources-visits-count');
+    if (!el) return;
+    try {
+      var n = parseInt(localStorage.getItem('resources-visits') || '0', 10) + 1;
+      localStorage.setItem('resources-visits', String(n));
+      el.textContent = n;
+      if (countEl) {
+        countEl.innerHTML = '<span id="resources-visits">' + n + '</span> ' + (n === 1 ? 'time' : 'times');
+      }
+    } catch (e) {
+      el.textContent = '1';
     }
-    fetch('https://countapi.mileshilliard.com/api/v1/hit/theonlyasdk-resources')
-      .then(function (r) { if (!r.ok) throw new Error('bad status'); return r.json(); })
-      .then(function (d) {
-        if (d && typeof d.value === 'number') el.textContent = d.value;
-        else localFallback();
-      })
-      .catch(localFallback);
   })();
 </script>
 
@@ -723,7 +759,9 @@ Bookmark-grade utilities and lookup pages.
 
 <p class="text-center">.:*~*:._.:*~*:<strong>THANKS FOR THE VISIT</strong>:*~*:._.:*~*:.</p>
 
-<p class="text-center"><a href="#">&larr; prev</a> | <a href="#">random</a> | <a href="#">ring index</a> | <a href="#">next &rarr;</a></p>
+<!-- The webring nav is decorative: this site is not in a ring (yet). The toast
+     library turns each link into an honest note. See assets/js/toast.js. -->
+<p class="text-center"><a href="#" data-toast-title="There is no previous site" data-toast-description="This is the first, last and only entry in the ring.">&larr; prev</a> | <a href="#" data-toast-title="Random did not help" data-toast-description="A ring of one means &quot;random&quot; always lands you right back here.">random</a> | <a href="#" data-toast-title="Ring index: 1 site" data-toast-description="This one. That is the entire list.">ring index</a> | <a href="#" data-toast-title="There is no next site" data-toast-description="The ring is a closed loop of exactly one, so you have seen all of it.">next &rarr;</a></p>
 
 <p class="text-center"><button type="button" class="guestbook-trigger" onclick="openGuestbook()">&#9998; Sign my guestbook</button> — tell me where you came from!</p>
 
@@ -851,13 +889,16 @@ Bookmark-grade utilities and lookup pages.
             </svg>
             <div class="guestbook-success-msg">Thank you for your feedback!</div>
             <div class="guestbook-success-sub">Your note has been received with thanks.</div>
-            <button type="button" class="guestbook-submit-btn" style="max-width: 160px; margin: 0 auto; display: block;" onclick="closeGuestbook(event, true)">Close</button>
+            <button type="button" class="guestbook-dodge-btn" id="guestbook-dodge-btn">Close</button>
           </div>
         </div>
       `;
 
       var newPane = body.querySelector('.guestbook-content-pane');
       dialog.style.height = 'auto';
+      /* The Close button only exists from here on, so the dodge field can only
+         be attached once the success state is in the DOM. */
+      attachGuestbookDodge();
       var targetHeight = dialog.getBoundingClientRect().height;
       dialog.style.height = startHeight + 'px';
 
@@ -882,4 +923,44 @@ Bookmark-grade utilities and lookup pages.
       }
     }
   });
+
+  /* The post-submit Close button runs away from the pointer. The dialog itself
+     is the field, and `escape` lets it travel past the dialog edges without ever
+     producing a scrollbar. See assets/js/dodge-field.js. The button only exists
+     after submit, so the field is attached when the success state renders. */
+  function attachGuestbookDodge() {
+    var dialog = document.querySelector('#guestbook-modal .guestbook-dialog');
+    var btn = document.getElementById('guestbook-dodge-btn');
+    if (!dialog || !btn) return;
+
+    if (window.guestbookDodge) {
+      window.guestbookDodge.destroy();
+      window.guestbookDodge = null;
+    }
+
+    if (!window.DodgeField) {
+      btn.addEventListener('click', function (e) { closeGuestbook(e, true); });
+      return;
+    }
+
+    window.guestbookDodge = DodgeField.create(dialog, btn, {
+      escape: 56,
+      /* Softer than the demo's 2: on a wide button the default curve is so flat
+         at mid distances that the button shifts only a few px and the cursor
+         stays on it. */
+      falloff: 1.2,
+      inkColor: 'var(--text-color)',
+      contrastColor: 'var(--main-bg, #18181b)',
+      onCatch: function () { closeGuestbook(null, true); }
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', attachGuestbookDodge);
+  } else {
+    attachGuestbookDodge();
+  }
 </script>
+
+<script src="{{ '/assets/js/toast.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/js/dodge-field.js' | relative_url }}" defer></script>
