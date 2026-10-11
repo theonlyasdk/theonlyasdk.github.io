@@ -555,20 +555,36 @@ function animate_projects_layout_change(applyChange) {
      getBoundingClientRect() includes transforms and interpolated width, so if
      a morph is already in flight this captures where the card currently LOOKS
      - which is what makes interrupting seamless instead of a jump. Measure
-     before cancelling, since cancelling snaps the card to its end state. */
+     before cancelling, since cancelling snaps the card to its end state.
+     Measure every card before cancelling any: cancelling one card's width
+     transition resizes its grid row, which shifts every card below it. */
   const firsts = new Map();
   wraps.forEach(w => {
     w.style.animation = 'none';
     w.style.opacity = '1';
     const r = w.getBoundingClientRect();
     firsts.set(w, { x: r.left, y: r.top, w: r.width, h: r.height });
-    /* Kill the in-flight CSS transitions so the pins below apply instantly. */
+  });
+
+  /* Cancel the in-flight transitions AND drop the inline geometry they were
+     driving. This second step is what makes an interrupted morph keep its
+     width animation: without it the cards still carry the previous run's
+     width/height when the layout flips, so the destination measurement below
+     reads that stale value instead of the new layout's natural box - and the
+     morph then animates toward the size it was already leaving.
+     Nothing paints between here and the invert below, so the cards stay
+     visually pinned at their captured boxes throughout. */
+  wraps.forEach(w => {
     if (w.getAnimations) w.getAnimations().forEach(a => a.cancel());
+    w.style.transition = '';
+    w.style.width = '';
+    w.style.height = '';
+    w.style.transform = '';
   });
 
   applyChange();
 
-  /* Measure the destination boxes before any inline sizing disturbs them. */
+  /* Destination boxes, now measured against the real new layout. */
   const targets = new Map();
   wraps.forEach(w => {
     const r = w.getBoundingClientRect();
