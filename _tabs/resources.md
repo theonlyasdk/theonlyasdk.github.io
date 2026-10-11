@@ -580,6 +580,9 @@ Bookmark-grade utilities and lookup pages.
 
 </div>
 
+{% comment %} Loaded synchronously: the inline orchestration below runs immediately
+   and must find window.RubberSegment already defined. {% endcomment %}
+<script src="{{ '/assets/js/rubber-segment.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>
 <script>
   /* Resource Tabs Orchestration */
   (function () {
@@ -595,43 +598,36 @@ Bookmark-grade utilities and lookup pages.
     var currentTabId = 'my-resources';
     var switchTimer = null;
 
-    function movePill(tab, animate, movingRight) {
-      if (!tab || !pill || !bar) return;
-      var targetLeft = tab.offsetLeft;
-      var targetRight = bar.offsetWidth - (tab.offsetLeft + tab.offsetWidth);
-
-      if (!animate) {
-        pill.style.transition = 'none';
-        pill.style.left = targetLeft + 'px';
-        pill.style.right = targetRight + 'px';
-        void pill.offsetWidth; /* Force reflow */
-        return;
-      }
-
-      /* Blob stick stretch animation:
-         The leading edge moves immediately to the clicked tab,
-         while the trailing edge follows with a slight delay,
-         creating a fluid stretchy slug / blob stick effect. */
-      var leadDur = '340ms';
-      var trailDur = '380ms';
-      var trailDelay = '80ms';
-      var ease = 'cubic-bezier(0.25, 1, 0.35, 1)';
-
-      if (movingRight) {
-        pill.style.transition =
-          'right ' + leadDur + ' ' + ease + ' 0ms, ' +
-          'left ' + trailDur + ' ' + ease + ' ' + trailDelay;
-      } else {
-        pill.style.transition =
-          'left ' + leadDur + ' ' + ease + ' 0ms, ' +
-          'right ' + trailDur + ' ' + ease + ' ' + trailDelay;
-      }
-
-      pill.style.left = targetLeft + 'px';
-      pill.style.right = targetRight + 'px';
+    /* Pill motion is delegated to the shared RubberSegment engine (dilate ->
+       land handoff, trailing-edge squash, rubber drag, flick momentum). Only
+       the panel switching below is still orchestrated here. */
+    var segment = null;
+    if (window.RubberSegment) {
+      segment = window.RubberSegment.create({
+        track: bar,
+        pill: pill,
+        items: tabs,
+        inset: 3,
+        stretch: 100,
+        squash: 3,
+        speed: 1,
+        glide: 75,
+        draggable: true,
+        onChange: function (index) {
+          var el = tabs[index];
+          if (!el) return;
+          var id = el.getAttribute('data-tab');
+          switchTab(id, true, true);
+          if (history.replaceState) {
+            history.replaceState(null, '', '#' + id);
+          }
+        }
+      });
     }
 
-    function switchTab(newTabId, animate) {
+    /* `fromSegment` marks changes the pill engine initiated, so the pill is not
+       driven a second time from here (it is already animating). */
+    function switchTab(newTabId, animate, fromSegment) {
       if (newTabId === currentTabId && animate) return;
       var newTab = bar.querySelector('[data-tab="' + newTabId + '"]');
       if (!newTab) return;
@@ -657,7 +653,7 @@ Bookmark-grade utilities and lookup pages.
         t.setAttribute('tabindex', isSelected ? '0' : '-1');
       });
 
-      movePill(newTab, animate, movingRight);
+      if (!fromSegment && segment) segment.animateTo(newIndex);
 
       try {
         localStorage.setItem('resources-active-tab', newTabId);
@@ -699,34 +695,9 @@ Bookmark-grade utilities and lookup pages.
       }, 300);
     }
 
-    /* Keyboard navigation with Left/Right arrow keys */
-    bar.addEventListener('keydown', function (e) {
-      var activeTab = bar.querySelector('[aria-selected="true"]');
-      var idx = tabs.indexOf(activeTab);
-      if (idx === -1) return;
-
-      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-        e.preventDefault();
-        var nextIdx = (idx + 1) % tabs.length;
-        tabs[nextIdx].focus();
-        switchTab(tabs[nextIdx].getAttribute('data-tab'), true);
-      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-        e.preventDefault();
-        var prevIdx = (idx - 1 + tabs.length) % tabs.length;
-        tabs[prevIdx].focus();
-        switchTab(tabs[prevIdx].getAttribute('data-tab'), true);
-      }
-    });
-
-    tabs.forEach(function (tab) {
-      tab.addEventListener('click', function () {
-        var id = this.getAttribute('data-tab');
-        switchTab(id, true);
-        if (history.replaceState) {
-          history.replaceState(null, '', '#' + id);
-        }
-      });
-    });
+    /* Keyboard, click and drag are all owned by the pill engine now (it calls
+       switchTab through onChange). Keeping parallel handlers here would drive
+       the pill twice and fire switchTab twice per interaction. */
 
     /* Read initial tab from URL hash or localStorage */
     var initialTab = 'my-resources';
@@ -742,16 +713,9 @@ Bookmark-grade utilities and lookup pages.
       } catch (e) {}
     }
 
-    var activeBtn = bar.querySelector('[data-tab="' + initialTab + '"]');
     switchTab(initialTab, false);
-    requestAnimationFrame(function () {
-      movePill(activeBtn, false);
-    });
-
-    window.addEventListener('resize', function () {
-      var currentBtn = bar.querySelector('[data-tab="' + currentTabId + '"]');
-      movePill(currentBtn, false);
-    });
+    var activeBtn = bar.querySelector('[data-tab="' + initialTab + '"]');
+    if (segment) segment.setValue(tabs.indexOf(activeBtn));
   })();
 </script>
 

@@ -1,0 +1,76 @@
+/* Shared View Toggle (Segmented control for Grid vs List)
+ * Reused across About (Goodies) and Projects.
+ */
+
+:root {
+  --tabs-dur: 320ms;
+  --tabs-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --tabs-text-muted: var(--text-muted-color);
+  --tabs-text-active: var(--text-color);
+  --tabs-bar-bg: var(--card-bg);
+  --tabs-pill-bg: var(--card-bg-active, var(--sidebar-border-color));
+}
+
+.view-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px;
+  border-radius: 0.5em;
+  background: var(--tabs-bar-bg);
+  border: 0;
+  box-shadow: var(--card-shadow);
+  flex-shrink: 0;
+}
+
+.view-toggle .t-tab {
+  position: relative;
+  appearance: none;
+  border: 0;
+  background: transparent;
+  height: 30px;
+  width: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--tabs-text-muted);
+  cursor: pointer;
+  border-radius: 0.35rem;
+  z-index: 1;
+  transition: color var(--tabs-dur) var(--tabs-ease);
+}
+
+.view-toggle .t-tab svg {
+  width: 1rem;
+  height: 1rem;
+  display: block;
+}
+
+.view-toggle .t-tab:not([aria-pressed="true"]):hover,
+.view-toggle .t-tab[aria-pressed="true"] {
+  color: var(--tabs-text-active);
+}
+
+.view-toggle .t-tab:focus-visible {
+  outline: 3px solid var(--link-color);
+  outline-offset: 2px;
+}
+
+.view-toggle .t-tabs-pill {
+  position: absolute;
+  top: 3px;
+  left: 0;
+  height: 30px;
+  width: 0;
+  background: var(--tabs-pill-bg);
+  border-radius: 0.35rem;
+  box-shadow: var(--filter-btn-shadow-active);
+  transform: translateX(0);
+  transition:
+    transform var(--tabs-dur) var(--tabs-ease),
+    width var(--tabs-dur) var(--tabs-ease);
+  will-change: transform, width;
+  z-index: 0;
+  pointer-events: none;
+}

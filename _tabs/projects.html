@@ -46,34 +46,104 @@ order: 4
     margin-bottom: 1em;
   }
 
-  /* Project Cards */
-  .project-card {
-    background-color: var(--card-bg);
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    text-align: left;
-    padding: 0em 2em 0em 2em;
+  /* Project Cards
+     The wrapper is the flat pointer-tracking surface (transitions.dev card
+     tilt); the card inside it is what actually rotates. */
+  .project-card-wrap {
+    position: relative;
     width: 100%;
-    margin-bottom: 1.2em;
-    box-shadow: var(--card-shadow);
-    border: 0;
+    height: 100%;
+    /* Lets a finger drag tilt the card instead of scrolling the page. */
+    touch-action: none;
+    perspective: 1000px;
     opacity: 0;
-    overflow: hidden;
     animation: slideIn 2s var(--spring-ease) var(--anim-delay, 0s) forwards;
-    transform-style: preserve-3d;
-    will-change: transform;
-    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease;
   }
 
-  .project-card:hover {
-    box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.3);
+  .project-card {
+    --tilt-rx: 0deg;
+    --tilt-ry: 0deg;
+    --tilt-gx: 50%;
+    --tilt-gy: 50%;
+    /* Proximity shadow layer, driven per-card from JS. Transparent at rest. */
+    --tilt-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    box-sizing: border-box;
+    /* Even padding on every side. The old card faked its vertical rhythm with
+       a 2rem margin on the title and a 1.5rem margin under the tag row, so the
+       top and bottom padding never matched. */
+    padding: 1.25rem 1.5rem;
+    background-color: var(--card-bg);
+    border: 0;
+    border-radius: 12px;
+    text-align: left;
+    overflow: hidden;
+    box-shadow: var(--card-shadow), var(--tilt-shadow);
+    transform:
+      perspective(var(--tilt-perspective, 1000px))
+      rotateX(var(--tilt-rx))
+      rotateY(var(--tilt-ry));
+    transform-style: preserve-3d;
+    transition:
+      transform 400ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 250ms ease;
+    will-change: transform;
+  }
+
+  /* Short follow while the pointer moves so the tilt tracks the cursor. */
+  .project-card.is-tilting {
+    transition:
+      transform 120ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 250ms ease;
+  }
+
+  /* No static hover shadow: the shadow is fully driven by cursor distance
+     from JS (see tiltShadow), so it deepens continuously on approach. */
+
+  /* Cursor-tracked shine: very wide, very faint wash of light that follows
+     the pointer. Kept subtle on purpose - just enough to feel the surface. */
+  .t-tilt-glare {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    mix-blend-mode: screen;
+    background:
+      radial-gradient(circle 340px at var(--tilt-gx) var(--tilt-gy),
+        rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.02) 55%, rgba(255, 255, 255, 0) 80%),
+      radial-gradient(circle 560px at var(--tilt-gx) var(--tilt-gy),
+        rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0) 75%);
+    transition: opacity 400ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .project-card-wrap.is-hover .t-tilt-glare {
+    opacity: 0.55;
+  }
+
+  /* Proximity shine fallback while the cursor is near but not on the card.
+     JS writes a distance-ramped inline opacity on top of this. */
+  .project-card-wrap.is-near .t-tilt-glare {
+    opacity: 0.28;
   }
 
   @media (prefers-reduced-motion: reduce) {
     .project-card {
       transform: none !important;
       transition: none !important;
+    }
+
+    /* Tilt JS bails out here, so keep a plain static hover shadow. */
+    .project-card-wrap:hover .project-card {
+      box-shadow: var(--card-shadow), 0 14px 32px -12px rgba(0, 0, 0, 0.45);
+    }
+
+    .t-tilt-glare {
+      display: none;
     }
   }
 
@@ -89,20 +159,47 @@ order: 4
     }
   }
 
-  .project-card>h1 {
-    margin: 2rem 0 1rem;
+  /* Absorbs the extra height when the grid stretches cards to a common height,
+     so the slack lands inside the body instead of under the tag row. That keeps
+     the visible gap below the tags equal to the padding above the title. */
+  .project-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    flex: 1 1 auto;
+  }
+
+  .project-card>h1,
+  .project-card-title {
+    margin: 0;
+    font-size: 1.75rem;
+    line-height: 1.2;
   }
 
   .project-card-tags {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    /* The row reuses the global `.categories` class, which carries
+       `margin-bottom: 2rem` for the Categories page. That was adding 32px of
+       dead space under the tags and making the card's bottom padding look
+       twice its top. */
+    margin: 0;
+  }
+
+  .project-card-content {
+    margin: 0;
+    flex-grow: 1;
   }
 
   .project-card-bottom {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
   }
 
   .projects-page-content {
@@ -199,14 +296,46 @@ order: 4
   }
 
   .projects-card-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
     width: 100%;
   }
 
-  .projects-card-container>.projects-loading {
+  /* Grid view (default)
+     The content column is only ~620px wide (the layout caps main at col-xl-9),
+     so a 320px track floor collapsed the grid to a single column - which made
+     the grid/list toggle look like it did nothing. 270px guarantees at least two
+     columns here, and the min() wrapper stops the track overflowing on phones. */
+  .projects-card-container:not(.list-view),
+  .projects-card-container.grid-view {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr));
+    gap: 1.25rem;
+    align-items: stretch;
+  }
+
+  /* The wrapper is the grid/flex child now, so the card sizing rules move to it. */
+  .projects-card-container:not(.list-view) .project-card-wrap,
+  .projects-card-container.grid-view .project-card-wrap {
+    margin-bottom: 0;
+    height: 100%;
+  }
+
+  /* List view */
+  .projects-card-container.list-view {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    align-items: center;
+    text-align: center;
+  }
+
+  .projects-card-container.list-view .project-card-wrap {
+    margin-bottom: 0;
+    width: 100%;
+  }
+
+  .projects-card-container > .projects-loading,
+  .projects-card-container > .projects-no-results {
+    grid-column: 1 / -1;
     width: 100%;
     text-align: center;
   }
@@ -269,6 +398,35 @@ order: 4
     background-color: var(--card-bg-active);
   }
 
+  /* All / Has demo segmented toggle. Reuses the shared .t-tabs sliding pill
+     (_sass/components/_view-toggle.scss); the modifier lets the tabs size to
+     their labels instead of the 38px icon square. */
+  .filter-toggle {
+    gap: 2px;
+  }
+
+  .t-tabs--auto .t-tab {
+    width: auto;
+    min-width: 0;
+    padding: 0 0.9em;
+    font-size: 0.95rem;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .filter-toggle .t-tabs-pill {
+    opacity: 1;
+    transition:
+      transform var(--tabs-dur) var(--tabs-ease),
+      width var(--tabs-dur) var(--tabs-ease),
+      opacity 180ms ease;
+  }
+
+  .filter-toggle .t-tab:focus-visible {
+    outline: 3px solid var(--link-color);
+    outline-offset: 2px;
+  }
+
   /* Tags */
   .category.project-tag {
     margin-right: 0.4em;
@@ -324,13 +482,14 @@ order: 4
   .projects-filter-inner {
     min-height: 0;
     overflow: hidden;
+    padding: 0.25rem 0.5rem 0;
   }
 
   .projects-filter {
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding-bottom: 0.85em;
+    padding: 0.35rem 0.4rem 0.85em;
     opacity: 0;
     transform: translateY(-22px);
     transition: transform 0.36s cubic-bezier(0.22, 1, 0.36, 1),
@@ -411,6 +570,7 @@ order: 4
       overflow-x: scroll;
       overflow-y: visible;
       margin-bottom: .5em;
+      padding: 0.35rem 0.4rem 0.85em;
     }
 
     .projects-filter::-webkit-scrollbar {
@@ -453,6 +613,15 @@ order: 4
       </div>
       <button class="btn-search-filter" onclick="toggle_projects_filter()" title="Filter by"><i
           class="fa-solid fa-filter" id="clear-filter"></i></button>
+      <div class="t-tabs view-toggle layout-toggle" role="group" aria-label="Change projects layout">
+        <span class="t-tabs-pill" aria-hidden="true" style="transform: translateX(3px); width: 38px;"></span>
+        <button class="t-tab" type="button" data-view="grid" aria-pressed="true" aria-label="Grid view" title="Grid view">
+          <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.5"></rect><rect x="9" y="1" width="6" height="6" rx="1.5"></rect><rect x="1" y="9" width="6" height="6" rx="1.5"></rect><rect x="9" y="9" width="6" height="6" rx="1.5"></rect></svg>
+        </button>
+        <button class="t-tab" type="button" data-view="list" aria-pressed="false" aria-label="List view" title="List view">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 4h9M6 8h9M6 12h9"></path><circle cx="2.4" cy="4" r="1.1" fill="currentColor" stroke="none"></circle><circle cx="2.4" cy="8" r="1.1" fill="currentColor" stroke="none"></circle><circle cx="2.4" cy="12" r="1.1" fill="currentColor" stroke="none"></circle></svg>
+        </button>
+      </div>
     </div>
     <div class="projects-filter-wrapper" id="projects-filter-wrapper">
       <div class="projects-filter-inner">
@@ -463,15 +632,14 @@ order: 4
             <b>Filter by</b>
           </div>
           <div class="flex-row filter-tags">
-            <div class="filter-tag c-pointer" onclick="filter_by_tag('')">
-              <span id="current-filter-tag">All</span>
-            </div>
-            <div class="filter-tag c-pointer">
-              <span id="current-filter-tag" onclick="filter_by_demo()">Has demo</span>
+            <div class="t-tabs view-toggle filter-toggle t-tabs--auto" role="group" aria-label="Filter projects">
+              <span class="t-tabs-pill" aria-hidden="true" style="transform: translateX(3px); width: 0;"></span>
+              <button class="t-tab" type="button" data-filter="all" aria-pressed="true">All</button>
+              <button class="t-tab" type="button" data-filter="demo" aria-pressed="false">Has demo</button>
             </div>
             <div class="filter-tag c-pointer d-none" id="filter-by-tag" onclick="filter_by_tag('')">
               <span class="category project-tag">Tag</span>
-              <i class="fa-solid fa-xmark" id="clear-filter"></i>
+              <i class="fa-solid fa-xmark" id="clear-filter-tag"></i>
             </div>
           </div>
         </div>
@@ -488,5 +656,8 @@ order: 4
   </div>
 </div>
 
-<script src="{{ '/assets/js/logger.js' | relative_url }}"></script>
-<script src="{{ '/assets/js/projects-loader.js' | relative_url }}" defer></script>
+<!-- ?v=site.time busts the browser's disk cache on every build, so iterating
+     on this WIP feature can't leave the page running stale JS again. -->
+<script src="{{ '/assets/js/logger.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>
+<script src="{{ '/assets/js/rubber-segment.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>
+<script src="{{ '/assets/js/projects-loader.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
