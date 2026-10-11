@@ -42,6 +42,20 @@ search,
   width: 100%;
   overflow: auto;
 
+  /* iOS-style sheet: the results rise from below the fold carrying a soft
+     shadow above their top edge, so they read as a layer lifted off the page
+     behind rather than text simply appearing.
+
+     Driven entirely by the theme's own `d-none` toggle - re-declaring the
+     animation on :not(.d-none) means it replays every time the results open,
+     with no JS and no edits to the compiled theme bundle. The starting offset
+     is min(100%, 55vh) because a translate percentage resolves against the
+     element's own height: short result sets would barely move on 100% alone,
+     tall ones would fly in from below the screen. */
+  &:not(.d-none) {
+    animation: searchSheetUp 0.42s cubic-bezier(0.55, 0.085, 0.68, 0.53) both;
+  }
+
   .content {
     margin-top: 2rem;
   }
@@ -57,6 +71,28 @@ search,
   @include bp.lg {
     max-width: v.$main-content-max-width;
     justify-content: start !important;
+  }
+}
+
+@keyframes searchSheetUp {
+  from {
+    transform: translate3d(0, min(100%, 55vh), 0);
+    opacity: 0;
+    box-shadow: 0 -22px 44px rgba(0, 0, 0, 0.28);
+  }
+
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+    /* Not zero: a sheet resting flush against the page reads as flat. */
+    box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #search-result-wrapper:not(.d-none) {
+    animation: none;
+    box-shadow: none;
   }
 }
 
@@ -240,10 +276,11 @@ search,
   }
 }
 
+/* One combined keycap holding both keys, split by a vertical rule. */
 .search-keycap {
   display: inline-flex;
-  align-items: center;
-  gap: 2px;
+  align-items: stretch;
+  gap: 0;
   position: absolute;
   right: 0.65rem;
   top: 50%;
@@ -252,18 +289,30 @@ search,
   user-select: none;
   transition: opacity 0.2s ease, transform 0.2s ease;
   z-index: 3;
+  padding: 2px;
+  border-radius: 6px;
+  background: var(--card-bg, rgba(120, 120, 120, 0.15));
+  border: 1px solid var(--btn-border-color, rgba(120, 120, 120, 0.25));
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
 
   kbd {
+    display: inline-flex;
+    align-items: center;
     font-size: 0.68rem;
     font-family: inherit;
     font-weight: 600;
     line-height: 1;
-    padding: 0.18rem 0.32rem;
-    border-radius: 4px;
-    background: var(--card-bg, rgba(120, 120, 120, 0.15));
-    border: 1px solid var(--btn-border-color, rgba(120, 120, 120, 0.25));
+    padding: 0.18rem 0.4rem;
+    background: none;
+    border: none;
+    border-radius: 3px;
     color: var(--text-muted-color);
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+    box-shadow: none;
+  }
+
+  /* The vertical rule between the modifier and the key. */
+  kbd + kbd {
+    border-left: 1px solid var(--btn-border-color, rgba(120, 120, 120, 0.25));
   }
 }
 
