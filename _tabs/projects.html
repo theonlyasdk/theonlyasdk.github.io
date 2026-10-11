@@ -198,7 +198,12 @@ order: 4
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    align-items: center;
+    /* flex-end, not center: when the tag row wraps to two or more lines it
+       becomes much taller than the Demo button, and centering left the button
+       floating in the middle of the tags. Pinning it to the end keeps it in
+       the bottom-right corner at any tag count. With a single-line tag row
+       both resolve to the same place. */
+    align-items: flex-end;
     gap: 0.5rem;
   }
 

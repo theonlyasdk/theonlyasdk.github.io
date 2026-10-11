@@ -526,6 +526,11 @@ function apply_projects_visibility(predicate) {
  * once it is gone the wrapper falls back to the stylesheet's `opacity: 0`, so
  * every card must carry an explicit inline opacity from here on.
  */
+/* Pending cleanup for the morph below. Held at module scope so an interrupted
+   run can be cancelled - otherwise its timer fires mid-way through the next
+   run and wipes the live animation's inline width/height/transform. */
+let projects_morph_timer = 0;
+
 function animate_projects_layout_change(applyChange) {
   const container = document.getElementById('projects-list');
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -534,18 +539,31 @@ function animate_projects_layout_change(applyChange) {
         w => !w.classList.contains('d-none')
       )
     : [];
+
+  /* Drop any previous run's pending cleanup before touching the DOM. */
+  if (projects_morph_timer) {
+    clearTimeout(projects_morph_timer);
+    projects_morph_timer = 0;
+  }
+
   if (reduce || !wraps.length) {
     applyChange();
     return;
   }
 
-  /* FIRST: the box each card occupies before the layout flips. */
+  /* FIRST: the box each card occupies right now.
+     getBoundingClientRect() includes transforms and interpolated width, so if
+     a morph is already in flight this captures where the card currently LOOKS
+     - which is what makes interrupting seamless instead of a jump. Measure
+     before cancelling, since cancelling snaps the card to its end state. */
   const firsts = new Map();
   wraps.forEach(w => {
     w.style.animation = 'none';
     w.style.opacity = '1';
     const r = w.getBoundingClientRect();
     firsts.set(w, { x: r.left, y: r.top, w: r.width, h: r.height });
+    /* Kill the in-flight CSS transitions so the pins below apply instantly. */
+    if (w.getAnimations) w.getAnimations().forEach(a => a.cancel());
   });
 
   applyChange();
@@ -592,8 +610,12 @@ function animate_projects_layout_change(applyChange) {
     w.style.transform = 'translate(0, 0)';
   });
 
-  setTimeout(() => {
+  projects_morph_timer = setTimeout(() => {
+    projects_morph_timer = 0;
     wraps.forEach(w => {
+      /* Only clean up if this run is still the live one. A newer run would
+         have replaced the timer id, and cancelling it is what keeps the two
+         from fighting over the same inline styles. */
       w.style.transition = '';
       w.style.transform = '';
       w.style.width = '';
@@ -731,6 +753,12 @@ const bar = document.querySelector('.projects-top-bar .layout-toggle');
 
   function applyView(view) {
     const isList = view === 'list';
+    /* Already showing this view: re-running the morph would pin every card,
+       animate it to the box it is already in, and cancel any morph the user
+       had just interrupted. Do nothing instead. */
+    if (container.classList.contains('list-view') === isList) {
+      return;
+    }
     animate_projects_layout_change(() => {
       container.classList.toggle('list-view', isList);
       container.classList.toggle('grid-view', !isList);
