@@ -263,9 +263,35 @@ function paint() {
       jumpTo(committed);
     }
 
+    /* Critically damped follow used while the thumb is being dragged. Runs every
+       frame toward the detent target rather than jumping straight to the
+       pointer, so the thumb settles into a slot on its own while the finger is
+       still down. Sub-stepped because the outer dt can be large (throttled
+       tabs) and explicit integration would go unstable. */
+    function stepEdge(edge, target, dt) {
+      var K = 400;
+      var C = 2 * Math.sqrt(K) * 0.92;
+      var steps = Math.min(6, Math.max(1, Math.ceil(dt * 240)));
+      var h = dt / steps;
+      for (var i = 0; i < steps; i++) {
+        edge.vel += (K * (target - edge.v) - C * edge.vel) * h;
+        edge.v += edge.vel * h;
+      }
+    }
+
     /* Advance all edges one frame. Returns true if anything is still moving. */
     function advance(dt) {
       if (!alive) return false;
+
+      /* A live drag owns the edges outright: no tween or spring is running
+         while the thumb is held. */
+      if (drag && drag.live) {
+        stepEdge(edgeL, drag.tL, dt);
+        stepEdge(edgeR, drag.tR, dt);
+        paint();
+        return true;
+      }
+
       var moving = false;
 
       [edgeL, edgeR].forEach(function (edge) {
@@ -329,7 +355,6 @@ function paint() {
       });
 
       if (moving) paint();
-      else if (drag && drag.live) moving = true;
       return moving;
     }
 
@@ -414,6 +439,9 @@ function paint() {
         live: false,
         offset: 0,
         w: 0,
+        tL: 0,
+        tR: 0,
+        committedIndex: committed,
         hist: [[e.timeStamp, x]]
       };
       if (onThumb) {
@@ -421,6 +449,8 @@ function paint() {
         gen += 1;
         stopEdge(edgeL);
         stopEdge(edgeR);
+        drag.tL = edgeL.v;
+        drag.tR = edgeR.v;
       }
     }
 
@@ -435,27 +465,63 @@ function paint() {
         d.live = true;
         d.offset = x - edgeL.v;
         d.w = edgeR.v - edgeL.v;
+        /* Zero both velocities. They can differ after an interrupted
+           animation, and the two edges are integrated independently toward
+           targets a constant apart - mismatched initial velocity makes the
+           thumb visibly wobble in width while being dragged. */
+        edgeL.vel = 0;
+        edgeR.vel = 0;
+        d.tL = edgeL.v;
+        d.tR = edgeR.v;
       }
       var width = innerW;
       var l = x - d.offset;
+
+      /* Detent. Without it the thumb tracks the finger 1:1 and only ever
+         settles when released. Resisting travel away from a slot's centre
+         makes it snap back into place under the finger, and crossing a
+         midpoint hands it to the next slot. Extra travel past DETENT is
+         rubber-banded, so the pull grows the further you drag. */
+      if (!reduced()) {
+        var centre = l + d.w / 2;
+        var slot = slots[nearestSlot(slots, centre)];
+        if (slot) {
+          var sc = (slot.l + slot.r) / 2;
+          var detent = Math.max(6, d.w * 0.16);
+          var off = centre - sc;
+          var absOff = Math.abs(off);
+          if (absOff > detent) {
+            var resisted = detent + rubber(absOff - detent, d.w);
+            off = (off < 0 ? -1 : 1) * resisted;
+          }
+          l = sc + off - d.w / 2;
+        }
+      }
+
       var maxL = width - d.w;
       if (reduced()) {
         var c = clamp(l, 0, maxL);
-        edgeL.v = c;
-        edgeR.v = c + d.w;
+        d.tL = c;
+        d.tR = c + d.w;
       } else if (l < 0) {
-        edgeL.v = 0;
-        edgeR.v = d.w - rubber(-l, d.w);
+        /* Past the track edge the thumb compresses instead of leaving. */
+        d.tL = 0;
+        d.tR = d.w - rubber(-l, d.w);
       } else if (l > maxL) {
-        edgeR.v = width;
-        edgeL.v = maxL + rubber(l - maxL, d.w);
+        d.tR = width;
+        d.tL = maxL + rubber(l - maxL, d.w);
       } else {
-        edgeL.v = l;
-        edgeR.v = l + d.w;
+        d.tL = l;
+        d.tR = l + d.w;
       }
-      edgeL.vel = 0;
-      edgeR.vel = 0;
-      paint();
+
+      /* Commit as soon as a slot is reached, so the target changes while the
+         finger is still down - no release needed to see the result. */
+      var near = nearestSlot(slots, (d.tL + d.tR) / 2);
+      if (near !== d.committedIndex) {
+        d.committedIndex = near;
+        if (near !== committed) commit(near);
+      }
       requestTick();
     }
 
