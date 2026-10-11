@@ -38,22 +38,42 @@ search,
 
 #search-result-wrapper {
   display: none;
-  height: 100%;
-  width: 100%;
+
+  /* iOS Activity sheet: an opaque, round-topped surface that lifts off the
+     page behind it, leaving a strip of the page showing above.
+
+     The surface is the whole point. With a transparent panel the eye has no
+     edge to follow, so translating it only reads as the result text sliding
+     up. For the same reason the sheet must NOT be sized with percentages:
+     its parent .container is content-driven, so `height: 100%` resolves
+     circularly - the sheet grew from 811px to 1162px as results loaded,
+     dragging the container with it and running off the bottom of the screen.
+
+     Fixed positioning anchors the sheet to the viewport instead, which pins
+     its bottom edge to the screen and lets overflow:auto do the scrolling.
+     The height leaves the theme's topbar clear above it, so the search input
+     stays usable while the results are open.
+
+     Driven by the theme's own `d-none` toggle - re-declaring the animation
+     on :not(.d-none) replays it every time results open, with no JS and no
+     edits to the compiled theme bundle. */
+  position: fixed;
+  top: auto;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 86vh;
+  height: 86dvh;
   overflow: auto;
+  overscroll-behavior: contain;
+  background: var(--main-bg);
+  border-radius: 1.25rem 1.25rem 0 0;
+  box-shadow: 0 -18px 50px rgba(0, 0, 0, 0.32);
 
-  /* iOS-style sheet: the results rise from below the fold carrying a soft
-     shadow above their top edge, so they read as a layer lifted off the page
-     behind rather than text simply appearing.
-
-     Driven entirely by the theme's own `d-none` toggle - re-declaring the
-     animation on :not(.d-none) means it replays every time the results open,
-     with no JS and no edits to the compiled theme bundle. The starting offset
-     is min(100%, 55vh) because a translate percentage resolves against the
-     element's own height: short result sets would barely move on 100% alone,
-     tall ones would fly in from below the screen. */
+  /* 0.5, 1, 0.89, 1 is Penner's easeOutQuad - decelerates into place, the way
+     a presented sheet settles rather than slamming home. */
   &:not(.d-none) {
-    animation: searchSheetUp 0.42s cubic-bezier(0.55, 0.085, 0.68, 0.53) both;
+    animation: searchSheetUp 0.45s cubic-bezier(0.5, 1, 0.89, 1) both;
   }
 
   .content {
@@ -76,23 +96,21 @@ search,
 
 @keyframes searchSheetUp {
   from {
-    transform: translate3d(0, min(100%, 55vh), 0);
-    opacity: 0;
-    box-shadow: 0 -22px 44px rgba(0, 0, 0, 0.28);
+    /* 100% of its own height: the sheet starts exactly one sheet-length below
+       and rises into place, so it always arrives from off the bottom edge. */
+    transform: translate3d(0, 100%, 0);
   }
 
   to {
     transform: translate3d(0, 0, 0);
-    opacity: 1;
-    /* Not zero: a sheet resting flush against the page reads as flat. */
-    box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.08);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /* Only the motion goes. The surface, corners and shadow are static design,
+     not animation, so they stay - dropping them would leave a bare panel. */
   #search-result-wrapper:not(.d-none) {
     animation: none;
-    box-shadow: none;
   }
 }
 
