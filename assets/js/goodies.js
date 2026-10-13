@@ -56,48 +56,112 @@
      position - the text reflows as the box genuinely morphs from one shape into
      the other.
 
-     Pending cleanup is held at module scope so an interrupted run can be
-     cancelled; otherwise its timer fires mid-way through the next run and wipes
-     the live animation's inline geometry. */
+     The pill is draggable and commits live, so the view can change again a few
+     frames after a morph started. Three things make that read as one continuous
+     motion instead of a stutter:
+       - a retarget runs shorter and unstaggered, because it continues the move
+         already on screen rather than restarting a full-length one,
+       - cleanup is driven by an exact timer rather than by the browser
+         declaring the animation finished, which in a throttled tab it does
+         immediately instead of at the declared duration,
+       - a run clears the inline geometry of EVERY column, not just the ones it
+         pinned, so a column a filter hid mid-morph cannot be orphaned. */
+  const MORPH_DUR = 420;
+  const MORPH_DUR_RETARGET = 230;
+  const MORPH_EASE = 'cubic-bezier(0.32, 0.9, 0.24, 1)';
+  const MORPH_STAGGER = 14;
+  const MORPH_STAGGER_SLOTS = 12;
+
+  const HAS_WA = typeof Element.prototype.getAnimations === 'function';
+
+  /* 0 means nothing is animating, which is how a retarget is recognised. */
+  let goodies_morph_gen = 0;
   let goodies_morph_timer = 0;
+  let goodies_morph_settle = null;
+
+  /* Hand a set of columns back to the stylesheet. */
+  function clearGoodiesMorphGeometry(cols) {
+    cols.forEach(col => {
+      col.style.transition = '';
+      col.style.width = '';
+      col.style.height = '';
+      col.style.transform = '';
+    });
+  }
 
   function animateGoodiesLayoutChange(applyChange) {
     const grid = $('goodies-grid');
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const cols = grid
-      ? [...grid.children].filter(el => el.classList.contains('col') && !el.classList.contains('d-none'))
+    const allCols = grid
+      ? [...grid.children].filter(el => el.classList.contains('col'))
       : [];
+    const cols = allCols.filter(el => !el.classList.contains('d-none'));
 
-    /* Drop any previous run's pending cleanup before touching the DOM. */
-    if (goodies_morph_timer) {
-      clearTimeout(goodies_morph_timer);
-      goodies_morph_timer = 0;
+    /* A morph already on screen means this is a retarget, not a new move. */
+    const retarget = goodies_morph_gen !== 0;
+    goodies_morph_gen += 1;
+    const gen = goodies_morph_gen;
+    clearTimeout(goodies_morph_timer);
+    goodies_morph_timer = 0;
+    /* Detach the superseded run's resize hook here. It cannot do it from its own
+       settle(), because that bails out on the generation guard first - without
+       this, every retarget would strand one listener for the life of the page. */
+    if (goodies_morph_settle) {
+      window.removeEventListener('resize', goodies_morph_settle);
+      goodies_morph_settle = null;
     }
 
     if (reduce || !cols.length) {
+      /* Snap, and take any in-flight morph's pinned geometry with us - under
+         reduced motion or an empty result there is nothing to animate and a
+         stale pin would just be wrong. */
+      goodies_morph_gen = 0;
+      clearGoodiesMorphGeometry(allCols);
       applyChange();
       return;
     }
 
+    /* Snap a still-running card entry animation to its end with finish(), never
+       cancel(). slideIn is fill:forwards, so cancelling reverts the card to the
+       stylesheet's resting opacity:0 - which is what forced the previous version
+       into a permanent inline opacity:1 just to keep the cards visible.
+       finish() leaves the animation in place at its end state and writes no
+       inline style at all. Only that named animation is touched: the
+       CollectionGrid filter FLIP runs as a transition on the same card and has
+       to keep going. */
+    cols.forEach(col => {
+      const card = col.querySelector('.goodie-card');
+      if (!card) return;
+      if (HAS_WA) {
+        card.getAnimations().forEach(a => {
+          if (a.animationName === 'slideIn' && a.playState === 'running') a.finish();
+        });
+      } else {
+        /* No Web Animations to finish, so nothing holds the card off its
+           resting opacity:0. Pin it visible instead. */
+        card.style.opacity = '1';
+      }
+    });
+
     /* FIRST: the box each column occupies right now. getBoundingClientRect()
-       includes transforms and interpolated width, so an interrupted morph
-       captures where the column currently LOOKS - which is what makes the
-       interrupt seamless instead of a jump. Measure before cancelling, since
-       cancelling snaps the column back to its end state. Measure every column
-       before cancelling any: cancelling one box's width transition resizes its
-       row, which shifts every box below it. */
+       includes transforms and interpolated width, so a retarget captures where
+       the column currently LOOKS - which is what makes interrupting it seamless
+       instead of a jump. Measure before cancelling, since cancelling snaps the
+       column back to its end state. Measure every column before cancelling any:
+       cancelling one column's width transition resizes its flow, which shifts
+       every column below it. */
     const firsts = new Map();
     cols.forEach(col => {
       const r = col.getBoundingClientRect();
       firsts.set(col, { x: r.left, y: r.top, w: r.width, h: r.height });
     });
 
-    /* Cancel the in-flight transitions and drop the inline geometry they were
+    /* Stop the in-flight transitions and drop the inline geometry they were
        driving, so the destination measurement below reads the new layout's
        natural box instead of a stale pinned value. Nothing paints between here
        and the invert, so the columns stay visually pinned throughout. */
     cols.forEach(col => {
-      if (col.getAnimations) col.getAnimations().forEach(a => a.cancel());
+      if (HAS_WA) col.getAnimations().forEach(a => a.cancel());
       col.style.transition = '';
       col.style.width = '';
       col.style.height = '';
@@ -113,13 +177,14 @@
       targets.set(col, { x: r.left, y: r.top, w: r.width, h: r.height });
     });
 
-    const DUR = 420;
-    const EASE = 'cubic-bezier(0.32, 0.9, 0.24, 1)';
-    const STAGGER = 14;
+    const dur = retarget ? MORPH_DUR_RETARGET : MORPH_DUR;
+    const stagger = retarget ? 0 : MORPH_STAGGER;
 
     /* INVERT: pin every column to its old box. Explicit heights resize the
-       column flow, which moves the boxes again - so translate is applied in a
-       second pass, once the browser has laid the pinned boxes out. */
+       column flow, which moves the boxes again - so the translate is computed in
+       a second pass, once the browser has laid the pinned boxes out. Every rect
+       is read before any transform is written; interleaving the two forces a
+       synchronous layout per column. */
     cols.forEach(col => {
       const f = firsts.get(col);
       col.style.transition = 'none';
@@ -127,38 +192,64 @@
       col.style.height = f.h + 'px';
     });
     void grid.offsetWidth;
+
+    const pins = [];
     cols.forEach(col => {
       const f = firsts.get(col);
       const r = col.getBoundingClientRect();
-      col.style.transform = `translate(${f.x - r.left}px, ${f.y - r.top}px)`;
+      pins.push([col, f.x - r.left, f.y - r.top]);
     });
+    pins.forEach(([col, dx, dy]) => { col.style.transform = `translate(${dx}px, ${dy}px)`; });
     void grid.offsetWidth;
 
-    /* PLAY: animate box + position to the destination, staggered by index. */
+    /* PLAY: animate box + position to the destination. A retarget drops the
+       stagger so a fast drag moves the whole grid as one block instead of
+       restarting a per-column cascade it is already halfway through. */
     cols.forEach((col, i) => {
       const t = targets.get(col);
-      const delay = (i % 12) * STAGGER;
+      const delay = (i % MORPH_STAGGER_SLOTS) * stagger;
       col.style.transition =
-        `width ${DUR}ms ${EASE} ${delay}ms, ` +
-        `height ${DUR}ms ${EASE} ${delay}ms, ` +
-        `transform ${DUR}ms ${EASE} ${delay}ms`;
+        `width ${dur}ms ${MORPH_EASE} ${delay}ms, ` +
+        `height ${dur}ms ${MORPH_EASE} ${delay}ms, ` +
+        `transform ${dur}ms ${MORPH_EASE} ${delay}ms`;
       col.style.width = t.w + 'px';
       col.style.height = t.h + 'px';
       col.style.transform = 'translate(0, 0)';
     });
 
-    /* Hand the columns back to the stylesheet once the transition has finished.
-       A newer run clears this timer before it can fire, so a cancelled morph
-       leaves the cleanup to the run that replaced it. */
-    goodies_morph_timer = setTimeout(() => {
+    /* Give the columns back to the stylesheet once this run is over. Every path
+       goes through the generation guard, so a superseded run can never wipe the
+       geometry of the run that replaced it. */
+    const settle = () => {
+      if (goodies_morph_gen !== gen) return;
+      goodies_morph_gen = 0;
+      clearTimeout(goodies_morph_timer);
       goodies_morph_timer = 0;
-      cols.forEach(col => {
-        col.style.transition = '';
-        col.style.transform = '';
-        col.style.width = '';
-        col.style.height = '';
-      });
-    }, DUR + STAGGER * 11 + 80);
+      window.removeEventListener('resize', settle);
+      goodies_morph_settle = null;
+      /* Sweep every column, not just this run's set. A filter can hide a column
+         mid-morph, and the next morph only captures the visible ones - so a
+         hidden one would keep a stale width, height and offset forever and
+         render wrong the moment the filter lets it back in. */
+      clearGoodiesMorphGeometry(allCols);
+    };
+
+    /* Cleanup runs off a timer, deliberately NOT off the transitions' own
+       `finished` promises. Those resolve as soon as the browser decides the
+       animation is over, which in a suspended, throttled or just-not-yet-painted
+       tab is immediately rather than at the declared duration - settling then
+       yanks the columns out from under a morph that is still meant to be on
+       screen, which is the stutter this whole path exists to avoid. The end of
+       the run is known exactly here: dur plus the last column's stagger delay,
+       plus a frame of slack. */
+    const lastDelay = stagger * Math.min(MORPH_STAGGER_SLOTS - 1, cols.length - 1);
+    goodies_morph_timer = setTimeout(settle, dur + lastDelay + 60);
+
+    /* A resize mid-morph leaves px-pinned boxes fighting a re-wrapped row. Land
+       the morph immediately rather than animating to numbers that no longer
+       match the layout. */
+    goodies_morph_settle = settle;
+    window.addEventListener('resize', settle);
   }
 
   function setupCollection() {
@@ -181,24 +272,9 @@
   function setupViewToggle() {
     const bar = document.querySelector('.view-toggle');
     if (!bar) return;
-    const pill = bar.querySelector('.t-tabs-pill');
-    const tabs = [...bar.querySelectorAll('.t-tab')];
     const grid = $('goodies-grid');
-    const active = () => tabs.find(t => t.getAttribute('aria-pressed') === 'true') || tabs[0];
-
-    function moveTo(tab, animate) {
-      if (!animate) {
-        const prev = pill.style.transition;
-        pill.style.transition = 'none';
-        pill.style.transform = `translateX(${tab.offsetLeft}px)`;
-        pill.style.width = `${tab.offsetWidth}px`;
-        void pill.offsetWidth;
-        pill.style.transition = prev;
-      } else {
-        pill.style.transform = `translateX(${tab.offsetLeft}px)`;
-        pill.style.width = `${tab.offsetWidth}px`;
-      }
-    }
+    if (!grid) return;
+    const tabs = [...bar.querySelectorAll('.t-tab')];
 
     function applyView(view, animate) {
       const isList = view === 'list';
@@ -212,33 +288,49 @@
       try { localStorage.setItem('goodie-view', view); } catch (err) {}
     }
 
-    tabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        tabs.forEach(t => t.setAttribute('aria-pressed', t === tab ? 'true' : 'false'));
-        moveTo(tab, true);
-        applyView(tab.dataset.view);
-      });
-    });
-
-    bar.addEventListener('keydown', event => {
-      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
-      const i = tabs.indexOf(active());
-      const next = tabs[(i + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length];
-      next.focus(); next.click(); event.preventDefault();
-    });
+    const active = () => tabs.find(t => t.getAttribute('aria-pressed') === 'true') || tabs[0];
 
     let saved = null;
     try { saved = localStorage.getItem('goodie-view'); } catch (err) {}
-    const initial = tabs.find(t => t.dataset.view === saved) || tabs[0];
-    tabs.forEach(t => t.setAttribute('aria-pressed', t === initial ? 'true' : 'false'));
+    const initialTab = tabs.find(t => t.dataset.view === saved) || tabs[0];
+    const initialIndex = Math.max(0, tabs.indexOf(initialTab));
+
     /* Restore the saved layout without animating - the morph should only run
        on an actual view change, not on first paint. */
-    applyView(initial.dataset.view, false);
-    requestAnimationFrame(() => moveTo(initial, false));
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(() => moveTo(active(), false));
+    tabs.forEach((t, i) => t.setAttribute('aria-pressed', i === initialIndex ? 'true' : 'false'));
+    applyView(initialTab.dataset.view, false);
+
+    /* Same draggable segmented engine as the projects list view switcher:
+       click, arrow keys, Home/End, flick momentum and a rubber-band drag,
+       living in the shared .t-tabs-pill markup. */
+    const segment = window.RubberSegment
+      ? window.RubberSegment.create({
+          track: bar,
+          pill: bar.querySelector('.t-tabs-pill'),
+          items: tabs,
+          inset: 3,
+          stretch: 100,
+          squash: 3,
+          speed: 1,
+          glide: 75,
+          draggable: true,
+          onChange: index => {
+            const tab = tabs[index];
+            if (!tab) return;
+            /* The engine owns the thumb, not the ARIA state - the active tab
+               highlight is CSS-driven off [aria-pressed], so move it here or a
+               drag would slide the pill and light up nothing. */
+            tabs.forEach((t, i) => t.setAttribute('aria-pressed', i === index ? 'true' : 'false'));
+            applyView(tab.dataset.view);
+          }
+        })
+      : null;
+
+    /* Jump the thumb to the restored slot with no animation. */
+    if (segment) segment.setValue(initialIndex);
+    if (segment && document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => segment.measure());
     }
-    window.addEventListener('resize', () => moveTo(active(), false));
 
     // Phones are always list view (the toggle is hidden there).
     const phone = window.matchMedia('(max-width: 576px)');

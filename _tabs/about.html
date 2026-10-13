@@ -908,8 +908,9 @@ order: 6
 </div>
 
 <script type="application/json" id="goodies-data">{{ site.data.goodies | jsonify }}</script>
-<script src="{{ '/assets/js/collection-grid.js' | relative_url }}" defer></script>
-<script src="{{ '/assets/js/goodies.js' | relative_url }}" defer></script>
+<script src="{{ '/assets/js/rubber-segment.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+<script src="{{ '/assets/js/collection-grid.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+<script src="{{ '/assets/js/goodies.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
 <script>
   /* Goodies FAQ accordion: CSS owns the height + chevron morph. */
   /* Single-open: opening one item closes the others. */

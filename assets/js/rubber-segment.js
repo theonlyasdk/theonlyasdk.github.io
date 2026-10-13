@@ -120,6 +120,12 @@
   var lastNow = 0;
   var instances = [];
 
+  /* True only between a pointerup and the click it synthesises. The browser
+     fires pointerup -> mouseup -> click in one input batch, so clearing it on a
+     macrotask is exactly "this click came from a tap", which is what stops the
+     keyboard click handler below from handling the same gesture twice. */
+  var pointerTap = false;
+
   function requestTick() {
     if (ticking) return;
     ticking = true;
@@ -535,6 +541,10 @@ function paint() {
       var d = drag;
       if (!d || e.pointerId !== d.id) return;
       releaseDrag();
+      pointerTap = true;
+      setTimeout(function () {
+        pointerTap = false;
+      }, 0);
       var x = localX(e);
       if (!d.live) {
         /* Always commit on tap, even for the current slot. The call sites use
@@ -641,6 +651,19 @@ function paint() {
         onPointerDown(e, i);
       });
       el.addEventListener('keydown', onKeyDown);
+      /* Keyboard activation. Enter/Space on a focused <button> fires click with
+         no pointer event at all, so a pointer-only engine would silently ignore
+         it. The arrow-key listener next to this one would still work, but Enter
+         would not, and a button that does nothing on Enter is a bug, not a
+         preference. Mirrors the tap branch of onPointerUp, including committing
+         the already-current slot: the call sites use onChange to reset their own
+         filter. */
+      el.addEventListener('click', function () {
+        if (pointerTap) return;
+        var from = committed;
+        commit(i);
+        travel(from, i);
+      });
     });
     track.addEventListener('pointermove', onPointerMove);
     track.addEventListener('pointerup', onPointerUp);
