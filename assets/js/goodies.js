@@ -47,6 +47,120 @@
     return card;
   }
 
+  /* Grid <-> list morph for the goodies cards, ported from
+     assets/js/projects-loader.js.
+
+     A translate-only FLIP is wrong here: a grid cell is ~300px wide and a list
+     row ~620px, so the cards also have to RESIZE. Scaling the card would stretch
+     the text, so this animates each column's real width and height alongside its
+     position - the text reflows as the box genuinely morphs from one shape into
+     the other.
+
+     Pending cleanup is held at module scope so an interrupted run can be
+     cancelled; otherwise its timer fires mid-way through the next run and wipes
+     the live animation's inline geometry. */
+  let goodies_morph_timer = 0;
+
+  function animateGoodiesLayoutChange(applyChange) {
+    const grid = $('goodies-grid');
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const cols = grid
+      ? [...grid.children].filter(el => el.classList.contains('col') && !el.classList.contains('d-none'))
+      : [];
+
+    /* Drop any previous run's pending cleanup before touching the DOM. */
+    if (goodies_morph_timer) {
+      clearTimeout(goodies_morph_timer);
+      goodies_morph_timer = 0;
+    }
+
+    if (reduce || !cols.length) {
+      applyChange();
+      return;
+    }
+
+    /* FIRST: the box each column occupies right now. getBoundingClientRect()
+       includes transforms and interpolated width, so an interrupted morph
+       captures where the column currently LOOKS - which is what makes the
+       interrupt seamless instead of a jump. Measure before cancelling, since
+       cancelling snaps the column back to its end state. Measure every column
+       before cancelling any: cancelling one box's width transition resizes its
+       row, which shifts every box below it. */
+    const firsts = new Map();
+    cols.forEach(col => {
+      const r = col.getBoundingClientRect();
+      firsts.set(col, { x: r.left, y: r.top, w: r.width, h: r.height });
+    });
+
+    /* Cancel the in-flight transitions and drop the inline geometry they were
+       driving, so the destination measurement below reads the new layout's
+       natural box instead of a stale pinned value. Nothing paints between here
+       and the invert, so the columns stay visually pinned throughout. */
+    cols.forEach(col => {
+      if (col.getAnimations) col.getAnimations().forEach(a => a.cancel());
+      col.style.transition = '';
+      col.style.width = '';
+      col.style.height = '';
+      col.style.transform = '';
+    });
+
+    applyChange();
+
+    /* Destination boxes, now measured against the real new layout. */
+    const targets = new Map();
+    cols.forEach(col => {
+      const r = col.getBoundingClientRect();
+      targets.set(col, { x: r.left, y: r.top, w: r.width, h: r.height });
+    });
+
+    const DUR = 420;
+    const EASE = 'cubic-bezier(0.32, 0.9, 0.24, 1)';
+    const STAGGER = 14;
+
+    /* INVERT: pin every column to its old box. Explicit heights resize the
+       column flow, which moves the boxes again - so translate is applied in a
+       second pass, once the browser has laid the pinned boxes out. */
+    cols.forEach(col => {
+      const f = firsts.get(col);
+      col.style.transition = 'none';
+      col.style.width = f.w + 'px';
+      col.style.height = f.h + 'px';
+    });
+    void grid.offsetWidth;
+    cols.forEach(col => {
+      const f = firsts.get(col);
+      const r = col.getBoundingClientRect();
+      col.style.transform = `translate(${f.x - r.left}px, ${f.y - r.top}px)`;
+    });
+    void grid.offsetWidth;
+
+    /* PLAY: animate box + position to the destination, staggered by index. */
+    cols.forEach((col, i) => {
+      const t = targets.get(col);
+      const delay = (i % 12) * STAGGER;
+      col.style.transition =
+        `width ${DUR}ms ${EASE} ${delay}ms, ` +
+        `height ${DUR}ms ${EASE} ${delay}ms, ` +
+        `transform ${DUR}ms ${EASE} ${delay}ms`;
+      col.style.width = t.w + 'px';
+      col.style.height = t.h + 'px';
+      col.style.transform = 'translate(0, 0)';
+    });
+
+    /* Hand the columns back to the stylesheet once the transition has finished.
+       A newer run clears this timer before it can fire, so a cancelled morph
+       leaves the cleanup to the run that replaced it. */
+    goodies_morph_timer = setTimeout(() => {
+      goodies_morph_timer = 0;
+      cols.forEach(col => {
+        col.style.transition = '';
+        col.style.transform = '';
+        col.style.width = '';
+        col.style.height = '';
+      });
+    }, DUR + STAGGER * 11 + 80);
+  }
+
   function setupCollection() {
     window.CollectionGrid({
       items: GOODIES,
@@ -86,8 +200,15 @@
       }
     }
 
-    function applyView(view) {
-      grid.classList.toggle('list-view', view === 'list');
+    function applyView(view, animate) {
+      const isList = view === 'list';
+      /* Already showing this view: re-running the morph would pin every column,
+         animate it to the box it is already in, and cancel any morph the user
+         had just interrupted. Do nothing instead. */
+      if (grid.classList.contains('list-view') === isList) return;
+      const change = () => grid.classList.toggle('list-view', isList);
+      if (animate === false) change();
+      else animateGoodiesLayoutChange(change);
       try { localStorage.setItem('goodie-view', view); } catch (err) {}
     }
 
@@ -110,7 +231,9 @@
     try { saved = localStorage.getItem('goodie-view'); } catch (err) {}
     const initial = tabs.find(t => t.dataset.view === saved) || tabs[0];
     tabs.forEach(t => t.setAttribute('aria-pressed', t === initial ? 'true' : 'false'));
-    applyView(initial.dataset.view);
+    /* Restore the saved layout without animating - the morph should only run
+       on an actual view change, not on first paint. */
+    applyView(initial.dataset.view, false);
     requestAnimationFrame(() => moveTo(initial, false));
     if (document.fonts && document.fonts.ready) {
       document.fonts.ready.then(() => moveTo(active(), false));
@@ -119,12 +242,18 @@
 
     // Phones are always list view (the toggle is hidden there).
     const phone = window.matchMedia('(max-width: 576px)');
-    const applyResponsive = () => {
-      grid.classList.toggle('list-view', phone.matches || active().dataset.view === 'list');
+    const applyResponsive = (animate) => {
+      const isList = phone.matches || active().dataset.view === 'list';
+      if (grid.classList.contains('list-view') === isList) return;
+      const change = () => grid.classList.toggle('list-view', isList);
+      if (animate === false) change();
+      else animateGoodiesLayoutChange(change);
     };
-    if (phone.addEventListener) phone.addEventListener('change', applyResponsive);
-    else if (phone.addListener) phone.addListener(applyResponsive);
-    applyResponsive();
+    /* Animate when the breakpoint is crossed with the page live, but not on the
+       initial call - that would morph the layout on first paint. */
+    if (phone.addEventListener) phone.addEventListener('change', () => applyResponsive(true));
+    else if (phone.addListener) phone.addListener(() => applyResponsive(true));
+    applyResponsive(false);
   }
 
   function setupFilterScroll() {

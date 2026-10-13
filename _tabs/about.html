@@ -204,6 +204,18 @@ order: 6
     width: 100%;
   }
 
+  /* Stack the list vertically instead of relying on the row's default wrapping.
+     The grid/list morph pins each column to its old width while the class flips;
+     under flex-wrap a pinned-back grid column is still narrow enough to sit two
+     per row, so the columns snap straight back into a grid and the FLIP has
+     nothing to move. In a column the width only affects the cross axis, so the
+     pinned boxes stay where the invert placed them. Same stacking, same gutters
+     - the wrapped rows it replaces were already one per line. */
+  #goodies-grid.list-view {
+    flex-direction: column;
+    flex-wrap: nowrap;
+  }
+
   #goodies-grid.list-view .goodie-card {
     display: grid;
     grid-template-columns: 210px 1fr;
