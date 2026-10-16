@@ -1,3 +1,10 @@
+# Each goodie renders one or two corner buttons on its card:
+#   Info    - always present; opens the `info` block below in a dialog
+#   Credits - only present when a `credits` block exists (third-party work)
+# `info.summary` falls back to `description` when omitted, and `controls`
+# and `tech` are optional blocks. Goodies with no `credits` block are the
+# ones built for this site, so their Info dialog also carries the author line.
+
 - name: Fluid simulation
   category: Simulations
   description: A gorgeous WebGL simulation of fluid dynamics, smoke, and particles in real-time.
@@ -17,27 +24,66 @@
   description: Explore complex patterns emerging from simple rules in a grid-based universe.
   image: /assets/img/goodies/cellular_automaton.png
   iframe_url: /goodies/cellular-automaton/index.html
+  info:
+    summary: A grid of cells that lives by a single rule. Every generation each cell counts its neighbours and decides whether to live, die or be born, and out of that one local rule come gliders, oscillators and structures that keep churning long after you stop drawing.
+    controls: Drag on the grid to seed cells, then step or play the simulation. The sidebar arrows cycle the rule set and the starting pattern, and the telemetry HUD reports generation, population and births/deaths.
+    tech:
+      - Canvas 2D
+      - Vanilla JS
 
 - name: Procedural terrain
   category: Demos
   description: Infinite procedural terrain generation with dynamic biomes and atmospheric horizon fog.
   image: /assets/img/goodies/procedural_terrain.png
   iframe_url: /goodies/procedural-terrain/index.html
+  info:
+    summary: A landscape built from noise rather than authored by hand. Biomes, ridgelines and horizon fog are all derived from the height field as you move, so there is no edge to reach and no two flights the same.
+    controls: Fly with the mouse and WASD in Free cam, or switch to Explore for a guided pass. The sidebar carries the quality presets, the frame-rate target and the post-processing switches such as SSAO and underwater fog.
+    tech:
+      - Three.js
+      - WebGL
+      - GLSL post-processing
 
 - name: Sorting visualizer
   category: Tools
   description: Watch sorting algorithms organize data in a beautiful visual performance.
   image: /assets/img/goodies/sorting_visualizer.png
   iframe_url: /goodies/sorting-visualizer/index.html
+  info:
+    summary: Sorting algorithms turned into a performance. Every comparison, swap and write is drawn as it happens, so the shape of an algorithm is legible long before the array comes back ordered.
+    controls: The sidebar arrows step through algorithms, starting patterns, projections and sound packs. Pick a palette from the swatches, then play, pause or restart the run.
+    tech:
+      - Canvas 2D
+      - Web Audio
 
 - name: Fractal viewer
   category: Experiments
   description: Dive deep into the infinite complexity of Mandelbrot and Julia sets.
   image: /assets/img/goodies/fractal_viewer.png
   iframe_url: /goodies/fractal-viewer/index.html
+  info:
+    summary: The Mandelbrot and Julia sets evaluated per pixel on the GPU, so every band of detail that appears as you zoom is computed on the spot rather than stored. Nothing is pre-rendered and the only ceiling is floating-point precision.
+    controls: Drag to pan and scroll to zoom. The sidebar holds the palette presets and a W/H plus Apply pair for rendering at a custom size.
+    tech:
+      - WebGL2
+      - GLSL fragment shaders
 
 - name: Terminal emulator
   category: Tools
   description: A retro-style command line interface running directly in your browser.
   image: /assets/img/goodies/terminal_emulator.png
   iframe_url: https://theonlyasdk.github.io/blockterm/
+  info:
+    summary: A retro-styled terminal that lives in the browser. It is hosted as its own project rather than bundled with the rest of the goodies, and loads here in the viewer or in a new tab when you want it fullscreen.
+
+- name: Motion studio
+  category: Simulations
+  description: An interactive Material 3 Expressive studio for simulating and tuning OS app launch and recents motion physics.
+  image: /assets/img/goodies/motion_studio.png
+  iframe_url: /goodies/motion-studio/index.html
+  info:
+    summary: A workbench for Material 3 Expressive motion. Tune a spring or a pair of cubic beziers and watch the curve drive a real app-launch and recents transition, so the numbers can be judged by eye instead of by feel.
+    controls: Switch between the Spring Solver and Dual Cubic-Bezier models, drag the parameter handles to shape the motion, then use Clear All to reset the canvas.
+    tech:
+      - Canvas 2D
+      - Vanilla JS

@@ -7,6 +7,20 @@
 
   const EMPTY_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/><path d="M8.5 8.5l5 5M13.5 8.5l-5 5"/></svg>';
 
+  /* One live MediaQueryList for the module. A snapshot boolean goes stale the
+     moment the user changes the OS setting; a per-call matchMedia() would
+     allocate on every keystroke, because render() runs on search input.
+
+     Every transition below is written as an INLINE style, and an inline
+     declaration beats any stylesheet rule that is not !important - including the
+     @media (prefers-reduced-motion: reduce) blocks the pages already ship for
+     .goodie-card and .pdesign-card. Those guards cannot see this code, so the
+     gate has to live here. It also could not live in that CSS: suppressing the
+     transition would leave the fade-out ghost sitting at full opacity on top of
+     the grid until its removal timer fires, which is a worse pop than the one
+     being removed. */
+  const REDUCE_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)');
+
   function CollectionGrid(options) {
     const $ = id => document.getElementById(id);
     const grid = $(options.gridId);
@@ -35,6 +49,10 @@
     }
 
     function render() {
+      // Let the page land any layout animation it owns before we measure.
+      if (options.beforeRender) options.beforeRender();
+
+      const reduce = REDUCE_MOTION.matches;
       const query = readQuery();
       const next = items.filter(item =>
         (!activeCategory || item.category === activeCategory) && matchesQuery(item, query));
@@ -93,6 +111,31 @@
         node.card.style.opacity = '1';
       });
 
+      // Reduced motion: the cards still have to appear and disappear, they just
+      // do not travel. Everything past this point - measuring every card,
+      // cloning a ghost, writing a transition, timing it out - exists only to
+      // make that change gradual, so stop here and let the class toggles do it.
+      //
+      // Deliberately placed AFTER the entrance reset above, which is the one
+      // part of this function that must still run: that loop is what pins
+      // opacity to 1 and keeps the cards visible.
+      if (reduce) {
+        itemNodes.forEach(node => {
+          const shouldBeVisible = currentList.includes(node.item);
+          if (shouldBeVisible) {
+            node.col.classList.add('d-flex');
+            node.col.classList.remove('d-none');
+          } else {
+            node.col.classList.remove('d-flex');
+            node.col.classList.add('d-none');
+          }
+          node.visible = shouldBeVisible;
+        });
+
+        emptyState.style.display = currentList.length ? 'none' : '';
+        return;
+      }
+
       // Record FIRST state (for currently visible elements)
       const firstRects = new Map();
       itemNodes.forEach(node => {
@@ -106,7 +149,14 @@
         const shouldBeVisible = currentList.includes(node.item);
         
         if (node.visible && !shouldBeVisible) {
-          // Ghost for fading out
+          /* The column is about to go display:none, which would pop the card out
+             of existence. Clone it into <body> at its exact page coordinates
+             first and fade the clone, so the card appears to leave rather than
+             blink.
+
+             <body> rather than the grid: the view-toggle morph enumerates
+             grid.children as columns, and a clone sitting in there would be
+             measured and pinned as if it were a real column. */
           const rect = firstRects.get(node);
           if (rect) {
             const ghost = node.card.cloneNode(true);
@@ -118,18 +168,40 @@
             ghost.style.height = rect.height + 'px';
             ghost.style.pointerEvents = 'none';
             ghost.style.zIndex = '100';
-            ghost.style.animation = 'none'; // Force kill CSS animations so they don't fight the fade out
-            ghost.style.transition = 'opacity 250ms cubic-bezier(0.22, 1, 0.36, 1)'; // No transform scale
-            
+
+            /* The clone carries .goodie-card, so it re-runs that class's entrance
+               animation from the start - which ends it at the animation's resting
+               state instead of at the fade we want. Kill it.
+
+               Opacity only, no scale: the ghost is pinned to the card's real
+               width, and scaling it would stretch the text for the whole fade. */
+            ghost.style.animation = 'none';
+            ghost.style.transition = 'opacity 250ms cubic-bezier(0.22, 1, 0.36, 1)';
+
+            /* cloneNode copies attributes, and the card is tabindex=0 role=button
+               with a click handler that did not come along. pointer-events:none
+               blocks the mouse but NOT the tab order, so without this the clone
+               is a focusable dead end - reachable by keyboard, announced by a
+               screen reader, and sitting outside the grid's aria-live region. */
+            ghost.setAttribute('aria-hidden', 'true');
+            ghost.tabIndex = -1;
+
             document.body.appendChild(ghost);
-            
-            // Trigger reflow
+
+            /* Commit the clone's starting opacity before asking for the fade.
+               Without this reflow the next write lands in the same style
+               recalculation, the transition has nothing to interpolate from, and
+               the card simply vanishes. */
             void ghost.offsetWidth;
-            
+
             requestAnimationFrame(() => {
               ghost.style.opacity = '0';
             });
-            
+
+            /* Removed on a timer longer than the transition, never on
+               transitionend: in a backgrounded or throttled tab the browser
+               considers the transition over immediately rather than at 250ms, and
+               deleting the clone then would pop it out mid-fade. */
             setTimeout(() => {
               if (ghost.parentNode) ghost.parentNode.removeChild(ghost);
             }, 300);
@@ -235,7 +307,7 @@
       // On phones, bring the search box to the top of the viewport on focus.
       search.addEventListener('focus', () => {
         if (!window.matchMedia('(max-width: 576px)').matches) return;
-        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const reduce = REDUCE_MOTION.matches;
         const box = search.closest('[role="search"]') || search;
         const bar = document.getElementById('topbar-wrapper');
         const offset = (bar ? bar.getBoundingClientRect().height : 0) + 8;

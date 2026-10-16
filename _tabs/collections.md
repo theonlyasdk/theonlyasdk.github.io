@@ -5,7 +5,7 @@ order: 5
 ---
 
 <style>
-  /* Show "Resources" heading in mobile view for resources page: big font, centered */
+  /* Show "Collections" heading in mobile view for collections page: big font, centered */
   @media all and (max-width: 849px) {
     h1.dynamic-title {
       display: block !important;
@@ -321,14 +321,14 @@ order: 5
     color: var(--text-muted-color);
     margin-bottom: 1.5rem;
   }
-  /* Segmented Resource Tabs */
-  .resource-tabs-wrapper {
+  /* Segmented Collection Tabs */
+  .collection-tabs-wrapper {
     display: flex;
     justify-content: center;
     width: 100%;
     margin: 1.75rem auto 1.5rem auto;
   }
-  .resource-tab-bar {
+  .collection-tab-bar {
     position: relative;
     display: inline-flex;
     align-items: center;
@@ -341,7 +341,7 @@ order: 5
     max-width: 100%;
     user-select: none;
   }
-  .resource-tab-pill {
+  .collection-tab-pill {
     position: absolute;
     top: 3px;
     bottom: 3px;
@@ -356,7 +356,7 @@ order: 5
     pointer-events: none;
     will-change: left, right;
   }
-  .resource-tab-btn {
+  .collection-tab-btn {
     position: relative;
     z-index: 1;
     display: inline-flex;
@@ -380,42 +380,42 @@ order: 5
     -webkit-tap-highlight-color: transparent;
     transform: none !important; /* Strictly no scale animation on text */
   }
-  .resource-tab-btn i {
+  .collection-tab-btn i {
     font-size: 0.9rem;
     color: inherit;
     opacity: 0.8;
     transition: color 0.22s ease, opacity 0.22s ease;
     transform: none !important; /* Strictly no scale animation on icons */
   }
-  .resource-tab-btn:hover {
+  .collection-tab-btn:hover {
     color: var(--text-color);
     opacity: 0.95;
   }
-  .resource-tab-btn:hover i {
+  .collection-tab-btn:hover i {
     opacity: 1;
   }
-  .resource-tab-btn[aria-selected="true"] {
+  .collection-tab-btn[aria-selected="true"] {
     color: var(--heading-color, var(--text-color));
     opacity: 1;
     font-weight: 600;
   }
-  .resource-tab-btn[aria-selected="true"] i {
+  .collection-tab-btn[aria-selected="true"] i {
     opacity: 1;
     color: var(--link-color);
     transform: none !important;
   }
-  .resource-tab-btn:focus-visible {
+  .collection-tab-btn:focus-visible {
     outline: 2px solid var(--link-color);
     outline-offset: 2px;
   }
   @media all and (max-width: 560px) {
-    .resource-tabs-wrapper {
+    .collection-tabs-wrapper {
       margin: 1.25rem 0 1.25rem 0;
     }
-    .resource-tab-bar {
+    .collection-tab-bar {
       width: 100%;
     }
-    .resource-tab-btn {
+    .collection-tab-btn {
       flex: 1 1 0;
       padding: 0.5rem 0.6rem;
       font-size: 0.85rem;
@@ -423,15 +423,15 @@ order: 5
     }
   }
 
-  /* Resource Tab Panels - CSS Grid Overlay (Zero layout jump) */
-  .resource-tab-panels {
+  /* Collection Tab Panels - CSS Grid Overlay (Zero layout jump) */
+  .collection-tab-panels {
     display: grid;
     grid-template-columns: 1fr;
     grid-template-rows: 1fr;
     width: 100%;
     position: relative;
   }
-  .resource-tab-panel {
+  .collection-tab-panel {
     grid-area: 1 / 1 / 2 / 2;
     display: none;
     opacity: 0;
@@ -443,41 +443,41 @@ order: 5
       filter 0.28s cubic-bezier(0.22, 1, 0.36, 1);
     will-change: opacity, transform, filter;
   }
-  .resource-tab-panel.is-active {
+  .collection-tab-panel.is-active {
     display: block;
     opacity: 1;
     transform: translateX(0);
     filter: blur(0);
   }
-  .resource-tab-panel.is-entering-right {
+  .collection-tab-panel.is-entering-right {
     display: block;
     opacity: 0;
     transform: translateX(6px);
     filter: blur(2px);
   }
-  .resource-tab-panel.is-entering-left {
+  .collection-tab-panel.is-entering-left {
     display: block;
     opacity: 0;
     transform: translateX(-6px);
     filter: blur(2px);
   }
-  .resource-tab-panel.is-exiting-left {
+  .collection-tab-panel.is-exiting-left {
     display: block;
     opacity: 0;
     transform: translateX(-6px);
     filter: blur(2px);
   }
-  .resource-tab-panel.is-exiting-right {
+  .collection-tab-panel.is-exiting-right {
     display: block;
     opacity: 0;
     transform: translateX(6px);
     filter: blur(2px);
   }
   @media (prefers-reduced-motion: reduce) {
-    .resource-tab-pill,
-    .resource-tab-panel,
-    .resource-tab-btn,
-    .resource-tab-btn i {
+    .collection-tab-pill,
+    .collection-tab-panel,
+    .collection-tab-btn,
+    .collection-tab-btn i {
       transition: none !important;
       transform: none !important;
       filter: none !important;
@@ -485,7 +485,7 @@ order: 5
   }
 </style>
 
-<marquee class="fading-marquee" behavior="scroll" direction="left" scrollamount="6"><span class="star-edge">★</span> Welcome to my Resources page ★ Cheatsheets, tutorials and curated collections ★ New links added regularly ★ Don't forget to sign the guestbook <span class="star-edge">★</span></marquee>
+<marquee class="fading-marquee" behavior="scroll" direction="left" scrollamount="6"><span class="star-edge">★</span> Welcome to my Collections page ★ Cheatsheets, tutorials and curated collections ★ New links added regularly ★ Don't forget to sign the guestbook <span class="star-edge">★</span></marquee>
 
 <p class="text-center">
   <span class="post-tag">printer-friendly</span>
@@ -493,21 +493,21 @@ order: 5
   <span class="post-tag">bookmark-worthy</span>
 </p>
 
-<p class="text-center">Page updated <em>{{ 'now' | date: '%B %d, %Y' }}</em>. You've visited this page <strong id="resources-visits-count"><span id="resources-visits">1</span> time</strong> from this browser.</p>
+<p class="text-center">Page updated <em>{{ 'now' | date: '%B %d, %Y' }}</em>. You've visited this page <strong id="collections-visits-count"><span id="collections-visits">1</span> time</strong> from this browser.</p>
 
 <script>
   /* Not a global hit counter. Counts only this browser's visits to the
-     Resources page, kept in localStorage so the number stays honest. */
+     Collections page, kept in localStorage so the number stays honest. */
   (function () {
-    var el = document.getElementById('resources-visits');
-    var countEl = document.getElementById('resources-visits-count');
+    var el = document.getElementById('collections-visits');
+    var countEl = document.getElementById('collections-visits-count');
     if (!el) return;
     try {
-      var n = parseInt(localStorage.getItem('resources-visits') || '0', 10) + 1;
-      localStorage.setItem('resources-visits', String(n));
+      var n = parseInt(localStorage.getItem('collections-visits') || '0', 10) + 1;
+      localStorage.setItem('collections-visits', String(n));
       el.textContent = n;
       if (countEl) {
-        countEl.innerHTML = '<span id="resources-visits">' + n + '</span> ' + (n === 1 ? 'time' : 'times');
+        countEl.innerHTML = '<span id="collections-visits">' + n + '</span> ' + (n === 1 ? 'time' : 'times');
       }
     } catch (e) {
       el.textContent = '1';
@@ -515,23 +515,23 @@ order: 5
   })();
 </script>
 
-<div class="resource-tabs-wrapper">
-  <div class="resource-tab-bar" role="tablist" aria-label="Resource categories">
-    <span class="resource-tab-pill" aria-hidden="true"></span>
-    <button type="button" class="resource-tab-btn" role="tab" id="tab-my-resources" aria-selected="true" aria-controls="tabpanel-my-resources" data-tab="my-resources" tabindex="0">
+<div class="collection-tabs-wrapper">
+  <div class="collection-tab-bar" role="tablist" aria-label="Collection categories">
+    <span class="collection-tab-pill" aria-hidden="true"></span>
+    <button type="button" class="collection-tab-btn" role="tab" id="tab-my-collections" aria-selected="true" aria-controls="tabpanel-my-collections" data-tab="my-collections" tabindex="0">
       <i class="fa-solid fa-folder-open"></i>
-      <span>My Resources</span>
+      <span>My Collections</span>
     </button>
-    <button type="button" class="resource-tab-btn" role="tab" id="tab-other-resources" aria-selected="false" aria-controls="tabpanel-other-resources" data-tab="other-resources" tabindex="-1">
+    <button type="button" class="collection-tab-btn" role="tab" id="tab-other-collections" aria-selected="false" aria-controls="tabpanel-other-collections" data-tab="other-collections" tabindex="-1">
       <i class="fa-solid fa-compass"></i>
-      <span>Other Cool Resources</span>
+      <span>Other Cool Collections</span>
     </button>
   </div>
 </div>
 
-<div class="resource-tab-panels">
+<div class="collection-tab-panels">
 
-<div id="tabpanel-my-resources" class="resource-tab-panel is-active" role="tabpanel" aria-labelledby="tab-my-resources" markdown="1">
+<div id="tabpanel-my-collections" class="collection-tab-panel is-active" role="tabpanel" aria-labelledby="tab-my-collections" markdown="1">
 
 > Pardon our dust — the Tutorials wing is still under construction!
 {: .prompt-warning }
@@ -540,7 +540,7 @@ order: 5
 
 Short, print-friendly references for the desk or the workshop wall.
 
-- 🖨 **[Printable Page Templates](/resources/page-designs/)** — Solid fills, bordered pages, assignment trackers, PAL test chart - print-ready PDF downloads!<span class="post-tag shake-new">NEW!</span>
+- 🖨 **[Printable Page Templates](/collections/page-designs/)** — Solid fills, bordered pages, assignment trackers, PAL test chart - print-ready PDF downloads!<span class="post-tag shake-new">NEW!</span>
 - ★ <span class="text-muted">**Linux Command Cheatsheet**</span> <span class="post-tag">Coming Soon</span> — the 20% of commands that cover 80% of terminal work.
 - ★ <span class="text-muted">**Git Survival Sheet**</span> <span class="post-tag">Coming Soon</span> — init to rebase, plus how to undo almost anything.
 - ★ <span class="text-muted">**Regex Quick Reference**</span> <span class="post-tag">Coming Soon</span> — character classes, quantifiers and lookarounds on one page.
@@ -559,7 +559,7 @@ Longer guides worth working through end to end.
 
 </div>
 
-<div id="tabpanel-other-resources" class="resource-tab-panel" role="tabpanel" aria-labelledby="tab-other-resources" hidden markdown="1">
+<div id="tabpanel-other-collections" class="collection-tab-panel" role="tabpanel" aria-labelledby="tab-other-collections" hidden markdown="1">
 
 ## ✦ Curated Collections
 
@@ -584,18 +584,18 @@ Bookmark-grade utilities and lookup pages.
    and must find window.RubberSegment already defined. {% endcomment %}
 <script src="{{ '/assets/js/rubber-segment.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>
 <script>
-  /* Resource Tabs Orchestration */
+  /* Collection Tabs Orchestration */
   (function () {
-    var bar = document.querySelector('.resource-tab-bar');
+    var bar = document.querySelector('.collection-tab-bar');
     if (!bar) return;
-    var pill = bar.querySelector('.resource-tab-pill');
-    var tabs = Array.prototype.slice.call(bar.querySelectorAll('.resource-tab-btn'));
+    var pill = bar.querySelector('.collection-tab-pill');
+    var tabs = Array.prototype.slice.call(bar.querySelectorAll('.collection-tab-btn'));
     var panels = {
-      'my-resources': document.getElementById('tabpanel-my-resources'),
-      'other-resources': document.getElementById('tabpanel-other-resources')
+      'my-collections': document.getElementById('tabpanel-my-collections'),
+      'other-collections': document.getElementById('tabpanel-other-collections')
     };
 
-    var currentTabId = 'my-resources';
+    var currentTabId = 'my-collections';
     var switchTimer = null;
 
     /* Pill motion is delegated to the shared RubberSegment engine (dilate ->
@@ -656,17 +656,17 @@ Bookmark-grade utilities and lookup pages.
       if (!fromSegment && segment) segment.animateTo(newIndex);
 
       try {
-        localStorage.setItem('resources-active-tab', newTabId);
+        localStorage.setItem('collections-active-tab', newTabId);
       } catch (e) {}
 
       if (!animate || !oldPanel || !newPanel) {
         if (oldPanel) {
-          oldPanel.className = 'resource-tab-panel';
+          oldPanel.className = 'collection-tab-panel';
           oldPanel.hidden = true;
           oldPanel.style.display = 'none';
         }
         if (newPanel) {
-          newPanel.className = 'resource-tab-panel is-active';
+          newPanel.className = 'collection-tab-panel is-active';
           newPanel.hidden = false;
           newPanel.style.display = 'block';
         }
@@ -674,20 +674,20 @@ Bookmark-grade utilities and lookup pages.
       }
 
       /* Both panels occupy grid-area: 1/1 during transition — ZERO vertical pushing or layout jumping */
-      oldPanel.className = 'resource-tab-panel ' + (movingRight ? 'is-exiting-left' : 'is-exiting-right');
+      oldPanel.className = 'collection-tab-panel ' + (movingRight ? 'is-exiting-left' : 'is-exiting-right');
 
       newPanel.hidden = false;
       newPanel.style.display = 'block';
-      newPanel.className = 'resource-tab-panel ' + (movingRight ? 'is-entering-right' : 'is-entering-left');
+      newPanel.className = 'collection-tab-panel ' + (movingRight ? 'is-entering-right' : 'is-entering-left');
       void newPanel.offsetWidth; /* Force reflow before transition */
 
       requestAnimationFrame(function () {
-        newPanel.className = 'resource-tab-panel is-active';
+        newPanel.className = 'collection-tab-panel is-active';
       });
 
       switchTimer = setTimeout(function () {
         if (oldPanel && currentTabId !== oldTabId) {
-          oldPanel.className = 'resource-tab-panel';
+          oldPanel.className = 'collection-tab-panel';
           oldPanel.hidden = true;
           oldPanel.style.display = 'none';
         }
@@ -700,15 +700,15 @@ Bookmark-grade utilities and lookup pages.
        the pill twice and fire switchTab twice per interaction. */
 
     /* Read initial tab from URL hash or localStorage */
-    var initialTab = 'my-resources';
+    var initialTab = 'my-collections';
     var hash = window.location.hash.replace('#', '');
-    if (hash === 'other-resources' || hash === 'other-cool-resources') {
-      initialTab = 'other-resources';
-    } else if (hash === 'my-resources') {
-      initialTab = 'my-resources';
+    if (hash === 'other-collections') {
+      initialTab = 'other-collections';
+    } else if (hash === 'my-collections') {
+      initialTab = 'my-collections';
     } else {
       try {
-        var saved = localStorage.getItem('resources-active-tab');
+        var saved = localStorage.getItem('collections-active-tab');
         if (saved && panels[saved]) initialTab = saved;
       } catch (e) {}
     }

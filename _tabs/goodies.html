@@ -1,0 +1,1227 @@
+---
+# the default layout is 'page'
+icon: fas fa-gamepad
+order: 6
+---
+
+<style>
+  /* Project Cards Style applied to Goodies */
+  .goodie-card {
+    background-color: var(--card-bg);
+    border-radius: 10px;
+    /* Containing block for the morph's is-layout-from copy, which fills the card
+       exactly so the two are never different boxes. */
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    padding: 0 0 1.5rem 0; /* Adjusted padding to accommodate image */
+    width: 100%;
+    height: 100%;
+    margin-bottom: 0;
+    box-shadow: var(--card-shadow);
+    border: 0;
+    opacity: 0;
+    overflow: hidden;
+    animation: slideIn 1.5s var(--spring-ease, ease-out) var(--anim-delay, 0s) forwards;
+    cursor: pointer;
+    transition: transform 0.3s var(--spring-ease, ease-out), box-shadow 0.3s ease;
+  }
+
+  .goodie-card h5 {
+    padding: 0 2rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.4rem;
+    font-weight: light;
+    font-size: 2rem;
+    transition: opacity 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .goodie-card p {
+    padding: 0 2rem;
+    margin-bottom: 0;
+    line-height: 1.4;
+    flex-grow: 1;
+    transition: opacity 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* The card's own internal layout cannot be animated between the two views:
+     `display` flips flex <-> grid and the text changes grid column, and neither
+     property interpolates - the browser swaps them in a single frame. So the
+     layout is cross-dissolved instead: a copy of the card as it looked BEFORE the
+     swap is laid over the live one and faded out across the morph. The class is
+     set and removed by animateGoodiesLayoutChange in assets/js/goodies.js.
+
+     Two layers, not one. A single element can only dim to nothing and come back,
+     and there is a stretch in the middle where neither layout is on screen - no
+     easing hides that, which is why the dim-and-return attempts read as a blink.
+     With a copy on top the composite is opaque for the whole run, and the live
+     contents are never hidden at all; they are revealed as the copy above them
+     dissolves.
+
+     The copy is a CHILD OF THE CARD, and that is the important part. The column
+     is what carries the scale, so a copy inside it is squashed by exactly the
+     same matrix as the live card, which makes the two the same box in the same
+     place at every instant of the morph. Nothing can land outside the card, and
+     `overflow: hidden` above guarantees it besides. Parked at absolute page
+     coordinates instead, the copy drifts away from a card that is changing size
+     under it and spills across its neighbours.
+
+     The copy has to stay frozen in the layout it came from, which is why the
+     .list-view rules further down carry `:not(.is-layout-from)`. That class flips
+     on the grid in the same frame, and without the exclusion it would restyle the
+     copy too and leave nothing to dissolve from. The mirror case - a copy taken
+     while the grid WAS in list view - is restated in .is-layout-from-list below. */
+  /* Width, height, transform, opacity and filter are all written by buildMorphFrom
+     and captureMorphFrom in assets/js/goodies.js: the copy is laid out at the size
+     the card used to be, scaled to the size it is going to be, and dissolved out
+     of focus. The first three are fixed for the run, so only the last two animate. */
+  .goodie-card.is-layout-from {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    /* The scale must anchor on the card's top-left, which is where the column's
+       own transform is anchored too - otherwise the two disagree by the offset
+       between their origins and the copy slides out of the card as it scales. */
+    transform-origin: 0 0;
+    pointer-events: none;
+    /* The copy is the OLD card's box, and the card's own box does not quite match
+       it. The column's gutters are a fixed 12px, but the FLIP scales the whole
+       column, gutters included, so the card lands a little wider or narrower than
+       it used to be and leaves a sliver down one edge showing the new layout at
+       full opacity. A spread shadow in the card's own colour paints over it - and
+       because it is drawn at the copy's opacity, it uncovers it again as the
+       dissolve runs. The card's `overflow: hidden` confines it to the card. */
+    box-shadow: 0 0 0 40px var(--card-bg);
+    /* The base .goodie-card rule is `opacity: 0` and leans on slideIn's fill to
+       bring it up. The copy cancels that animation, so without this it sits at
+       zero and never shows at all - the fade below then has nothing to fade.
+       JS reads this same value as the start of the dissolve. */
+    animation: none;
+    opacity: 1;
+    /* filter is in the promotion list because blur is not a compositor-only
+       effect: without it the browser re-decides how to handle the layer every
+       frame of the run, and the blur is the expensive half of what animates. */
+    will-change: opacity, filter;
+    backface-visibility: hidden;
+  }
+
+  /* Mirrors the #goodies-grid.list-view block further down, for a copy captured
+     while the grid was in list view. That block is excluded from the copy, so
+     this is the only thing giving it the list layout. Kept in step with it by
+     hand: if the list layout changes, both have to change. */
+  .goodie-card.is-layout-from.is-layout-from-list {
+    display: grid;
+    grid-template-columns: 210px 1fr;
+    padding-bottom: 0;
+  }
+
+  .goodie-card.is-layout-from.is-layout-from-list .card-cover {
+    grid-row: 1 / span 2;
+    height: 100%;
+    min-height: 150px;
+  }
+
+  .goodie-card.is-layout-from.is-layout-from-list .card-cover::after {
+    left: auto;
+    right: 0;
+    top: 0;
+    bottom: auto;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to right, transparent, var(--card-bg));
+  }
+
+  .goodie-card.is-layout-from.is-layout-from-list h5 {
+    margin-top: 0;
+    padding-top: 1.25rem;
+    align-self: end;
+  }
+
+  .goodie-card.is-layout-from.is-layout-from-list p {
+    padding-bottom: 1.25rem;
+    align-self: start;
+  }
+
+  .goodie-card:active {
+    filter: brightness(90%);
+  }
+
+  .goodie-image-fallback {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    text-align: center;
+    color: var(--text-muted-color);
+    background: var(--main-bg);
+  }
+
+  .goodie-search {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background-color: var(--card-bg);
+    border: 1px solid var(--sidebar-border-color);
+    border-radius: 0.75rem;
+    padding: 0.55rem 0.9rem;
+    margin-top: 2rem;
+    box-shadow: var(--card-shadow);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .goodie-search:focus-within {
+    border-color: var(--link-color);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--link-color) 25%, transparent);
+  }
+
+  .goodie-search svg {
+    flex-shrink: 0;
+    width: 1rem;
+    height: 1rem;
+    color: var(--text-muted-color);
+  }
+
+  .goodie-search input {
+    flex: 1;
+    min-width: 0;
+    background: none;
+    border: 0;
+    outline: none;
+    color: var(--text-color);
+    font-size: 0.95rem;
+  }
+
+  .goodie-search input::placeholder {
+    color: var(--text-muted-color);
+  }
+
+  .goodie-search input[type="search"]::-webkit-search-cancel-button {
+    display: none;
+  }
+
+  .goodie-search-clear {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.4rem;
+    height: 1.4rem;
+    border-radius: 999px;
+    border: 0;
+    background: var(--btn-border-color);
+    color: var(--text-muted-color);
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 0 0.1rem;
+  }
+
+  .goodie-search-clear:hover {
+    color: var(--text-color);
+  }
+
+  .goodie-search-clear:focus-visible {
+    outline: 3px solid var(--link-color);
+    outline-offset: 2px;
+  }
+
+  .goodie-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.9rem;
+  }
+
+  #goodies-grid {
+    margin-top: 0.5rem;
+  }
+
+  .goodie-empty-col {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .goodie-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 38vh;
+    padding: 2.5rem 1rem;
+    color: var(--text-muted-color);
+  }
+
+  .goodie-empty svg {
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-bottom: 0.75rem;
+    opacity: 0.6;
+    transform-origin: center;
+    animation: goodie-empty-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  @keyframes goodie-empty-pop {
+    0% { transform: scale(0.3); }
+    55% { transform: scale(1.2); }
+    75% { transform: scale(0.95); }
+    100% { transform: scale(1); }
+  }
+
+  .goodie-empty p {
+    margin-bottom: 0.25rem;
+    max-width: 26rem;
+  }
+
+  /* Goodies grid/list split button (transitions-dev #16 sliding tabs) */
+  .goodie-toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.9rem;
+  }
+
+  .goodie-toolbar .goodie-filter {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin-top: 0;
+  }
+
+  /* The morph rescales each column, so the corner it scales about has to be
+     pinned to the top-left. With the default 50% 50% origin the scale would
+     grow the box out of its own centre and the translate would no longer land it
+     on the source box. assets/js/goodies.js relies on this. */
+  #goodies-grid > .col {
+    transform-origin: 0 0;
+  }
+
+  /* Promote the columns for the length of the morph only. Leaving will-change on
+     permanently would pin six composited layers for the life of the page. */
+  #goodies-grid.is-layout-morphing > .col {
+    will-change: transform;
+    backface-visibility: hidden;
+  }
+
+  /* List view: full-width rows with horizontal cards */
+  #goodies-grid.list-view > * {
+    width: 100%;
+  }
+
+  /* Stack the list vertically instead of relying on the row's default wrapping.
+     The grid/list morph pins each column to its old width while the class flips;
+     under flex-wrap a pinned-back grid column is still narrow enough to sit two
+     per row, so the columns snap straight back into a grid and the FLIP has
+     nothing to move. In a column the width only affects the cross axis, so the
+     pinned boxes stay where the invert placed them. Same stacking, same gutters
+     - the wrapped rows it replaces were already one per line. */
+  #goodies-grid.list-view {
+    flex-direction: column;
+    flex-wrap: nowrap;
+  }
+
+  /* `:not(.is-layout-from)` plus a child combinator keeps the morph's frozen copy
+     out of this block. The copy has to render in the layout it was captured from,
+     and this class flips on the grid while that copy is on screen - without the
+     exclusion the copy would be restyled along with everything else and there
+     would be nothing to dissolve from.
+
+     The `>` matters as much as the `:not()`: the copy is a CHILD of the live card,
+     so a descendant selector here would reach straight through it and restyle the
+     copy's own cover and text as well as the card's. The card's three direct
+     children are the only things these rules are about. */
+  #goodies-grid.list-view .goodie-card:not(.is-layout-from) {
+    display: grid;
+    grid-template-columns: 210px 1fr;
+    padding-bottom: 0;
+  }
+
+  #goodies-grid.list-view .goodie-card:not(.is-layout-from) > .card-cover {
+    grid-row: 1 / span 2;
+    height: 100%;
+    min-height: 150px;
+  }
+
+  #goodies-grid.list-view .goodie-card:not(.is-layout-from) > .card-cover::after {
+    left: auto;
+    right: 0;
+    top: 0;
+    /* Cleared from the base rule: with `top: 0` and `height: 100%` both set,
+       a leftover `bottom: 0` over-constrains the box. LTR happens to ignore it
+       today, so this is robustness rather than a visible fix. */
+    bottom: auto;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to right, transparent, var(--card-bg));
+  }
+
+  #goodies-grid.list-view .goodie-card:not(.is-layout-from) > h5 {
+    margin-top: 0;
+    padding-top: 1.25rem;
+    align-self: end;
+  }
+
+  #goodies-grid.list-view .goodie-card:not(.is-layout-from) > p {
+    padding-bottom: 1.25rem;
+    align-self: start;
+  }
+
+  @media (max-width: 576px) {
+    #goodies-grid.list-view .goodie-card:not(.is-layout-from) {
+      grid-template-columns: 1fr;
+    }
+
+    #goodies-grid.list-view .goodie-card:not(.is-layout-from) > .card-cover {
+      grid-row: auto;
+      height: 160px;
+      min-height: 0;
+    }
+
+    #goodies-grid.list-view .goodie-card:not(.is-layout-from) > .card-cover::after {
+      left: 0;
+      right: auto;
+      top: auto;
+      bottom: 0;
+      width: 100%;
+      height: 60%;
+      background: linear-gradient(to bottom, transparent, var(--card-bg));
+    }
+
+    /* Phone is always list view: hide the toggle … */
+    .view-toggle {
+      display: none;
+    }
+
+    .goodie-toolbar .goodie-filter {
+      flex: 1 1 100%;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding: 0.25rem 0.25rem 0.35rem;
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 20px, #000 calc(100% - 20px), transparent);
+      mask-image: linear-gradient(to right, transparent, #000 20px, #000 calc(100% - 20px), transparent);
+    }
+
+    .goodie-toolbar .goodie-filter::-webkit-scrollbar {
+      display: none;
+    }
+
+    .goodie-toolbar .goodie-filter:not(.can-scroll-left) {
+      -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 20px), transparent);
+      mask-image: linear-gradient(to right, #000 calc(100% - 20px), transparent);
+    }
+
+    .goodie-toolbar .goodie-filter:not(.can-scroll-right) {
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 20px);
+      mask-image: linear-gradient(to right, transparent, #000 20px);
+    }
+
+    .goodie-toolbar .goodie-filter:not(.can-scroll-left):not(.can-scroll-right) {
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+
+    .goodie-toolbar .goodie-filter .goodie-filter-btn {
+      flex-shrink: 0;
+    }
+  }
+
+  .goodie-filter button:focus-visible,
+  .goodie-card:focus-visible,
+  .goodie-demo-link:focus-visible {
+    outline: 3px solid var(--link-color);
+    outline-offset: 3px;
+  }
+
+  .goodie-filter-btn {
+    background-color: var(--card-bg);
+    border-radius: 0.5em;
+    padding: 0.2em 0.7em;
+    border-color: var(--btn-border-color);
+    box-shadow: var(--filter-btn-shadow);
+    color: var(--text-color);
+    user-select: none;
+    /* Named properties, not `all`: an unqualified transition also picks up any
+       layout property a future rule happens to set here, which would relayout the
+       filter row on hover. This is the only thing the button animates. */
+    transition: background-color 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    outline: none;
+    border: none;
+  }
+
+  .goodie-filter-btn:hover,
+  .goodie-filter-btn:active,
+  .goodie-filter-btn.active {
+    background: var(--card-bg-active);
+    box-shadow: var(--filter-btn-shadow-active);
+  }
+
+  .goodie-demo-link {
+    align-self: flex-start;
+    margin: 1rem 2rem 0;
+  }
+
+  .goodie-modal-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .goodie-modal-demo-link {
+    white-space: nowrap;
+  }
+
+  .goodie-error-link {
+    margin-top: 0.75rem;
+    color: var(--link-color);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.95rem;
+    display: inline-block;
+    transition: opacity 0.15s ease;
+  }
+
+  .goodie-error-link:hover {
+    color: var(--link-color);
+    opacity: 0.8;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .goodie-card,
+    .custom-modal-content,
+    .custom-modal-overlay,
+    .modal-iframe,
+    .goodie-empty svg {
+      animation: none;
+      transition: none;
+    }
+
+    .goodie-card {
+      opacity: 1;
+    }
+
+    /* Listed individually because none of them is .goodie-card: the scrim is a
+       pseudo-element, the text is on the headings, and the two controls move on
+       their own. Under reduced motion the morph snaps, so no is-layout-from copy
+       is ever taken and there is nothing to list for it here. */
+    .card-cover,
+    .card-cover::after,
+    .goodie-card h5,
+    .goodie-card p,
+    .goodie-action-btn,
+    .goodie-action-text,
+    .goodie-filter-btn {
+      animation: none;
+      transition: none;
+    }
+
+    .goodie-spinner {
+      display: none !important;
+    }
+  }
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: scale(1.05);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .card-cover {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+    margin: 0; /* flush to card edges */
+    flex-shrink: 0;
+    /* The fade back IN after the crossfade. Matches MORPH_CROSSFADE_IN in
+       assets/js/goodies.js. */
+    transition: opacity 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* The scrim cross-fades across the layout swap rather than transitioning its
+     geometry. Its direction genuinely does change (bottom fade in grid, side fade
+     in list) and that flip is discrete, but the cover box underneath is already
+     being scaled by the column morph, so the scrim only has to get out of the way
+     for those few frames - see the is-layout-morphing rule further down.
+     Animating its left/right/top/width/height instead would relayout the card on
+     every frame of the morph, which is exactly what the scale-based column FLIP
+     in assets/js/goodies.js exists to avoid. Opacity is compositor-only. */
+  .card-cover::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60%;
+    background: linear-gradient(to bottom, transparent, var(--card-bg));
+    pointer-events: none;
+    /* The fade back IN. Matches MORPH_CROSSFADE_IN in assets/js/goodies.js. */
+    transition: opacity 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .card-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transform: scale(1.2);
+  }
+
+  /* Custom Modal System */
+  .custom-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 9999;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.25s ease-out;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .custom-modal-overlay.active {
+    display: flex;
+    opacity: 1;
+  }
+
+  .custom-modal-overlay.closing {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  @keyframes modalZoomIn {
+    from {
+      opacity: 0;
+      transform: scale(0.85);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes modalFadeOut {
+    from {
+      opacity: 1;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(0.92);
+    }
+  }
+
+  .custom-modal-content {
+    background: var(--main-bg);
+    width: 95%;
+    height: 95%;
+    max-width: 1200px;
+    border-radius: 20px;
+    position: relative;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    /* zoom-in plays when the overlay becomes .active. Ease-out, to match the
+       ease-out fade-out below it - the pair should decelerate into each other.
+       This was an overshoot curve (y peaks past 1), which is spring-shaped and
+       made the modal bounce once on open. */
+    animation: modalZoomIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .custom-modal-overlay.closing .custom-modal-content {
+    animation: modalFadeOut 0.25s ease-out both;
+  }
+
+  @media (max-width: 768px) {
+    .custom-modal-content {
+      width: 100%;
+      height: 100%;
+      border-radius: 0;
+      max-width: none;
+    }
+  }
+
+  .custom-modal-header {
+    padding: 0.5rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--sidebar-border-color);
+  }
+
+  .modal-close-btn {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: var(--text-color);
+    cursor: pointer;
+    line-height: 1;
+    transition: opacity 0.2s;
+  }
+
+  .modal-close-btn:hover {
+    opacity: 0.6;
+  }
+
+  .custom-modal-body {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .modal-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+
+  .modal-placeholder {
+    text-align: center;
+  }
+
+  /* Goodie corner buttons: two variants of one control.
+
+     Info and Credits are the same pill - same size, same reveal, same icon
+     slot, same hover accent - so every rule below is shared and they differ
+     only in icon, label, and hover width ("Info" and "Credits" are different
+     lengths). Info sits on every card because it carries the description;
+     Credits is added only when the goodie has an attribution to show. */
+  .goodie-actions {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.4rem;
+    /* The wrapper exists only to stack the pills in the corner and must not
+       take the pointer itself, or the strip of cover between and around the
+       buttons would stop opening the goodie. The pills re-arm it below. */
+    pointer-events: none;
+  }
+
+  .goodie-action-btn {
+    pointer-events: auto;
+    height: 2.1rem;
+    width: 2.2rem;
+    border-radius: 999px;
+    background: var(--card-bg-active);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--sidebar-border-color);
+    color: var(--text-color);
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0;
+    overflow: hidden;
+    cursor: pointer;
+    /* `width` is the wrong property in general - it relayouts on every frame - but
+     this button is position:absolute inside the clipped cover, so nothing
+     reflows with it and the cost is contained to the one element being hovered.
+     What did need fixing was the curve: cubic-bezier(0.4, 0, 0.2, 1) is
+     symmetric ease-in-out, so the pill crept open and then crept shut. A reveal
+     decelerates into its open state. */
+    transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.2s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.2s cubic-bezier(0.22, 1, 0.36, 1), color 0.2s cubic-bezier(0.22, 1, 0.36, 1), filter 0.1s ease, transform 0.1s ease;
+  }
+
+  /* The wrapper keeps the collapsed pill's exact footprint and centres the
+     glyph inside it, so the icon can be resized without the pill changing
+     shape or the reveal landing anywhere different. */
+  .goodie-action-icon {
+    flex-shrink: 0;
+    /* The COLLAPSED pill's content box, not its border box: themed at the outer
+       2.2rem the 1px border would push the glyph 1px right of centre. Matching
+       the content box also lands the label exactly at the clipped edge, so the
+       reveal starts from flush. */
+    width: calc(2.2rem - 2px);
+    height: 2.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Sized here, not on the svg: a viewBox plus a CSS width stretches the glyph
+     to fill its box, so the drawn size is whatever this box is. */
+  .goodie-action-icon svg {
+    display: block;
+    width: 0.95rem;
+    height: 0.95rem;
+  }
+
+  .goodie-action-text {
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateX(-6px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    padding-right: 0.18rem;
+    padding-left: 0.18rem;
+    color: var(--text-color);
+  }
+
+  /* Keyboard focus opens the pill exactly as hover does, so the label a mouse
+     user reads on hover is also readable - and not merely announced - to
+     someone tabbing through. */
+  .goodie-action-btn:hover,
+  .goodie-action-btn:focus-visible {
+    background: var(--card-bg-active);
+    border-color: var(--link-color);
+    color: var(--link-color);
+  }
+
+  .goodie-action-btn.is-credits:hover,
+  .goodie-action-btn.is-credits:focus-visible {
+    width: 6.6rem;
+  }
+
+  .goodie-action-btn.is-info:hover,
+  .goodie-action-btn.is-info:focus-visible {
+    width: 5.4rem;
+  }
+
+  .goodie-action-btn:hover .goodie-action-text,
+  .goodie-action-btn:focus-visible .goodie-action-text {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .goodie-action-btn:active {
+    filter: brightness(60%);
+    transform: scale(0.95);
+  }
+
+  .goodie-action-btn:focus-visible {
+    outline: 3px solid var(--link-color);
+    outline-offset: 3px;
+  }
+
+  .goodie-title-link {
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+  }
+
+  .goodie-title-link:hover {
+    opacity: 0.75;
+    text-decoration: underline;
+  }
+
+  .goodie-title-link:active {
+    filter: brightness(60%);
+  }
+
+  /* Both corner dialogs are the same sheet - a small centred card that scrolls
+     its own body - so they share the sizing rule rather than each carrying a
+     copy that can drift when one side is retuned. */
+  .credits-modal-content,
+  .goodie-info-modal-content {
+    max-width: 580px;
+    height: auto;
+    max-height: 85vh;
+    border-radius: 16px;
+  }
+
+  /* Both dialog bodies have always carried Bootstrap's `p-4`, but this theme
+     ships no spacing utilities (purgecss drops them from the bundle), so the
+     class is dead and the contents have been rendering flush to the card edge.
+     Declared properly here, once, for the matched pair. */
+  .credits-modal-content .custom-modal-body,
+  .goodie-info-modal-content .custom-modal-body {
+    padding: 1.25rem 1.5rem 1.5rem;
+  }
+
+  .credits-license-box {
+    background-color: var(--main-bg);
+    border: 1px solid var(--sidebar-border-color);
+    border-radius: 8px;
+    padding: 0.85rem 1rem;
+    font-family: monospace;
+    font-size: 0.8rem;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    max-height: 200px;
+    overflow-y: auto;
+    color: var(--text-muted-color);
+    margin-top: 0.75rem;
+  }
+
+  /* Info dialog body. Same sheet as the credits dialog, different contents: a
+     lead paragraph, then whichever optional blocks the goodie actually has.
+     Every field is optional, so a goodie with nothing but a `description`
+     still renders a sensible dialog instead of empty scaffolding. */
+  .goodie-info-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+
+  /* Title and category badge share one line. Flex with a wrap fallback rather
+     than inline, so a long goodie name pushes the badge onto its own line
+     instead of overflowing the sheet. */
+  .goodie-info-head {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  .goodie-info-kicker {
+    flex-shrink: 0;
+    padding: 0.1rem 0.6rem;
+    border-radius: 999px;
+    border: 1px solid var(--sidebar-border-color);
+    background: var(--card-bg-active);
+    color: var(--text-muted-color);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .goodie-info-lead {
+    margin: 0;
+    color: var(--text-color);
+    line-height: 1.55;
+  }
+
+  .goodie-info-section {
+    background-color: var(--main-bg);
+    border: 1px solid var(--sidebar-border-color);
+    border-radius: 8px;
+    padding: 0.75rem 0.9rem;
+  }
+
+  .goodie-info-section h6 {
+    margin: 0 0 0.4rem;
+    color: var(--text-muted-color);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .goodie-info-section p {
+    margin: 0;
+    color: var(--text-color);
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .goodie-info-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .goodie-info-chip {
+    border: 1px solid var(--btn-border-color);
+    border-radius: 999px;
+    padding: 0.15rem 0.6rem;
+    background: var(--card-bg);
+    color: var(--text-muted-color);
+    font-size: 0.78rem;
+  }
+
+
+  /* Goodies FAQ accordion (transitions-dev #21). The --tabs-* custom properties
+     that used to sit here are NOT repeated: they are already declared once in
+     _sass/components/_view-toggle.scss, shared with the Projects page, and a
+     second copy here silently wins on this page alone if either side is retuned. */
+  :root {
+    --acc-expand: 250ms;
+    --acc-collapse: 250ms;
+    --acc-chevron: 250ms;
+    --acc-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .t-acc {
+    background-color: var(--card-bg);
+    border: 1px solid var(--sidebar-border-color);
+    border-radius: 10px;
+    box-shadow: var(--card-shadow);
+    margin: 0.75rem 0 1rem;
+    overflow: hidden;
+  }
+
+  .t-acc-head {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    background: none;
+    border: 0;
+    padding: 0.9rem 1.1rem;
+    cursor: pointer;
+    color: var(--text-color);
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-align: left;
+  }
+
+  .t-acc-head:hover {
+    opacity: 0.85;
+  }
+
+  .t-acc-head:active {
+    filter: brightness(60%);
+  }
+
+  .t-acc-head:focus-visible {
+    outline: 3px solid var(--link-color);
+    outline-offset: -3px;
+  }
+
+  .t-acc-chevron {
+    display: inline-flex;
+    flex-shrink: 0;
+    transform: scaleY(1);
+    transform-origin: center;
+    transition: transform var(--acc-chevron) var(--acc-ease);
+    color: var(--text-muted-color);
+  }
+
+  .t-acc-chevron svg {
+    width: 16px;
+    height: 16px;
+    display: block;
+  }
+
+  .t-acc-chevron path { vector-effect: non-scaling-stroke; }
+
+  .t-acc[data-open="true"] .t-acc-chevron {
+    transform: scaleY(-1);
+  }
+
+  /* grid-template-rows 0fr → 1fr gives a clean height animation
+     with no JS measurement; the inner element clips overflow. */
+  .t-acc-panel {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows var(--acc-collapse) var(--acc-ease);
+  }
+
+  .t-acc[data-open="true"] .t-acc-panel {
+    grid-template-rows: 1fr;
+    transition: grid-template-rows var(--acc-expand) var(--acc-ease);
+  }
+
+  .t-acc-panel-inner {
+    overflow: hidden;
+    opacity: 0;
+    filter: blur(2px);
+    transition:
+      opacity var(--acc-collapse) var(--acc-ease),
+      filter var(--acc-collapse) var(--acc-ease);
+  }
+
+  .t-acc[data-open="true"] .t-acc-panel-inner {
+    opacity: 1;
+    filter: blur(0);
+    transition:
+      opacity var(--acc-expand) var(--acc-ease),
+      filter var(--acc-expand) var(--acc-ease);
+  }
+
+  .t-acc-panel-inner > div {
+    padding: 0 1.1rem 1rem;
+    color: var(--text-muted-color);
+  }
+
+  .t-acc-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin: 0.75rem 0 1rem;
+  }
+
+  .t-acc-group .t-acc {
+    margin: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .t-acc-panel, .t-acc-panel-inner, .t-acc-chevron {
+      transition: none !important;
+    }
+    .view-toggle .t-tabs-pill, .view-toggle .t-tab {
+      transition: none !important;
+    }
+  }
+</style>
+
+<div class="t-acc-group">
+<div class="t-acc" data-open="false">
+  <button class="t-acc-head" aria-expanded="false" aria-controls="goodies-faq-panel-1">
+    <span>What are Goodies? Can I eat them?</span>
+    <span class="t-acc-chevron" aria-hidden="true">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5L8 10.5L12 6.5"/></svg>
+    </span>
+  </button>
+  <div class="t-acc-panel" id="goodies-faq-panel-1" role="region">
+    <div class="t-acc-panel-inner"><div>Absolutely not! Goodies include minigames, demos and experiments.</div></div>
+  </div>
+</div>
+<div class="t-acc" data-open="false">
+  <button class="t-acc-head" aria-expanded="false" aria-controls="goodies-faq-panel-2">
+    <span>How do I open or play a goodie?</span>
+    <span class="t-acc-chevron" aria-hidden="true">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5L8 10.5L12 6.5"/></svg>
+    </span>
+  </button>
+  <div class="t-acc-panel" id="goodies-faq-panel-2" role="region">
+    <div class="t-acc-panel-inner"><div>Click a card (or focus it and press Enter) to open it in the viewer. If it has a live demo, it loads right inside — or use "Open demo in a new tab" for fullscreen. Press Esc to close.</div></div>
+  </div>
+</div>
+<div class="t-acc" data-open="false">
+  <button class="t-acc-head" aria-expanded="false" aria-controls="goodies-faq-panel-3">
+    <span>How do I find a specific goodie?</span>
+    <span class="t-acc-chevron" aria-hidden="true">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5L8 10.5L12 6.5"/></svg>
+    </span>
+  </button>
+  <div class="t-acc-panel" id="goodies-faq-panel-3" role="region">
+    <div class="t-acc-panel-inner"><div>Use the filter pills above the grid to narrow by category — Simulations, Experiments, Demos or Tools — or pick All to see everything.</div></div>
+  </div>
+</div>
+<div class="t-acc" data-open="false">
+  <button class="t-acc-head" aria-expanded="false" aria-controls="goodies-faq-panel-4">
+    <span>Who made these? Can I reuse them?</span>
+    <span class="t-acc-chevron" aria-hidden="true">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5L8 10.5L12 6.5"/></svg>
+    </span>
+  </button>
+  <div class="t-acc-panel" id="goodies-faq-panel-4" role="region">
+    <div class="t-acc-panel-inner"><div>The Info button on a card describes what the goodie is and how to drive it. Several goodies are third-party work, and those also carry a Credits button with the author, repository and license to check before reusing anything.</div></div>
+  </div>
+</div>
+<div class="t-acc" data-open="false">
+  <button class="t-acc-head" aria-expanded="false" aria-controls="goodies-faq-panel-5">
+    <span>It says "the engine is charging up" — is it broken?</span>
+    <span class="t-acc-chevron" aria-hidden="true">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5L8 10.5L12 6.5"/></svg>
+    </span>
+  </button>
+  <div class="t-acc-panel" id="goodies-faq-panel-5" role="region">
+    <div class="t-acc-panel-inner"><div>No — that goodie just has no live demo attached yet, so there is nothing to load. Check back later.</div></div>
+  </div>
+</div>
+<div class="t-acc" data-open="false">
+  <button class="t-acc-head" aria-expanded="false" aria-controls="goodies-faq-panel-6">
+    <span>Do goodies work offline? Can I contribute?</span>
+    <span class="t-acc-chevron" aria-hidden="true">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5L8 10.5L12 6.5"/></svg>
+    </span>
+  </button>
+  <div class="t-acc-panel" id="goodies-faq-panel-6" role="region">
+    <div class="t-acc-panel-inner"><div>Pages are cached for offline reading, but live demos (especially external ones) need an internet connection. And yes — contributions are welcome! If you spot silly bugs, feel free to contribute to the repositories.</div></div>
+  </div>
+</div>
+</div>
+<div class="goodie-search" role="search">
+  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
+  <input type="search" id="goodie-search" placeholder="Search goodies by name or topic…" aria-label="Search goodies" autocomplete="off">
+  <button type="button" class="goodie-search-clear" id="goodie-search-clear" aria-label="Clear search" hidden>&times;</button>
+</div>
+<div class="goodie-toolbar">
+<div class="goodie-filter" id="goodie-filter" aria-label="Filter goodies"></div>
+<div class="t-tabs view-toggle" role="group" aria-label="Change goodies layout">
+  <span class="t-tabs-pill" aria-hidden="true"></span>
+  <button class="t-tab" type="button" data-view="grid" aria-pressed="true" aria-label="Grid view" title="Grid view">
+    <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.5"/><rect x="9" y="1" width="6" height="6" rx="1.5"/><rect x="1" y="9" width="6" height="6" rx="1.5"/><rect x="9" y="9" width="6" height="6" rx="1.5"/></svg>
+  </button>
+  <button class="t-tab" type="button" data-view="list" aria-pressed="false" aria-label="List view" title="List view">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 4h9M6 8h9M6 12h9"/><circle cx="2.4" cy="4" r="1.1" fill="currentColor" stroke="none"/><circle cx="2.4" cy="8" r="1.1" fill="currentColor" stroke="none"/><circle cx="2.4" cy="12" r="1.1" fill="currentColor" stroke="none"/></svg>
+  </button>
+</div>
+</div>
+<div class="row row-cols-1 row-cols-md-2 g-4" id="goodies-grid" aria-live="polite"></div>
+
+<!-- Custom Mini-game Modal -->
+<div id="custom-minigame-modal" class="custom-modal-overlay" onclick="closeMinigame(event)">
+  <div class="custom-modal-content">
+    <div class="custom-modal-header">
+      <h3 id="custom-modal-title" style="margin: 0;">Mini-game</h3>
+      <div class="goodie-modal-actions">
+        <a id="custom-modal-demo-link" class="goodie-modal-demo-link small" href="#" target="_blank" rel="noopener noreferrer" hidden>Open demo in a new tab</a>
+        <button class="modal-close-btn" aria-label="Close demo" onclick="closeMinigame(event, true)">&times;</button>
+      </div>
+    </div>
+    <div class="custom-modal-body">
+      <div id="modal-body-content" class="modal-placeholder">
+        <h1 id="custom-modal-game-name" class="display-3">Loading...</h1>
+        <p class="text-muted italic">Stay tuned, the engine is charging up!</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Custom Credits Dialog Modal -->
+<div id="custom-credits-modal" class="custom-modal-overlay" onclick="closeCreditsDialog(event)">
+  <div class="custom-modal-content credits-modal-content">
+    <div class="custom-modal-header">
+      <h4 id="credits-modal-title" style="margin: 0;">Credits & License</h4>
+      <button class="modal-close-btn" aria-label="Close credits" onclick="closeCreditsDialog(event, true)">&times;</button>
+    </div>
+    <div class="custom-modal-body" style="flex-direction: column; align-items: stretch; justify-content: flex-start; overflow-y: auto; text-align: left;">
+      <div id="credits-modal-body-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Custom Goodie Info Dialog (description of the goodie itself) -->
+<div id="custom-goodie-info-modal" class="custom-modal-overlay" onclick="closeInfoDialog(event)">
+  <div class="custom-modal-content goodie-info-modal-content">
+    <div class="custom-modal-header">
+      <h4 style="margin: 0;">About this goodie</h4>
+      <button class="modal-close-btn" aria-label="Close info" onclick="closeInfoDialog(event, true)">&times;</button>
+    </div>
+    <div class="custom-modal-body" style="flex-direction: column; align-items: stretch; justify-content: flex-start; overflow-y: auto; text-align: left;">
+      <div id="goodie-info-modal-body-content"></div>
+    </div>
+  </div>
+</div>
+
+<script type="application/json" id="goodies-data">{{ site.data.goodies | jsonify }}</script>
+<script src="{{ '/assets/js/rubber-segment.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+<script src="{{ '/assets/js/collection-grid.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+<script src="{{ '/assets/js/goodies.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+<script>
+  /* Goodies FAQ accordion: CSS owns the height + chevron morph. */
+  /* Single-open: opening one item closes the others. */
+  document.querySelectorAll('.t-acc').forEach((acc) => {
+    const head = acc.querySelector('.t-acc-head');
+    if (!head) return;
+    head.addEventListener('click', () => {
+      const willOpen = acc.getAttribute('data-open') !== 'true';
+      document.querySelectorAll('.t-acc[data-open="true"]').forEach((other) => {
+        other.setAttribute('data-open', 'false');
+        other.querySelector('.t-acc-head')?.setAttribute('aria-expanded', 'false');
+      });
+      acc.setAttribute('data-open', String(willOpen));
+      head.setAttribute('aria-expanded', String(willOpen));
+    });
+  });
+</script>

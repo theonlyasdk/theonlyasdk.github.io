@@ -1,10 +1,15 @@
 /* Shared View Toggle (Segmented control for Grid vs List)
- * Reused across About (Goodies) and Projects.
+ * Reused across Goodies and Projects.
+ *
+ * Ease-out only. The previous curve, cubic-bezier(0.34, 1.56, 0.64, 1), is an
+ * overshoot: y goes past 1, so it is spring-shaped. On a colour transition that
+ * is wasted motion - a colour cannot overshoot - and the last fifth of the tween
+ * does nothing, so the icon colour SNAPS at the end instead of easing out.
  */
 
 :root {
-  --tabs-dur: 320ms;
-  --tabs-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --tabs-dur: 250ms;
+  --tabs-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --tabs-text-muted: var(--text-muted-color);
   --tabs-text-active: var(--text-color);
   --tabs-bar-bg: var(--card-bg);
@@ -67,10 +72,13 @@
   border-radius: 0.35rem;
   box-shadow: var(--filter-btn-shadow-active);
   transform: translateX(0);
-  transition:
-    transform var(--tabs-dur) var(--tabs-ease),
-    width var(--tabs-dur) var(--tabs-ease);
-  will-change: transform, width;
+  /* Deliberately no CSS transition, and no will-change.
+   * assets/js/rubber-segment.js drives this thumb imperatively every frame - it
+   * writes `transition: none` and then sets `left` and `width` itself - so a
+   * transition declared here has always been dead code, and one naming `width`
+   * read as though it should not be. A will-change on left/width would be worse
+   * than useless: neither is compositor-only, so no layer gets promoted either
+   * way. */
   z-index: 0;
   pointer-events: none;
 }

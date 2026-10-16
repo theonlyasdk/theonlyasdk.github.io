@@ -57,12 +57,28 @@ DATA_FILES.each do |data_file, fields|
   $total += items.length
 end
 
-about = File.read(File.join(ROOT, '_tabs', 'about.html'))
-abort 'About page must load the external goodies module' unless about.include?('/assets/js/goodies.js')
-abort 'About page must expose serialized goodies data' unless about.include?('id="goodies-data"')
-abort 'About page must load the shared collection-grid module first' unless about.index('/assets/js/collection-grid.js')&.<(about.index('/assets/js/goodies.js'))
+goodies_page = File.read(File.join(ROOT, '_tabs', 'goodies.html'))
+abort 'Goodies page must load the external goodies module' unless goodies_page.include?('/assets/js/goodies.js')
+abort 'Goodies page must expose serialized goodies data' unless goodies_page.include?('id="goodies-data"')
+abort 'Goodies page must load the shared collection-grid module first' unless goodies_page.index('/assets/js/collection-grid.js')&.<(goodies_page.index('/assets/js/goodies.js'))
+abort 'Goodies page must load the segmented-control engine before goodies.js' unless goodies_page.index('/assets/js/rubber-segment.js')&.<(goodies_page.index('/assets/js/goodies.js'))
+abort 'Goodies page must ship the grid/list view toggle markup' unless goodies_page.match?(/class="[^"]*\bview-toggle\b/)
+# The scrim needs a base list-view rule and a 576px phone override; one
+# without the other leaves the cover gradient pointing the wrong way.
+list_view_scrim_rules = goodies_page.scan(/#goodies-grid\.list-view \.goodie-card:not\(\.is-layout-from\) > \.card-cover::after \{/).length
+abort "Goodies page must style the list-view cover scrim in both layouts (found #{list_view_scrim_rules})" if list_view_scrim_rules < 2
+# The morph's frozen copy is a child of the live card, so every live list-view
+# rule that reaches into a card has to be both scoped away from the copy and a
+# child selector - a descendant selector would reach straight through the copy
+# and restyle its cover and text along with the card's. Checked as "none is
+# missing either guard" rather than as a tally, so adding a list-view rule stays
+# a one-line change.
+bare_scoped_rules = goodies_page.scan(/#goodies-grid\.list-view \.goodie-card(?!:not\(\.is-layout-from\))[^{]*\{/).length
+abort "Goodies list-view card rules must exclude the morph's frozen copy (found #{bare_scoped_rules} without it)" if bare_scoped_rules.positive?
+leaky_scoped_rules = goodies_page.scan(/#goodies-grid\.list-view \.goodie-card:not\(\.is-layout-from\) [^>{][^{]*\{/).length
+abort "Goodies list-view rules must use a child combinator (found #{leaky_scoped_rules} that do not)" if leaky_scoped_rules.positive?
 
-designs_page = File.read(File.join(ROOT, 'resources', 'page-designs.html'))
+designs_page = File.read(File.join(ROOT, 'collections', 'page-designs.html'))
 abort 'Designs page must load the external page-designs module' unless designs_page.include?('/assets/js/page-designs.js')
 abort 'Designs page must expose serialized designs data' unless designs_page.include?('id="pdesigns-data"')
 abort 'Designs page must load the shared collection-grid module first' unless designs_page.index('/assets/js/collection-grid.js')&.<(designs_page.index('/assets/js/page-designs.js'))

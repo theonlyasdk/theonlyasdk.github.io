@@ -198,7 +198,7 @@
        - slots are measured inset-relative to the track's BORDER box
        - the pill is absolutely positioned, so its `left` is relative to the
          track's PADDING box
-       A border therefore shifts every pill by its own width: the resource tab
+       A border therefore shifts every pill by its own width: the collections tab
        bar has a 1px border, the projects toggles have none. */
 function paint() {
   var left = edgeL.v + inset - borderLeft;
