@@ -62,22 +62,103 @@
     navigation: auto;
   }
 
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    // No cross-fade: the snapshots are stacked, so the new one simply covers
-    // the old one the moment it is painted.
+  // Everything that is not the hero is an instant swap. The snapshots of a
+  // view transition are stacked, so dropping the old one and drawing the new
+  // one as it is shows the next page straight away with nothing of the
+  // previous one left over - which also keeps the old sidebar/topbar from
+  // showing through their translucent backgrounds.
+  ::view-transition-new(root),
+  ::view-transition-new(topbar),
+  ::view-transition-new(sidebar) {
     animation: none;
     mix-blend-mode: normal;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-old(topbar),
+  ::view-transition-old(sidebar) {
+    animation: none;
+    opacity: 0;
+  }
+
+  // Their group animations only interpolate a box that does not move - and for
+  // the topbar a full-width backdrop-filter blur for 250ms. Pointless work on
+  // a potato, so let them land in place.
+  ::view-transition-group(root),
+  ::view-transition-group(topbar),
+  ::view-transition-group(sidebar) {
+    animation: none;
   }
 
   .post-heading {
     view-transition-name: post-hero;
   }
 
-  ::view-transition-group(post-hero),
-  ::view-transition-old(post-hero),
-  ::view-transition-new(post-hero) {
+  ::view-transition-group(post-hero) {
     animation-duration: 0.45s;
     animation-timing-function: var(--spring-ease);
+  }
+
+  // Fit each snapshot to the box it is passing through, uniformly and
+  // centred. Left at the UA defaults, each snapshot is scaled to the box's
+  // width and pinned to the box's top edge instead, and since the card title
+  // and the post title have different aspect ratios the two copies drift a
+  // line apart mid-flight, which reads as a smear.
+  ::view-transition-old(post-hero),
+  ::view-transition-new(post-hero) {
+    block-size: 100%;
+    object-fit: contain;
+    object-position: 50% 50%;
+    // Plus-lighter (which the UA switches on for the duration) adds two
+    // half-faded copies of the same text together; normal blending shows
+    // whatever is on screen at the time, which is what a fade should look
+    // like.
+    mix-blend-mode: normal;
+  }
+
+  // Sequential fades instead of a cross-fade: the card title is a 20px bitmap
+  // being blown up to a 48px one, so it gets out of the way before the post
+  // title arrives and the two are never on screen together for long.
+  // Declaring the animations also replaces the UA's fade + plus-lighter pair.
+  ::view-transition-old(post-hero) {
+    animation: post-hero-out 0.16s ease-out both;
+  }
+
+  ::view-transition-new(post-hero) {
+    animation: post-hero-in 0.24s ease-in-out 0.1s both;
+  }
+
+  @keyframes post-hero-out {
+    from {
+      opacity: 1;
+    }
+
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes post-hero-in {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  // With nothing moving there is nothing to watch, so show the title where it
+  // belongs.
+  @media (prefers-reduced-motion: reduce) {
+    ::view-transition-group(post-hero),
+    ::view-transition-new(post-hero) {
+      animation: none;
+    }
+
+    ::view-transition-old(post-hero) {
+      animation: none;
+      opacity: 0;
+    }
   }
 }

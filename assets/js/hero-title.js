@@ -56,6 +56,23 @@
     true
   );
 
+  /* Keyboard activation never fires pointerdown, so name the card the same way
+     when Enter is pressed on a focused link - and clear the name when it is
+     pressed anywhere else, since a name with no counterpart on the new page
+     would ghost the card title across the navigation. */
+  document.addEventListener(
+    'keydown',
+    (event) => {
+      if (event.key !== 'Enter' || event.repeat) return;
+
+      const target = event.target;
+      const link = DESKTOP.matches && target instanceof Element ? target.closest('a') : null;
+
+      name(link ? link.querySelector('.card-title') : null);
+    },
+    true
+  );
+
   /* A bfcache restore brings the page back exactly as it was left, name
      included - which is what makes going back morph the title home again. A
      fresh load starts clean. */
