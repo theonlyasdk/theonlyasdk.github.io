@@ -165,7 +165,7 @@ class SortingUIManager {
         el.style.opacity = '0';
       });
 
-      // 2. Animate container physical bounds collapse towards top-right corner
+      // 2. Animate container physical bounds collapse towards bottom-right corner
       const anim = telemetryHud.animate([
         {
           width: `${fullW}px`,

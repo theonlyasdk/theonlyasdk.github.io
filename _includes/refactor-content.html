@@ -125,8 +125,15 @@
     {% endif %}
 
     <!-- lazy-load images -->
+    {% assign _already_lazy = false %}
+    {% if _left contains 'loading=' %}
+      {% assign _already_lazy = true %}
+    {% endif %}
+
     {% if _lazyload %}
-      {% assign _left = _left | append: ' loading="lazy"' %}
+      {% unless _already_lazy %}
+        {% assign _left = _left | append: ' loading="lazy"' %}
+      {% endunless %}
     {% endif %}
 
     {% if page.layout == 'home' %}

@@ -442,17 +442,18 @@ body, html {
   color: #ffffff;
 }
 
-/* Top-Right Telemetry HUD */
+/* Bottom-Right Telemetry HUD (stats live on the corner opposite the sidebar) */
 .telemetry-hud {
   position: absolute;
-  top: 1rem;
+  top: auto;
+  bottom: 1rem;
   right: 1rem;
   padding: 0.85rem 1rem;
   min-width: 210px;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  transform-origin: top right;
+  transform-origin: bottom right;
   border-radius: 14px;
   background: var(--bg-panel);
   box-shadow: none !important;
@@ -970,4 +971,16 @@ input[type="range"]::-webkit-slider-thumb:hover {
   font-size: 0.72rem;
   line-height: 1.4;
   color: var(--text-muted);
+}
+
+/* ── Mobile ──
+   On a phone the sidebar is nearly viewport-wide, so the bottom-right stats
+   panel would only ever be read through the sidebar. Hide it while the sidebar
+   is expanded; the collapsed 2.75rem pill leaves the corner free, and there
+   the stats come back. Selector is a sibling combinator because #telemetry-hud
+   directly follows #left-hud in index.html. */
+@media (max-width: 720px) {
+  .left-hud-sidebar:not(.collapsed) ~ .telemetry-hud {
+    display: none !important;
+  }
 }

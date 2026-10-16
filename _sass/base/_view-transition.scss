@@ -2,8 +2,8 @@
   the view-transition API, so I decided to know more about this API which I've never heard about
   before. After reading the docs for some time and seeing the demos, I was convinced and I wanted to 
   implement it into this blog, and I did.
-  For now, the animation only shows up in mobile devices as my potato can't handle it in desktop 
-  resolution.
+  For now, the full animation only shows up in mobile devices as my potato can't handle it in desktop 
+  resolution. Desktop still gets the hero title on its own - see the bottom of this file.
 
   See: https://developer.chrome.com/docs/web-platform/view-transitions/cross-document
 */
@@ -47,5 +47,37 @@
       transform: translateX(-100%) scale(0.8);
       // filter: blur(4px);
     }
+  }
+}
+
+/* Desktop gets the hero title on its own. No whole-page animation here, just
+  the card title a visitor clicked flying into the post title; everything else
+  swaps instantly, which is the cheap part the potato can handle.
+
+  A view-transition-name has to be unique in a document, so only the card that
+  is actually being clicked carries it - assets/js/hero-title.js names it on
+  pointerdown, right before the navigation takes the old page's snapshot. */
+@media (min-width: 769px) {
+  @view-transition {
+    navigation: auto;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    // No cross-fade: the snapshots are stacked, so the new one simply covers
+    // the old one the moment it is painted.
+    animation: none;
+    mix-blend-mode: normal;
+  }
+
+  .post-heading {
+    view-transition-name: post-hero;
+  }
+
+  ::view-transition-group(post-hero),
+  ::view-transition-old(post-hero),
+  ::view-transition-new(post-hero) {
+    animation-duration: 0.45s;
+    animation-timing-function: var(--spring-ease);
   }
 }

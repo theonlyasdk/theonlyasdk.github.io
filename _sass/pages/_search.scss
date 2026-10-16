@@ -254,6 +254,9 @@ search,
   transition: opacity 0.2s ease, transform 0.2s ease;
   z-index: 3;
   padding: 2px;
+  /* Absolutely positioned with `left: auto`, so it would otherwise shrink-to-fit
+     against no available space once the keys stopped forcing a minimum width. */
+  width: max-content;
   border-radius: 6px;
   background: var(--card-bg, rgba(120, 120, 120, 0.15));
   border: 1px solid var(--btn-border-color, rgba(120, 120, 120, 0.25));
@@ -266,7 +269,14 @@ search,
     font-family: inherit;
     font-weight: 600;
     line-height: 1;
-    padding: 0.18rem 0.4rem;
+    /* 3px on each side, no more: the keycap is mostly label. */
+    padding: 0.1875rem;
+    /* The global `kbd` rule's `min-width` and `margin` are for keycaps sitting
+       in body text - inside this housing they only add slack (the `margin`
+       alone put 9.6px between the two keys). `auto` (not `0`) so the keys keep
+       their label width. */
+    min-width: auto;
+    margin: 0;
     background: none;
     border: none;
     border-radius: 3px;

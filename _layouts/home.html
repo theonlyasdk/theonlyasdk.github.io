@@ -120,3 +120,6 @@ refactor: true
 {% if paginator.total_pages > 1 %}
   {% include post-paginator.html %}
 {% endif %}
+
+<!-- makes the clicked card title morph into the post title on desktop -->
+<script src="{{ '/assets/js/hero-title.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>

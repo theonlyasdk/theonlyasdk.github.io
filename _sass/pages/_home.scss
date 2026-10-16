@@ -36,11 +36,53 @@
       }
     }
 
+    /* The card's height is driven by the text column, so a 40/21 thumbnail can
+       never fill it: at 262px wide the image is 138px tall inside a 193px card,
+       which leaves a band of card background above and below it. The thumbnail
+       is given the column's full height instead and the photo is cropped to fit
+       it - evenly off the left and right - so it reaches the card's edges.
+       Below md the column is full width and the image keeps its own 40/21 box,
+       where nothing is cropped. */
+    .col-md-5 {
+      /* The column is a flex row at md+ so the thumbnail can take its full
+         height; below md it is a plain block and the image keeps its own
+         40/21 box. */
+      @include bp.md {
+        display: flex;
+      }
+    }
+
     .preview-img {
       @extend %img-radius;
 
+      position: relative;
+      width: 100%;
+      height: 100%;
+      flex: none;
+
       img {
         @extend %img-radius;
+
+        height: 100%;
+        -o-object-fit: cover;
+        object-fit: cover;
+      }
+
+      /* Fade the thumbnail into the card on the edge that faces the text.
+         At md+ the cover sits on the right (`flex-md-row-reverse`), so the
+         fade goes on its left. Mirrors the scrim the goodies cards use on
+         `.card-cover::after`. */
+      @include bp.md {
+        &::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: 0;
+          width: 26%;
+          background: linear-gradient(to right, var(--card-bg), transparent);
+          pointer-events: none;
+        }
       }
     }
 
