@@ -1089,6 +1089,12 @@ order: 6
     color: var(--text-muted-color);
   }
 
+  .goodies-faq-divider {
+    margin: 3rem 0 1.5rem;
+    border: 0;
+    border-top: 1px solid var(--sidebar-border-color);
+  }
+
   .t-acc-group {
     display: flex;
     flex-direction: column;
@@ -1109,75 +1115,6 @@ order: 6
     }
   }
 </style>
-
-<div class="t-acc-group">
-<div class="t-acc" data-open="false">
-  <button class="t-acc-head" aria-expanded="false" aria-controls="goodies-faq-panel-1">
-    <span>What are Goodies? Can I eat them?</span>
-    <span class="t-acc-chevron" aria-hidden="true">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5L8 10.5L12 6.5"/></svg>
-    </span>
-  </button>
-  <div class="t-acc-panel" id="goodies-faq-panel-1" role="region">
-    <div class="t-acc-panel-inner"><div>Absolutely not! Goodies include minigames, demos and experiments.</div></div>
-  </div>
-</div>
-<div class="t-acc" data-open="false">
-  <button class="t-acc-head" aria-expanded="false" aria-controls="goodies-faq-panel-2">
-    <span>How do I open or play a goodie?</span>
-    <span class="t-acc-chevron" aria-hidden="true">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5L8 10.5L12 6.5"/></svg>
-    </span>
-  </button>
-  <div class="t-acc-panel" id="goodies-faq-panel-2" role="region">
-    <div class="t-acc-panel-inner"><div>Click a card (or focus it and press Enter) to open it in the viewer. If it has a live demo, it loads right inside — or use "Open demo in a new tab" for fullscreen. Press Esc to close.</div></div>
-  </div>
-</div>
-<div class="t-acc" data-open="false">
-  <button class="t-acc-head" aria-expanded="false" aria-controls="goodies-faq-panel-3">
-    <span>How do I find a specific goodie?</span>
-    <span class="t-acc-chevron" aria-hidden="true">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5L8 10.5L12 6.5"/></svg>
-    </span>
-  </button>
-  <div class="t-acc-panel" id="goodies-faq-panel-3" role="region">
-    <div class="t-acc-panel-inner"><div>Use the filter pills above the grid to narrow by category — Simulations, Experiments, Demos or Tools — or pick All to see everything.</div></div>
-  </div>
-</div>
-<div class="t-acc" data-open="false">
-  <button class="t-acc-head" aria-expanded="false" aria-controls="goodies-faq-panel-4">
-    <span>Who made these? Can I reuse them?</span>
-    <span class="t-acc-chevron" aria-hidden="true">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5L8 10.5L12 6.5"/></svg>
-    </span>
-  </button>
-  <div class="t-acc-panel" id="goodies-faq-panel-4" role="region">
-    <div class="t-acc-panel-inner"><div>The Info button on a card describes what the goodie is and how to drive it. Several goodies are third-party work, and those also carry a Credits button with the author, repository and license to check before reusing anything.</div></div>
-  </div>
-</div>
-<div class="t-acc" data-open="false">
-  <button class="t-acc-head" aria-expanded="false" aria-controls="goodies-faq-panel-5">
-    <span>It says "the engine is charging up" — is it broken?</span>
-    <span class="t-acc-chevron" aria-hidden="true">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5L8 10.5L12 6.5"/></svg>
-    </span>
-  </button>
-  <div class="t-acc-panel" id="goodies-faq-panel-5" role="region">
-    <div class="t-acc-panel-inner"><div>No — that goodie just has no live demo attached yet, so there is nothing to load. Check back later.</div></div>
-  </div>
-</div>
-<div class="t-acc" data-open="false">
-  <button class="t-acc-head" aria-expanded="false" aria-controls="goodies-faq-panel-6">
-    <span>Do goodies work offline? Can I contribute?</span>
-    <span class="t-acc-chevron" aria-hidden="true">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5L8 10.5L12 6.5"/></svg>
-    </span>
-  </button>
-  <div class="t-acc-panel" id="goodies-faq-panel-6" role="region">
-    <div class="t-acc-panel-inner"><div>Pages are cached for offline reading, but live demos (especially external ones) need an internet connection. And yes — contributions are welcome! If you spot silly bugs, feel free to contribute to the repositories.</div></div>
-  </div>
-</div>
-</div>
 <div class="goodie-search" role="search">
   <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
   <input type="search" id="goodie-search" placeholder="Search goodies by name or topic…" aria-label="Search goodies" autocomplete="off">
@@ -1247,6 +1184,77 @@ order: 6
       <div id="goodie-info-modal-body-content"></div>
     </div>
   </div>
+</div>
+
+
+<hr class="goodies-faq-divider">
+<div class="t-acc-group">
+<div class="t-acc" data-open="false">
+  <button class="t-acc-head" aria-expanded="false" aria-controls="goodies-faq-panel-1">
+    <span>What are Goodies? Can I eat them?</span>
+    <span class="t-acc-chevron" aria-hidden="true">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5L8 10.5L12 6.5"/></svg>
+    </span>
+  </button>
+  <div class="t-acc-panel" id="goodies-faq-panel-1" role="region">
+    <div class="t-acc-panel-inner"><div>Absolutely not! Goodies include minigames, demos and experiments.</div></div>
+  </div>
+</div>
+<div class="t-acc" data-open="false">
+  <button class="t-acc-head" aria-expanded="false" aria-controls="goodies-faq-panel-2">
+    <span>How do I open or play a goodie?</span>
+    <span class="t-acc-chevron" aria-hidden="true">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5L8 10.5L12 6.5"/></svg>
+    </span>
+  </button>
+  <div class="t-acc-panel" id="goodies-faq-panel-2" role="region">
+    <div class="t-acc-panel-inner"><div>Click a card (or focus it and press Enter) to open it in the viewer. If it has a live demo, it loads right inside — or use "Open demo in a new tab" for fullscreen. Press Esc to close.</div></div>
+  </div>
+</div>
+<div class="t-acc" data-open="false">
+  <button class="t-acc-head" aria-expanded="false" aria-controls="goodies-faq-panel-3">
+    <span>How do I find a specific goodie?</span>
+    <span class="t-acc-chevron" aria-hidden="true">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5L8 10.5L12 6.5"/></svg>
+    </span>
+  </button>
+  <div class="t-acc-panel" id="goodies-faq-panel-3" role="region">
+    <div class="t-acc-panel-inner"><div>Use the filter pills above the grid to narrow by category — Simulations, Experiments, Demos or Tools — or pick All to see everything.</div></div>
+  </div>
+</div>
+<div class="t-acc" data-open="false">
+  <button class="t-acc-head" aria-expanded="false" aria-controls="goodies-faq-panel-4">
+    <span>Who made these? Can I reuse them?</span>
+    <span class="t-acc-chevron" aria-hidden="true">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5L8 10.5L12 6.5"/></svg>
+    </span>
+  </button>
+  <div class="t-acc-panel" id="goodies-faq-panel-4" role="region">
+    <div class="t-acc-panel-inner"><div>The Info button on a card describes what the goodie is and how to drive it. Several goodies are third-party work, and those also carry a Credits button with the author, repository and license to check before reusing anything.</div></div>
+  </div>
+</div>
+<div class="t-acc" data-open="false">
+  <button class="t-acc-head" aria-expanded="false" aria-controls="goodies-faq-panel-5">
+    <span>It says "the engine is charging up" — is it broken?</span>
+    <span class="t-acc-chevron" aria-hidden="true">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5L8 10.5L12 6.5"/></svg>
+    </span>
+  </button>
+  <div class="t-acc-panel" id="goodies-faq-panel-5" role="region">
+    <div class="t-acc-panel-inner"><div>No — that goodie just has no live demo attached yet, so there is nothing to load. Check back later.</div></div>
+  </div>
+</div>
+<div class="t-acc" data-open="false">
+  <button class="t-acc-head" aria-expanded="false" aria-controls="goodies-faq-panel-6">
+    <span>Do goodies work offline? Can I contribute?</span>
+    <span class="t-acc-chevron" aria-hidden="true">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5L8 10.5L12 6.5"/></svg>
+    </span>
+  </button>
+  <div class="t-acc-panel" id="goodies-faq-panel-6" role="region">
+    <div class="t-acc-panel-inner"><div>Pages are cached for offline reading, but live demos (especially external ones) need an internet connection. And yes — contributions are welcome! If you spot silly bugs, feel free to contribute to the repositories.</div></div>
+  </div>
+</div>
 </div>
 
 <script type="application/json" id="goodies-data">{{ site.data.goodies | jsonify }}</script>
