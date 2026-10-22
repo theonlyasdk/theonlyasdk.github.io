@@ -1089,6 +1089,18 @@ order: 6
     color: var(--text-muted-color);
   }
 
+  h1.dynamic-title.goodies-title {
+    text-align: center;
+  }
+
+  .goodies-title-letter {
+    display: inline-block;
+  }
+
+  .goodies-title-letter:hover {
+    font-family: monospace;
+  }
+
   .goodies-faq-divider {
     display: flex;
     align-items: center;
@@ -1295,12 +1307,27 @@ order: 6
   });
 
   /* Fit the "Goodies" title width to the search box width beneath it, by
-     adjusting font-size only (no text stretching). Runs on load, on resize,
+     adjusting font-size only (no text stretching). Also splits the title into
+     per-letter spans so each letter can react on hover. Runs on load, on resize,
      and after fonts are ready. */
   function fitGoodiesTitle() {
     const title = document.querySelector('.dynamic-title');
     const search = document.querySelector('.goodie-search');
     if (!title || !search) return;
+    title.classList.add('goodies-title');
+    /* Split into per-letter spans once. */
+    if (!title.dataset.lettersSplit) {
+      const text = title.textContent.trim();
+      title.textContent = '';
+      for (const ch of text) {
+        const span = document.createElement('span');
+        span.className = 'goodies-title-letter';
+        span.textContent = ch;
+        title.appendChild(span);
+      }
+      title.dataset.lettersSplit = '1';
+    }
+    if (!title.offsetParent) return;
     const target = search.getBoundingClientRect().width;
     if (!target) return;
     title.style.transition = 'none';
