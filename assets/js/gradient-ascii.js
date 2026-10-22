@@ -935,37 +935,10 @@ void main() {
     const hero = document.querySelector('.goodies-ascii-hero');
     if (hero) {
       const container = document.querySelector('#main-wrapper > .container');
-      const main = document.querySelector('main');
-      if (container && main) {
+      if (container) {
         container.classList.add('has-goodies-ascii');
         if (hero.parentElement !== container) {
           container.insertBefore(hero, container.firstChild);
-        }
-        const tail = document.getElementById('tail-wrapper');
-        const placeNow = () => {
-          const c = container.getBoundingClientRect();
-          const m = main.getBoundingClientRect();
-          const bottom = tail ? Math.max(m.bottom, tail.getBoundingClientRect().bottom) : m.bottom;
-          hero.style.left = `${m.left - c.left}px`;
-          hero.style.top = `${m.top - c.top}px`;
-          hero.style.width = `${m.width}px`;
-          hero.style.height = `${bottom - m.top}px`;
-        };
-        let rafId = 0;
-        const place = () => {
-          if (rafId) return;
-          rafId = requestAnimationFrame(() => {
-            rafId = 0;
-            placeNow();
-          });
-        };
-        placeNow();
-        window.addEventListener('resize', place);
-        window.addEventListener('load', place);
-        if ('ResizeObserver' in window) {
-          const observer = new ResizeObserver(place);
-          observer.observe(main);
-          if (tail) observer.observe(tail);
         }
       }
     }
