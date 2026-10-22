@@ -941,6 +941,36 @@ void main() {
           container.insertBefore(hero, container.firstChild);
         }
       }
+      /* The layer is fixed, so its coordinates are viewport-relative: it is
+         inset by JS to the main content column. Full viewport width would
+         reach under the sidebars, and any narrower fixed width would leave
+         gaps whenever the column resizes. */
+      const column = document.querySelector('#main-wrapper main');
+      if (column) {
+        let insetFrame = 0;
+        const applyInset = () => {
+          insetFrame = 0;
+          const rect = column.getBoundingClientRect();
+          if (!rect.width) return;
+          const docWidth = document.documentElement.clientWidth || window.innerWidth;
+          hero.style.left = `${Math.max(0, rect.left)}px`;
+          hero.style.right = `${Math.max(0, docWidth - rect.right)}px`;
+        };
+        /* Deferred so a ResizeObserver callback never mutates layout twice in
+           the same delivery (which would log a loop warning). */
+        const queueInset = () => {
+          if (!insetFrame) insetFrame = window.requestAnimationFrame(applyInset);
+        };
+        applyInset();
+        window.addEventListener('resize', queueInset, { passive: true });
+        window.addEventListener('load', queueInset);
+        if ('ResizeObserver' in window) {
+          new ResizeObserver(queueInset).observe(column);
+        }
+        if (document.fonts && document.fonts.ready) {
+          document.fonts.ready.then(queueInset, () => {});
+        }
+      }
     }
     const containers = document.querySelectorAll('[data-gradient-ascii]');
     containers.forEach(container => {

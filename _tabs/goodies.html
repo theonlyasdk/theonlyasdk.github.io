@@ -160,16 +160,17 @@ order: 6
   }
 
   /* Goodies-only GradientASCII background. Fixed (scroll-static) so it
-     stays in place while the page scrolls, filling the full viewport. It is
-     out of flow so it reserves no document space. The content container is
-     raised above it (z-index 2) so text stays readable. */
+     stays in place while the page scrolls, and out of flow so it reserves no
+     document space. JS insets the left/right edges to the main content column
+     so it never draws under the sidebar/panel; the negative z-index keeps it
+     behind the content inside the raised container stacking context. */
   .goodies-ascii-hero {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
+    right: 0;
     height: 100vh;
-    z-index: 1;
+    z-index: -1;
     pointer-events: none;
     opacity: 0.85;
   }
