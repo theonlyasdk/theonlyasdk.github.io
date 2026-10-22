@@ -159,24 +159,25 @@ order: 6
     background: var(--main-bg);
   }
 
-  /* Goodies-only GradientASCII background. Made sticky so it stays in
-     place while the page scrolls (scroll-static), spanning the full document
-     width at viewport height. Negative z-index inside the isolated container
-     keeps it behind every in-flow element. */
-  #main-wrapper > .container.has-goodies-ascii {
-    position: relative;
-    isolation: isolate;
-  }
-
+  /* Goodies-only GradientASCII background. Fixed (scroll-static) so it
+     stays in place while the page scrolls, filling the full viewport. It is
+     out of flow so it reserves no document space. The content container is
+     raised above it (z-index 2) so text stays readable. */
   .goodies-ascii-hero {
-    position: sticky;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100vh;
-    z-index: -1;
+    z-index: 1;
     pointer-events: none;
     opacity: 0.85;
+  }
+
+  #main-wrapper > .container.has-goodies-ascii {
+    position: relative;
+    z-index: 2;
+    isolation: isolate;
   }
 
   .goodies-ascii-hero .gradient-ascii-container {
