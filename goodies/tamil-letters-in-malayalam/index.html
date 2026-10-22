@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tamil letters in Malayalam</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=Noto+Sans:wght@400&family=Noto+Serif+Malayalam:wght@300;400;500&family=Noto+Serif+Tamil:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #e6f1f5;
+  --cell: #f5fafc;
+  --press: #dcecf2;
+  --sel: #c7e2ec;
+  --line: #a9cdd7;
+  --ink: #08364a;
+  --soft: #3f6b7c;
+  --accent: #0b6580;
+  --pop: #ffffff;
+  --pop-press: #edf5f8;
+  --bevel-top: rgba(255, 255, 255, 0.72);
+  --bevel-side: rgba(169, 205, 215, 0.48);
+  --bevel-bot: rgba(8, 54, 74, 0.16);
+  --pop-shadow: 0 20px 44px -10px rgba(8, 54, 74, 0.2), 0 4px 12px -2px rgba(8, 54, 74, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #061d28;
+    --cell: #0b2d3c;
+    --press: #082330;
+    --sel: #174c63;
+    --line: #1f5266;
+    --ink: #e3f3f7;
+    --soft: #9cc3d0;
+    --accent: #6fd0e8;
+    --pop: #123e52;
+    --pop-press: #0d3142;
+    --bevel-top: rgba(255, 255, 255, 0.14);
+    --bevel-side: rgba(255, 255, 255, 0.07);
+    --bevel-bot: rgba(0, 0, 0, 0.52);
+    --pop-shadow: 0 24px 52px -8px rgba(0, 0, 0, 0.65), 0 6px 16px -2px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.09);
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #061d28;
+  --cell: #0b2d3c;
+  --press: #082330;
+  --sel: #174c63;
+  --line: #1f5266;
+  --ink: #e3f3f7;
+  --soft: #9cc3d0;
+  --accent: #6fd0e8;
+  --pop: #123e52;
+  --pop-press: #0d3142;
+  --bevel-top: rgba(255, 255, 255, 0.14);
+  --bevel-side: rgba(255, 255, 255, 0.07);
+  --bevel-bot: rgba(0, 0, 0, 0.52);
+  --pop-shadow: 0 24px 52px -8px rgba(0, 0, 0, 0.65), 0 6px 16px -2px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.09);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Instrument Sans", system-ui, sans-serif;
+  position: relative;
+}
+
+html {
+  scroll-padding-top: env(safe-area-inset-top, 0px);
+}
+
+main {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 48px 16px 40px;
+}
+
+h1 {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(36px, 7.5vw, 68px);
+  line-height: 1.08;
+  text-align: center;
+  margin: 0 0 20px;
+}
+
+.print-wrap {
+  max-width: 520px;
+  margin: 0 auto 48px;
+}
+
+.print-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font: inherit;
+  font-weight: 500;
+  font-size: 16px;
+  color: var(--ink);
+  background: var(--cell);
+  border: 0;
+  border-radius: 12px;
+  padding: 14px 20px;
+  cursor: pointer;
+  transition: transform 0.06s ease, background-color 0.1s ease;
+}
+
+.print-btn:hover {
+  background: var(--sel);
+}
+
+.print-btn:active {
+  transform: translateY(2px);
+  background: var(--press);
+}
+
+.sec-head {
+  font-family: "Instrument Sans", system-ui, sans-serif;
+  font-weight: 500;
+  font-size: clamp(14px, 2.3vw, 17px);
+  color: var(--soft);
+  margin: 0 0 12px;
+  padding: 0 2px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  line-height: 1.4;
+}
+
+.sec-head .en {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.sec-head .sep {
+  opacity: 0.45;
+  user-select: none;
+}
+
+.sec-head .ml-h {
+  font-family: "Noto Serif Malayalam", serif;
+  font-weight: 400;
+}
+
+.sec-head .ta-h {
+  font-family: "Noto Serif Tamil", serif;
+  font-weight: 700;
+  font-size: 0.95em;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 8px;
+  margin-bottom: 40px;
+  width: 100%;
+}
+
+.cell {
+  font: inherit;
+  color: inherit;
+  background: var(--cell);
+  border: 0;
+  outline: none;
+  border-radius: 10px;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  padding: 4px 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  overflow: visible;
+  min-width: 0;
+  transition: transform 0.06s ease, background-color 0.1s ease;
+}
+
+.cell:hover {
+  background: var(--sel);
+}
+
+.cell:active {
+  transform: translateY(2px);
+  background: var(--press);
+}
+
+.cell[aria-expanded="true"] {
+  background: var(--sel);
+}
+
+.cell[aria-expanded="true"]:active {
+  background: var(--press);
+}
+
+.cell:focus-visible,
+.pop button:focus-visible,
+.credit-btn:focus-visible,
+.credit-links a:focus-visible,
+.print-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.ta {
+  display: block;
+  font-family: "Noto Serif Tamil", serif;
+  font-weight: 700;
+  font-size: clamp(24px, 5vw, 32px);
+  line-height: 1.18;
+  max-width: 100%;
+  white-space: nowrap;
+}
+
+.cell.w-md .ta {
+  font-size: clamp(20px, 4.2vw, 26px);
+}
+
+.cell.w-lg .ta {
+  font-size: clamp(17px, 3.7vw, 22px);
+}
+
+.cell.w-xl .ta {
+  font-size: clamp(15px, 3.3vw, 19px);
+}
+
+.ml {
+  display: block;
+  margin-top: 3px;
+  font-family: "Noto Serif Malayalam", serif;
+  font-weight: 400;
+  font-size: clamp(13px, 2.8vw, 16px);
+  line-height: 1.25;
+  color: var(--soft);
+  max-width: 100%;
+  white-space: nowrap;
+}
+
+.cell.w-lg .ml,
+.cell.w-xl .ml {
+  font-size: clamp(11px, 2.4vw, 14px);
+}
+
+@media (min-width: 640px) {
+  main {
+    padding: 64px 28px 48px;
+  }
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(98px, 1fr));
+    gap: 10px;
+  }
+}
+
+@media (min-width: 960px) {
+  .grid {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    gap: 10px;
+  }
+}
+
+/* Early Apple macOS style stiff shwooop opening animation */
+@keyframes macPopShwooop {
+  0% {
+    opacity: 0;
+    transform: scale(0.22);
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.pop {
+  display: none;
+  position: absolute;
+  z-index: 20;
+  width: min(360px, calc(100vw - 24px));
+  background: var(--pop);
+  border-top: 1px solid var(--bevel-top);
+  border-left: 1px solid var(--bevel-side);
+  border-right: 1px solid var(--bevel-side);
+  border-bottom: 1px solid var(--bevel-bot);
+  box-shadow: var(--pop-shadow);
+  border-radius: 14px;
+  padding: 20px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transform-origin: var(--ax, 50%) -8px;
+}
+
+.pop.up {
+  transform-origin: var(--ax, 50%) calc(100% + 8px);
+}
+
+.pop.anim-open {
+  animation: macPopShwooop 0.165s cubic-bezier(0.32, 0, 0.15, 1) forwards;
+}
+
+.pop.credit-mode {
+  width: min(320px, calc(100vw - 24px));
+  padding: 18px;
+}
+
+.arrow {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: var(--pop);
+  top: -8px;
+  left: clamp(18px, calc(var(--ax) - 7px), calc(100% - 32px));
+  transform: rotate(45deg);
+  border-top: 1px solid var(--bevel-top);
+  border-left: 1px solid var(--bevel-side);
+}
+
+.pop.up .arrow {
+  top: auto;
+  bottom: -8px;
+  border: 0;
+  border-bottom: 1px solid var(--bevel-bot);
+  border-right: 1px solid var(--bevel-side);
+}
+
+.x {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  background: none;
+  border: 0;
+  border-radius: 8px;
+  color: var(--soft);
+  cursor: pointer;
+  transition: transform 0.06s ease, background-color 0.1s ease;
+}
+
+.x:hover {
+  background: var(--cell);
+  color: var(--ink);
+}
+
+.x:active {
+  transform: translateY(1.5px);
+  background: var(--press);
+}
+
+.head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding-right: 32px;
+}
+
+.hw {
+  font-family: "Noto Serif Tamil", serif;
+  font-weight: 700;
+  font-size: 52px;
+  line-height: 1.2;
+}
+
+.mlq {
+  text-align: right;
+}
+
+.mlq span {
+  display: block;
+  font-family: "Noto Serif Malayalam", serif;
+  font-weight: 400;
+  font-size: 32px;
+  line-height: 1.3;
+  color: var(--soft);
+}
+
+.mlq small {
+  font-size: 13px;
+  color: var(--soft);
+}
+
+.pron {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  font-size: 17px;
+}
+
+.pron .tr {
+  font-weight: 500;
+}
+
+.ipa {
+  font-family: "Instrument Sans", "Noto Sans", sans-serif;
+  color: var(--soft);
+}
+
+.spk {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--cell);
+  color: var(--accent);
+  cursor: pointer;
+  transition: transform 0.06s ease, background-color 0.1s ease;
+}
+
+.spk:hover:not(:disabled) {
+  background: var(--sel);
+}
+
+.spk:active:not(:disabled) {
+  transform: translateY(1.5px);
+  background: var(--press);
+}
+
+.spk:disabled {
+  color: var(--soft);
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.msg {
+  margin: 4px 0 0;
+  min-height: 0;
+  font-size: 13px;
+  color: var(--soft);
+}
+
+.type {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-size: 19px;
+  margin: 16px 0 8px;
+}
+
+.defs {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.defs li {
+  margin-bottom: 6px;
+  padding-left: 4px;
+}
+
+.defs li::marker {
+  color: var(--soft);
+}
+
+.ex {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.ex small {
+  font-size: 13px;
+  color: var(--soft);
+}
+
+.exw {
+  font-family: "Noto Serif Tamil", serif;
+  font-size: 24px;
+  line-height: 1.4;
+  margin: 2px 0 0;
+}
+
+.exm {
+  margin: 0;
+  font-size: 15px;
+  color: var(--soft);
+}
+
+/* Footer & Credit Popup */
+footer {
+  text-align: center;
+  padding: 12px 16px 56px;
+  color: var(--soft);
+  font-size: 15px;
+}
+
+.credit-btn {
+  font: inherit;
+  font-weight: 600;
+  color: var(--ink);
+  background: var(--cell);
+  border: 0;
+  border-radius: 8px;
+  padding: 6px 12px;
+  margin-left: 4px;
+  cursor: pointer;
+  transition: transform 0.06s ease, background-color 0.1s ease;
+}
+
+.credit-btn:hover,
+.credit-btn[aria-expanded="true"] {
+  background: var(--sel);
+  color: var(--accent);
+}
+
+.credit-btn:active,
+.credit-btn[aria-expanded="true"]:active {
+  transform: translateY(2px);
+  background: var(--press);
+}
+
+.credit-links {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.credit-links a {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px 12px 16px;
+  border-radius: 12px;
+  background: var(--cell);
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: transform 0.06s ease, background-color 0.1s ease, color 0.1s ease;
+}
+
+.credit-links a:hover {
+  background: var(--sel);
+  color: var(--accent);
+}
+
+.credit-links a:active {
+  transform: translateY(2px);
+  background: var(--press);
+}
+
+.credit-links svg {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+/* Portrait Print Overrides: Stripped of decorative styles, keeping font & structure */
+@page {
+  size: portrait;
+  margin: 10mm;
+}
+
+@media print {
+  html, body {
+    background: transparent !important;
+    color: #000 !important;
+    overflow: visible !important;
+  }
+  main {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  h1 {
+    font-size: 24pt !important;
+    margin: 0 0 14pt !important;
+    color: #000 !important;
+  }
+  .print-wrap,
+  .pop,
+  footer {
+    display: none !important;
+  }
+  .sec-head {
+    color: #000 !important;
+    font-size: 11pt !important;
+    margin: 10pt 0 6pt !important;
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+  .sec-head .en,
+  .sec-head .sep,
+  .sec-head .ml-h,
+  .sec-head .ta-h {
+    color: #000 !important;
+    opacity: 1 !important;
+  }
+  .grid {
+    grid-template-columns: repeat(8, minmax(0, 1fr)) !important;
+    gap: 4pt !important;
+    margin-bottom: 14pt !important;
+  }
+  .cell {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 2pt 1pt !important;
+    aspect-ratio: 1 / 1 !important;
+    overflow: visible !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .ta {
+    color: #000 !important;
+    font-size: 16pt !important;
+    line-height: 1.15 !important;
+  }
+  .cell.w-md .ta {
+    font-size: 14pt !important;
+  }
+  .cell.w-lg .ta {
+    font-size: 12.5pt !important;
+  }
+  .cell.w-xl .ta {
+    font-size: 11pt !important;
+  }
+  .ml {
+    color: #000 !important;
+    font-size: 9.5pt !important;
+    margin-top: 2pt !important;
+  }
+  .cell.w-lg .ml,
+  .cell.w-xl .ml {
+    font-size: 8.5pt !important;
+  }
+}
+</style>
+</head>
+<body>
+<main>
+  <h1>Tamil letters in Malayalam</h1>
+  <div class="print-wrap">
+    <button class="print-btn" id="printBtn" type="button">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      <span>Print Chart</span>
+    </button>
+  </div>
+
+  <h2 class="sec-head">
+    <span class="en">Vowels</span>
+    <span class="sep">/</span>
+    <span class="ml-h" lang="ml">സ്വരങ്ങൾ</span>
+    <span class="sep">/</span>
+    <span class="ta-h" lang="ta">உயிரெழுத்துகள்</span>
+  </h2>
+  <div class="grid" id="vowels"></div>
+
+  <h2 class="sec-head">
+    <span class="en">Consonants</span>
+    <span class="sep">/</span>
+    <span class="ml-h" lang="ml">വ്യഞ്ജനങ്ങൾ</span>
+    <span class="sep">/</span>
+    <span class="ta-h" lang="ta">மெய்யெழுத்துகள்</span>
+  </h2>
+  <div class="grid" id="consonants"></div>
+
+  <h2 class="sec-head">
+    <span class="en">Vowel-Consonants</span>
+    <span class="sep">/</span>
+    <span class="ml-h" lang="ml">കൂട്ടക്ഷരങ്ങൾ</span>
+    <span class="sep">/</span>
+    <span class="ta-h" lang="ta">உயிர்மெய்யெழுத்துகள்</span>
+  </h2>
+  <div class="grid" id="uyirmei"></div>
+
+  <h2 class="sec-head">
+    <span class="en">Grantha Letters</span>
+    <span class="sep">/</span>
+    <span class="ml-h" lang="ml">ഗ്രന്ഥാക്ഷരങ്ങൾ</span>
+    <span class="sep">/</span>
+    <span class="ta-h" lang="ta">கிரந்த எழுத்துகள்</span>
+  </h2>
+  <div class="grid" id="grantha"></div>
+</main>
+
+<footer>
+  Crafted by <button type="button" class="credit-btn" id="creditBtn" aria-expanded="false">ASDK</button>
+</footer>
+
+<div class="pop" id="pop" role="dialog" aria-modal="false"></div>
+
+<script>
+const PULLI="\u0BCD", VIR="\u0D4D";
+const TS=["","ா","ி","ீ","ு","ூ","ெ","ே","ை","ொ","ோ","ௌ"];
+const MS=["","ാ","ി","ീ","ു","ൂ","െ","േ","ൈ","ൊ","ോ","ൌ"];
+const PLACE=["","","","","","","before","before","before","around","around","around"];
+/* [tamil, malayalam, translit, ipa, sound, example, example translit, meaning, kind] */
+const V=[
+["அ","അ","a","ɐ","the u in cut, but shorter","அம்மா","ammā","mother","short vowel"],
+["ஆ","ആ","ā","aː","the a in father","ஆடு","āṭu","goat","long vowel"],
+["இ","ഇ","i","i","the i in sit","இலை","ilai","leaf","short vowel"],
+["ஈ","ഈ","ī","iː","the ee in seen","ஈ","ī","fly","long vowel"],
+["உ","ഉ","u","u","the u in put","உப்பு","uppu","salt","short vowel"],
+["ஊ","ഊ","ū","uː","the oo in moon","ஊஞ்சல்","ūñcal","swing","long vowel"],
+["எ","എ","e","e","the e in bed","எலி","eli","mouse","short vowel"],
+["ஏ","ഏ","ē","eː","the a in game, held steady","ஏணி","ēṇi","ladder","long vowel"],
+["ஐ","ഐ","ai","ɐi̯","the i in ice","ஐந்து","aintu","five","diphthong"],
+["ஒ","ഒ","o","o","the o in hot, but rounder","ஒட்டகம்","oṭṭakam","camel","short vowel"],
+["ஓ","ഓ","ō","oː","the o in go, held steady","ஓடு","ōṭu","run","long vowel"],
+["ஔ","ഔ","au","ɐu̯","the ow in cow","ஔடதம்","auṭatam","medicine","diphthong"]];
+const C=[
+["க","ക","k","k","the k in sky","பக்கம்","pakkam","side, page","Between vowels it softens to a g sound, so காகம் (kākam) is said kāgam."],
+["ங","ങ","ṅ","ŋ","the ng in sing","சங்கு","caṅku","conch"],
+["ச","ച","c","t͡ʃ","the ch in chair","பச்சை","paccai","green","Doubled, as in பச்சை, it is a hard ch. Between single vowels it softens to s."],
+["ஞ","ഞ","ñ","ɲ","the ny in canyon","பஞ்சு","pañcu","cotton"],
+["ட","ട","ṭ","ʈ","a t said with the tongue curled back","பாட்டு","pāṭṭu","song","Between vowels it is voiced, so வீடு (vīṭu) is said vīḍu."],
+["ண","ണ","ṇ","ɳ","an n said with the tongue curled back","கண்","kaṇ","eye"],
+["த","ത","t","t̪","the t in tub, with the tongue against the teeth","பத்து","pattu","ten","Between vowels it is voiced, so ஆதி (āti) is said ādi."],
+["ந","ന","n","n̪","the n in nut, with the tongue against the teeth","பந்து","pantu","ball"],
+["ப","പ","p","p","the p in spin","அப்பா","appā","father","Between vowels it is voiced, so கோபம் (kōpam) is said kōbam."],
+["ம","മ","m","m","the m in man","மரம்","maram","tree"],
+["ய","യ","y","j","the y in yes","பாய்","pāy","mat"],
+["ர","ര","r","ɾ","a quick tap of the tongue, as in Spanish pero","நேர்","nēr","straight"],
+["ல","ല","l","l","the l in lamp","கல்","kal","stone"],
+["வ","വ","v","ʋ","a sound between English v and w","வானம்","vānam","sky"],
+["ழ","ഴ","ḻ","ɻ","the tongue curled back without touching, close to a soft r","தமிழ்","tamiḻ","Tamil","A rare sound, found in Tamil and Malayalam among few other languages."],
+["ள","ള","ḷ","ɭ","an l said with the tongue curled back","வெள்ளம்","veḷḷam","flood"],
+["ற","റ","ṟ","r","a rolled r, as in Italian rosso","வெற்றி","veṟṟi","victory","Doubled, as in வெற்றி, it sounds like tr."],
+["ன","ഩ","ṉ","n","the n in nap, with the tongue on the ridge behind the teeth","மீன்","mīṉ","fish","Modern Malayalam usually writes this sound with ന. The letter ഩ is rarely used and mostly appears when transliterating Tamil."]];
+const G=[
+["ஜ","ജ","j","d͡ʒ","the j in judge","ஜன்னல்","jaṉṉal","window"],
+["ஷ","ഷ","ṣ","ʂ","the sh in shop, with the tongue curled back","கஷ்டம்","kaṣṭam","hardship"],
+["ஸ","സ","s","s","the s in sun","பஸ்","pas","bus"],
+["ஹ","ഹ","h","ɦ","the h in hat","ஹோட்டல்","hōṭṭal","hotel"],
+["க்ஷ","ക്ഷ","kṣ","kʂ","the ksh in Lakshmi","பக்ஷி","pakṣi","bird"]];
+const AY={kind:"ay",ta:"ஃ",ml:"ഃ",tr:"āytam",ipa:"ɐːjt̪ɐm",type:"special letter",ex:["ஃபோன்","phōn","phone"],
+ defs:["Named āytam. It is not a sound on its own: it colours the consonant that follows it.","In modern Tamil it is used to write the f sound, as in ஃபோன்."]};
+
+const mey=(c,g)=>({kind:"mey",ta:c[0]+PULLI,ml:c[1]+VIR,tr:c[2],ipa:c[3],sound:c[4],ex:[c[5],c[6],c[7]],note:c[8],type:g?"Grantha consonant":"consonant"});
+const uyir=(c,i,g)=>({kind:"uyir",ta:c[0]+TS[i],ml:c[1]+MS[i],tr:c[2]+V[i][2],ipa:c[3]+V[i][3],c,i,type:g?"Grantha vowel-consonant letter":"vowel-consonant letter"});
+
+const groups={
+  vowels:[...V.map(v=>({kind:"vowel",ta:v[0],ml:v[1],tr:v[2],ipa:v[3],sound:v[4],ex:[v[5],v[6],v[7]],type:v[8]})),AY],
+  consonants:C.map(c=>mey(c,false)),
+  uyirmei:C.flatMap(c=>V.map((_,i)=>uyir(c,i,false))),
+  grantha:[...G.map(c=>mey(c,true)),...G.flatMap(c=>V.map((_,i)=>uyir(c,i,true)))]
+};
+
+function defs(o){
+  if(o.defs) return o.defs;
+  if(o.kind==="vowel") return ["Sounds like "+o.sound+"."];
+  if(o.kind==="mey") return ["Sounds like "+o.sound+".","The dot above, called a pulli, shows that no vowel follows."].concat(o.note?[o.note]:[]);
+  const c=o.c, v=V[o.i], p=PLACE[o.i];
+  const sign=!o.i?"The vowel a is built into the consonant, so no sign is written."
+    :"The vowel is marked with a sign "+(p==="before"?"written before the consonant.":p==="around"?"written on both sides of the consonant.":"attached to the consonant.");
+  return ["Joins the consonant "+c[0]+PULLI+" ("+c[2]+") with the vowel "+v[0]+" ("+v[2]+").",sign,"Sounds like "+c[4]+", followed by "+v[4]+"."];
+}
+
+const ICON_SPK='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg>';
+const ICON_X_CLOSE='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+const ICON_X_LOGO='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>';
+const ICON_GH_LOGO='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>';
+
+const synth=window.speechSynthesis;
+const taVoice=()=>synth?synth.getVoices().find(v=>v.lang.toLowerCase().replace("_","-").startsWith("ta")):null;
+
+const pop=document.getElementById("pop");
+const creditBtn=document.getElementById("creditBtn");
+const printBtn=document.getElementById("printBtn");
+let openBtn=null, openData=null;
+
+printBtn.addEventListener("click",()=>{
+  if(openBtn) close(false);
+  window.print();
+});
+
+function widthTier(o){
+  const tLen = o.ta.length;
+  const isKsha = o.ta.startsWith("க்ஷ");
+  const i = o.i;
+  if(isKsha && (i===9 || i===10 || i===11)) return "w-xl";
+  if(isKsha || i===9 || i===10 || i===11 || o.ta==="ஔ") return "w-lg";
+  if(i===1 || i===6 || i===7 || i===8 || tLen>=3) return "w-md";
+  return "";
+}
+
+for(const [id,list] of Object.entries(groups)){
+  const box=document.getElementById(id);
+  list.forEach(o=>{
+    const b=document.createElement("button");
+    const tier=widthTier(o);
+    b.className="cell"+(tier?" "+tier:"");
+    b.type="button"; b.setAttribute("aria-expanded","false");
+    b.setAttribute("aria-label","Tamil "+o.tr);
+    b.innerHTML='<span class="ta" lang="ta">'+o.ta+'</span><span class="ml" lang="ml">'+o.ml+'</span>';
+    b.addEventListener("click",()=>{ openBtn===b?close(true):show(b,o); });
+    box.appendChild(b);
+  });
+}
+
+creditBtn.addEventListener("click",()=>{
+  openBtn===creditBtn?close(true):showCredit(creditBtn);
+});
+
+function show(btn,o){
+  const wasClosed = !openBtn;
+  if(synth) synth.cancel();
+  if(openBtn) openBtn.setAttribute("aria-expanded","false");
+  openBtn=btn; openData=o; btn.setAttribute("aria-expanded","true");
+  pop.classList.remove("credit-mode");
+  const ex=o.ex?'<div class="ex"><small>Example</small><p class="exw" lang="ta">'+o.ex[0]+'</p><p class="exm">'+o.ex[1]+' · '+o.ex[2]+'</p></div>':"";
+  pop.innerHTML='<span class="arrow"></span>'+
+   '<button class="x" type="button" aria-label="Close">'+ICON_X_CLOSE+'</button>'+
+   '<div class="head"><div class="hw" lang="ta">'+o.ta+'</div><div class="mlq"><span lang="ml">'+o.ml+'</span><small>In Malayalam</small></div></div>'+
+   '<div class="pron"><span class="tr">'+o.tr+'</span><span class="ipa">/'+o.ipa+'/</span><button class="spk" type="button" aria-label="Play sound">'+ICON_SPK+'</button></div>'+
+   '<p class="msg" aria-live="polite"></p>'+
+   '<p class="type">'+o.type+'</p>'+
+   '<ol class="defs">'+defs(o).map(d=>'<li>'+d+'</li>').join("")+'</ol>'+ex;
+  pop.setAttribute("aria-label","Tamil letter "+o.ta);
+  pop.querySelector(".x").addEventListener("click",()=>close(true));
+  const spk=pop.querySelector(".spk");
+  if(!synth){ spk.disabled=true; pop.querySelector(".msg").textContent="Sound is not supported in this browser."; }
+  else spk.addEventListener("click",play);
+  place(wasClosed);
+}
+
+function showCredit(btn){
+  const wasClosed = !openBtn;
+  if(synth) synth.cancel();
+  if(openBtn) openBtn.setAttribute("aria-expanded","false");
+  openBtn=btn; openData=null; btn.setAttribute("aria-expanded","true");
+  pop.classList.add("credit-mode");
+  pop.innerHTML='<span class="arrow"></span>'+
+    '<div class="credit-links">'+
+      '<a href="https://x.com/sudoasdk" target="_blank" rel="noopener noreferrer">'+ICON_X_LOGO+'<span>@sudoasdk</span></a>'+
+      '<a href="https://github.com/theonlyasdk" target="_blank" rel="noopener noreferrer">'+ICON_GH_LOGO+'<span>theonlyasdk</span></a>'+
+    '</div>';
+  pop.setAttribute("aria-label","ASDK Links");
+  place(wasClosed);
+}
+
+function place(animateOpen){
+  if(!openBtn) return;
+  const r=openBtn.getBoundingClientRect(), vw=document.documentElement.clientWidth;
+  pop.classList.remove("anim-open");
+  pop.style.display="block"; pop.style.left="0"; pop.style.top="0";
+  const w=pop.offsetWidth, h=pop.offsetHeight, gap=12, m=12, cx=r.left+r.width/2;
+  const left=Math.min(Math.max(cx-w/2,m),vw-w-m);
+  const roomBelow=innerHeight-r.bottom, below=roomBelow>=h+gap+8||roomBelow>=r.top;
+  pop.classList.toggle("up",!below);
+  pop.style.left=(left+scrollX)+"px";
+  pop.style.top=(below?r.bottom+scrollY+gap:r.top+scrollY-gap-h)+"px";
+  pop.style.setProperty("--ax",(cx-left)+"px");
+  if(animateOpen===true){
+    void pop.offsetWidth;
+    pop.classList.add("anim-open");
+  }
+  if(below && r.bottom+gap+h>innerHeight-8) window.scrollBy(0,r.bottom+gap+h-innerHeight+16);
+}
+
+function close(refocus){
+  if(synth) synth.cancel();
+  pop.classList.remove("anim-open");
+  pop.style.display="none";
+  if(openBtn){ openBtn.setAttribute("aria-expanded","false"); if(refocus) openBtn.focus(); }
+  openBtn=null; openData=null;
+}
+
+function play(){
+  if(!openData) return;
+  const msg=pop.querySelector(".msg"), voices=synth.getVoices(), v=taVoice();
+  if(voices.length && !v){ msg.textContent="No Tamil voice was found on this device."; return; }
+  msg.textContent="";
+  synth.cancel();
+  const u=new SpeechSynthesisUtterance(openData.ta);
+  u.lang="ta-IN"; u.rate=.7; if(v) u.voice=v;
+  u.onerror=()=>{ msg.textContent="Sound could not be played on this device."; };
+  synth.speak(u);
+}
+
+document.addEventListener("click",e=>{
+  if(openBtn && !pop.contains(e.target) && !e.target.closest(".cell") && !e.target.closest(".credit-btn")) close(false);
+});
+document.addEventListener("keydown",e=>{ if(e.key==="Escape" && openBtn) close(true); });
+addEventListener("resize",()=>place(false));
+</script>
+</body>
+</html>

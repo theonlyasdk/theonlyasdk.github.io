@@ -129,7 +129,9 @@ search,
 
   .search-empty-state {
     padding: 2.5rem 1rem;
-    animation: searchFadeIn 0.35s ease-out both;
+    /* No entrance animation: SimpleJekyllSearch re-injects this markup on every
+       keystroke when there are no results, which would otherwise replay the
+       fade-in on each character typed. */
 
     .search-empty-icon-wrap {
       display: inline-flex;

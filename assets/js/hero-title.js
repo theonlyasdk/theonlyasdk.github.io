@@ -47,6 +47,16 @@
 
       if (!(target instanceof Element)) return;
 
+      /* Only a plain left press navigates this document. Middle, right and
+         modifier clicks open somewhere else, so naming a card for them would
+         leave the name behind for the next traversal to pick up. */
+      const modified = event.ctrlKey || event.metaKey || event.shiftKey || event.altKey;
+
+      if (event.button !== 0 || modified) {
+        name(null);
+        return;
+      }
+
       /* Pressing anywhere on a post card counts - the whole card is one link -
          but the name goes on its title, since that is the thing that flies. */
       const link = DESKTOP.matches ? target.closest('a') : null;
@@ -73,10 +83,9 @@
     true
   );
 
-  /* A bfcache restore brings the page back exactly as it was left, name
-     included - which is what makes going back morph the title home again. A
-     fresh load starts clean. */
-  window.addEventListener('pageshow', (event) => {
-    if (!event.persisted) name(null);
-  });
+  /* The name is only ever armed by a press, so a restored page starts clean: a
+     traversal can never pair a stale card with a post it does not belong to.
+     Chrome skips view transitions on bfcache restores anyway, so there is
+     nothing to keep the name alive for. */
+  window.addEventListener('pageshow', () => name(null));
 })();

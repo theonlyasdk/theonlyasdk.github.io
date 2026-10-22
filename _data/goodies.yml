@@ -7,7 +7,7 @@
 
 - name: Fluid simulation
   category: Simulations
-  description: A gorgeous WebGL simulation of fluid dynamics, smoke, and particles in real-time.
+  description: A real-time WebGL fluid dynamics simulation with smoke and particles.
   image: /assets/img/goodies/fluid_simulation.png
   iframe_url: https://paveldogreat.github.io/WebGL-Fluid-Simulation/
   credits:
@@ -21,7 +21,7 @@
 
 - name: Cellular automaton
   category: Experiments
-  description: Explore complex patterns emerging from simple rules in a grid-based universe.
+  description: A grid-based cellular automaton with editable rules and starting patterns.
   image: /assets/img/goodies/cellular_automaton.png
   iframe_url: /goodies/cellular-automaton/index.html
   info:
@@ -33,7 +33,7 @@
 
 - name: Procedural terrain
   category: Demos
-  description: Infinite procedural terrain generation with dynamic biomes and atmospheric horizon fog.
+  description: Procedurally generated terrain with biomes, ridgelines, and horizon fog.
   image: /assets/img/goodies/procedural_terrain.png
   iframe_url: /goodies/procedural-terrain/index.html
   info:
@@ -46,7 +46,7 @@
 
 - name: Sorting visualizer
   category: Tools
-  description: Watch sorting algorithms organize data in a beautiful visual performance.
+  description: Visualizes sorting algorithms step by step, showing comparisons and swaps.
   image: /assets/img/goodies/sorting_visualizer.png
   iframe_url: /goodies/sorting-visualizer/index.html
   info:
@@ -58,7 +58,7 @@
 
 - name: Fractal viewer
   category: Experiments
-  description: Dive deep into the infinite complexity of Mandelbrot and Julia sets.
+  description: Renders Mandelbrot and Julia sets per pixel on the GPU, with zoom and pan.
   image: /assets/img/goodies/fractal_viewer.png
   iframe_url: /goodies/fractal-viewer/index.html
   info:
@@ -70,15 +70,18 @@
 
 - name: Terminal emulator
   category: Tools
-  description: A retro-style command line interface running directly in your browser.
+  description: A retro-styled terminal emulator that runs entirely in the browser.
   image: /assets/img/goodies/terminal_emulator.png
   iframe_url: https://theonlyasdk.github.io/blockterm/
   info:
-    summary: A retro-styled terminal that lives in the browser. It is hosted as its own project rather than bundled with the rest of the goodies, and loads here in the viewer or in a new tab when you want it fullscreen.
-
+    summary: A retro-styled terminal emulator that runs entirely in the browser. It brings a command-line interface to the web, complete with a classic look and feel, and can be used directly inside the viewer or opened in a new tab for a fullscreen experience.
+    controls: Type commands at the prompt and press Enter to run them. Use the demo link in the viewer header to open the terminal in a new tab for fullscreen use.
+    tech:
+      - Vanilla JS
+      - Web terminal emulation
 - name: Motion studio
   category: Simulations
-  description: An interactive Material 3 Expressive studio for simulating and tuning OS app launch and recents motion physics.
+  description: A workbench for tuning Material 3 Expressive motion springs and beziers.
   image: /assets/img/goodies/motion_studio.png
   iframe_url: /goodies/motion-studio/index.html
   info:
@@ -87,3 +90,15 @@
     tech:
       - Canvas 2D
       - Vanilla JS
+
+- name: Tamil letters in Malayalam
+  category: Demos
+  description: An interactive chart mapping every Tamil letter to its Malayalam equivalent, with pronunciation and sound.
+  image: /assets/img/goodies/tamil_letters_in_malayalam.png
+  iframe_url: /goodies/tamil-letters-in-malayalam/index.html
+  info:
+    summary: A reference chart for anyone moving between Tamil and Malayalam. Every vowel, consonant, vowel-consonant and Grantha letter is shown side by side with its Malayalam counterpart, transliteration and IPA, plus an example word. Tap a cell to hear it spoken.
+    controls: Tap any letter cell to open its details and play its sound. Use the Print Chart button to print the whole chart. The credit button links to the author.
+    tech:
+      - Vanilla JS
+      - Web Speech API

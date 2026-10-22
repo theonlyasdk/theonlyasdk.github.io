@@ -337,6 +337,16 @@ order: 6
     display: grid;
     grid-template-columns: 210px 1fr;
     padding-bottom: 0;
+    /* Keep every list-view card the same height so the rows line up evenly,
+       regardless of how long the description is. */
+    height: 150px;
+  }
+
+  #goodies-grid.list-view .goodie-card:not(.is-layout-from) > p {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
   }
 
   #goodies-grid.list-view .goodie-card:not(.is-layout-from) > .card-cover {
@@ -372,6 +382,7 @@ order: 6
   @media (max-width: 576px) {
     #goodies-grid.list-view .goodie-card:not(.is-layout-from) {
       grid-template-columns: 1fr;
+      height: auto;
     }
 
     #goodies-grid.list-view .goodie-card:not(.is-layout-from) > .card-cover {

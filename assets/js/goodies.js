@@ -552,8 +552,11 @@
   }
 
   function setupCollection() {
+    /* Goodies are appended to _data/goodies.yml in chronological order (oldest
+       first, newest last), so reverse here to surface the most recent ones
+       first - mirroring the projects list convention. */
     window.CollectionGrid({
-      items: GOODIES,
+      items: [...GOODIES].reverse(),
       gridId: 'goodies-grid',
       filterId: 'goodie-filter',
       searchId: 'goodie-search',
