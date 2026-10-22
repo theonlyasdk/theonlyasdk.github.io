@@ -1090,9 +1090,25 @@ order: 6
   }
 
   .goodies-faq-divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
     margin: 3rem 0 1.5rem;
-    border: 0;
+  }
+
+  .goodies-faq-divider::after {
+    content: '';
+    flex: 1;
     border-top: 1px solid var(--sidebar-border-color);
+  }
+
+  .goodies-faq-divider-text {
+    font-weight: 600;
+    color: var(--text-muted-color);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.85rem;
+    white-space: nowrap;
   }
 
   .t-acc-group {
@@ -1187,7 +1203,7 @@ order: 6
 </div>
 
 
-<hr class="goodies-faq-divider">
+<div class="goodies-faq-divider"><span class="goodies-faq-divider-text">FAQs</span></div>
 <div class="t-acc-group">
 <div class="t-acc" data-open="false">
   <button class="t-acc-head" aria-expanded="false" aria-controls="goodies-faq-panel-1">
