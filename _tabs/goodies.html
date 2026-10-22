@@ -1293,4 +1293,31 @@ order: 6
       head.setAttribute('aria-expanded', String(willOpen));
     });
   });
+
+  /* Fit the "Goodies" title width to the search box width beneath it, by
+     adjusting font-size only (no text stretching). Runs on load, on resize,
+     and after fonts are ready. */
+  function fitGoodiesTitle() {
+    const title = document.querySelector('.dynamic-title');
+    const search = document.querySelector('.goodie-search');
+    if (!title || !search) return;
+    const target = search.getBoundingClientRect().width;
+    if (!target) return;
+    title.style.transition = 'none';
+    let lo = 8, hi = 200, best = 8;
+    while (lo <= hi) {
+      const mid = (lo + hi) / 2;
+      title.style.fontSize = mid + 'px';
+      if (title.offsetWidth <= target + 0.5) {
+        best = mid;
+        lo = mid + 0.5;
+      } else {
+        hi = mid - 0.5;
+      }
+    }
+    title.style.fontSize = best + 'px';
+  }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitGoodiesTitle);
+  fitGoodiesTitle();
+  window.addEventListener('resize', fitGoodiesTitle);
 </script>
