@@ -159,6 +159,72 @@ order: 6
     background: var(--main-bg);
   }
 
+  /* Goodies-only GradientASCII background. The WebGL surface
+     (assets/js/gradient-ascii.js) is reparented to the layout container and
+     sized by script to the main content column, spanning the article and the
+     footer while excluding the sidebars. Negative z-index inside the isolated
+     container keeps it behind every in-flow element. */
+  #main-wrapper > .container.has-goodies-ascii {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .goodies-ascii-hero {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.85;","oldString">
+    opacity: 0.62;","path">
+C:\Users\User\Documents\GitHub\theonlyasdk.github.io\_tabs\goodies.html
+    -webkit-mask-image:
+      linear-gradient(to bottom, transparent 0%, #000 1.5%, #000 100%),
+      linear-gradient(to right, transparent 0%, #000 2%, #000 98%, transparent 100%);
+    -webkit-mask-composite: source-in;
+    mask-image:
+      linear-gradient(to bottom, transparent 0%, #000 1.5%, #000 100%),
+      linear-gradient(to right, transparent 0%, #000 2%, #000 98%, transparent 100%);
+    mask-composite: intersect;
+  }
+
+  .goodies-ascii-hero .gradient-ascii-container {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  .goodies-ascii-hero canvas {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 1.1s ease;
+  }
+
+  .goodies-ascii-hero.is-ready canvas {
+    opacity: 1;
+  }
+
+  .goodies-ascii-hero.is-unsupported::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(60% 22% at 50% 4%, color-mix(in srgb, var(--link-color) 34%, transparent), transparent 72%),
+      linear-gradient(to bottom, color-mix(in srgb, var(--link-color) 9%, transparent), transparent 55%);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .goodies-ascii-hero canvas {
+      transition: none;
+    }
+  }
+
   .goodie-search {
     display: flex;
     align-items: center;
@@ -1091,14 +1157,19 @@ order: 6
 
   h1.dynamic-title.goodies-title {
     text-align: center;
+    white-space: nowrap;
   }
 
   .goodies-title-letter {
     display: inline-block;
+    line-height: 1;
+    text-align: center;
+    transition: color 0.15s ease;
   }
 
   .goodies-title-letter:hover {
     font-family: monospace;
+    transform: scaleX(var(--goodies-letter-scale, 1));
   }
 
   .goodies-faq-divider {
@@ -1143,6 +1214,13 @@ order: 6
     }
   }
 </style>
+<div class="goodies-ascii-hero" aria-hidden="true">
+  <div class="gradient-ascii-container" id="goodies-ascii" data-gradient-ascii
+       data-shape="horizon" data-cell-size="14" data-density="0.72" data-speed="0.72"
+       data-scale="2.4" data-softness="0.68" data-variation="0" data-dpr="1">
+    <canvas class="gradient-ascii-canvas"></canvas>
+  </div>
+</div>
 <div class="goodie-search" role="search">
   <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
   <input type="search" id="goodie-search" placeholder="Search goodies by name or topic…" aria-label="Search goodies" autocomplete="off">
@@ -1286,6 +1364,7 @@ order: 6
 </div>
 
 <script type="application/json" id="goodies-data">{{ site.data.goodies | jsonify }}</script>
+<script src="{{ '/assets/js/gradient-ascii.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
 <script src="{{ '/assets/js/rubber-segment.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
 <script src="{{ '/assets/js/collection-grid.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
 <script src="{{ '/assets/js/goodies.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
@@ -1306,45 +1385,138 @@ order: 6
     });
   });
 
-  /* Fit the "Goodies" title width to the search box width beneath it, by
-     adjusting font-size only (no text stretching). Also splits the title into
-     per-letter spans so each letter can react on hover. Runs on load, on resize,
-     and after fonts are ready. */
+  /* Colors sampled from the Monokai, Nord and Ace editor schemes. */
+  const GOODIES_HOVER_COLORS = [
+    '#f92672', '#a6e22e', '#66d9ef', '#fd971f', '#e6db74', '#ae81ff', /* Monokai */
+    '#88c0d0', '#81a1c1', '#8fbcbb', '#a3be8c', '#ebcb8b', '#d08770', '#b48ead', '#bf616a', /* Nord */
+    '#cda869', '#cf6a4c', '#8f9d6a', '#9b859d', '#7587a6', '#f9ee98' /* Ace */
+  ];
+  let lastGoodiesHoverColor = '';
+
+  function randomGoodiesHoverColor() {
+    let color = GOODIES_HOVER_COLORS[Math.floor(Math.random() * GOODIES_HOVER_COLORS.length)];
+    let guard = 0;
+    while (color === lastGoodiesHoverColor && guard < 8) {
+      color = GOODIES_HOVER_COLORS[Math.floor(Math.random() * GOODIES_HOVER_COLORS.length)];
+      guard += 1;
+    }
+    lastGoodiesHoverColor = color;
+    return color;
+  }
+
+  /* Splits the title into per-letter spans so each letter can turn monospace
+     and pick a random highlight color on hover. */
+  function splitGoodiesTitle(title) {
+    if (title.dataset.lettersSplit) return;
+    const text = title.textContent.trim();
+    title.textContent = '';
+    for (const ch of text) {
+      const span = document.createElement('span');
+      span.className = 'goodies-title-letter';
+      span.textContent = ch;
+      span.addEventListener('mouseenter', () => {
+        span.style.color = randomGoodiesHoverColor();
+      });
+      span.addEventListener('mouseleave', () => {
+        span.style.color = '';
+      });
+      title.appendChild(span);
+    }
+    title.dataset.lettersSplit = '1';
+  }
+
+  /* Fit the "Goodies" title width to the search box width beneath it by
+     adjusting font-size only (no text stretching). The size is floored at a
+     fixed value derived from the page's default font size so it never collapses
+     or jitters at small widths. */
+  const goodiesMeasureCanvas = document.createElement('canvas');
+  const goodiesMeasureCtx = goodiesMeasureCanvas.getContext('2d');
+
   function fitGoodiesTitle() {
     const title = document.querySelector('.dynamic-title');
     const search = document.querySelector('.goodie-search');
     if (!title || !search) return;
     title.classList.add('goodies-title');
-    /* Split into per-letter spans once. */
-    if (!title.dataset.lettersSplit) {
-      const text = title.textContent.trim();
-      title.textContent = '';
-      for (const ch of text) {
-        const span = document.createElement('span');
-        span.className = 'goodies-title-letter';
-        span.textContent = ch;
-        title.appendChild(span);
-      }
-      title.dataset.lettersSplit = '1';
-    }
+    splitGoodiesTitle(title);
     if (!title.offsetParent) return;
     const target = search.getBoundingClientRect().width;
     if (!target) return;
+
+    const rootFont = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+    const minFont = rootFont * 2.5;
+
     title.style.transition = 'none';
-    let lo = 8, hi = 200, best = 8;
-    while (lo <= hi) {
+    title.style.whiteSpace = 'nowrap';
+    const spans = [...title.querySelectorAll('.goodies-title-letter')];
+    spans.forEach((span) => {
+      span.style.width = '';
+      span.style.removeProperty('--goodies-letter-scale');
+    });
+
+    const range = document.createRange();
+    const measure = (px) => {
+      title.style.fontSize = px + 'px';
+      range.selectNodeContents(title);
+      return range.getBoundingClientRect().width;
+    };
+
+    let hi = Math.max(400, minFont * 8);
+    let guard = 0;
+    while (measure(hi) <= target && guard < 6) {
+      hi *= 2;
+      guard += 1;
+    }
+
+    let lo = minFont;
+    let best = minFont;
+    while (hi - lo > 0.25) {
       const mid = (lo + hi) / 2;
-      title.style.fontSize = mid + 'px';
-      if (title.offsetWidth <= target + 0.5) {
+      if (measure(mid) <= target) {
         best = mid;
-        lo = mid + 0.5;
+        lo = mid;
       } else {
-        hi = mid - 0.5;
+        hi = mid;
       }
     }
     title.style.fontSize = best + 'px';
+
+    /* Freeze each letter at its natural width and pre-compute the scale needed
+       for the monospace glyph, so hovering changes appearance but never layout. */
+    spans.forEach((span) => {
+      const natural = span.getBoundingClientRect().width;
+      let scale = 1;
+      if (goodiesMeasureCtx && span.textContent.trim()) {
+        goodiesMeasureCtx.font = best + 'px monospace';
+        const mono = goodiesMeasureCtx.measureText(span.textContent).width;
+        if (mono > 0) scale = natural / mono;
+      }
+      span.style.width = natural + 'px';
+      span.style.setProperty('--goodies-letter-scale', String(scale));
+    });
   }
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitGoodiesTitle);
-  fitGoodiesTitle();
-  window.addEventListener('resize', fitGoodiesTitle);
+
+  let goodiesFitFrame = 0;
+  function scheduleGoodiesFit() {
+    if (goodiesFitFrame) cancelAnimationFrame(goodiesFitFrame);
+    goodiesFitFrame = requestAnimationFrame(() => {
+      goodiesFitFrame = 0;
+      fitGoodiesTitle();
+    });
+  }
+
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(scheduleGoodiesFit);
+  }
+  scheduleGoodiesFit();
+  window.addEventListener('resize', scheduleGoodiesFit);
+  window.addEventListener('load', scheduleGoodiesFit);
+
+  /* The search box can settle to its final width after this script runs, so
+     refit whenever its measured width changes. */
+  if ('ResizeObserver' in window) {
+    const search = document.querySelector('.goodie-search');
+    if (search) {
+      new ResizeObserver(scheduleGoodiesFit).observe(search);
+    }
+  }
 </script>
