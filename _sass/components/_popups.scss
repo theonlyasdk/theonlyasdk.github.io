@@ -324,9 +324,11 @@
     animation: sheet-slide-down 0.3s cubic-bezier(0.42, 0, 1, 1) forwards;
   }
 
-  /* No ::backdrop dim here: a modal dialog's backdrop paints above the whole
-     document (including the topbar), which hid the page header. The real dim
-     lives in #page-backdrop, layered below the topbar instead. */
+  &::backdrop {
+    -webkit-backdrop-filter: blur(calc(var(--sheet-progress, 1) * 6px));
+    backdrop-filter: blur(calc(var(--sheet-progress, 1) * 6px));
+    background: rgba(0, 0, 0, calc(var(--sheet-progress, 1) * 0.35));
+  }
 }
 
 @starting-style {
@@ -334,39 +336,4 @@
     transform: translateY(100%);
     --sheet-progress: 0;
   }
-}
-
-/* Dim/blur layer for the open sheet, drawn below the fixed page header so
-   the topbar stays crisp and visible (native iOS sheets keep the nav bar
-   above the dim). Clicks still reach the modal's transparent backdrop, so
-   dismissal behavior is unchanged. */
-#page-backdrop {
-  position: fixed;
-  inset: v.$topbar-height 0 0 0;
-  z-index: 99;
-  background: rgba(0, 0, 0, 0.35);
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transition:
-    opacity 0.4s ease-out,
-    visibility 0s 0.4s;
-}
-
-body:has(#toc-popup[open]) #page-backdrop {
-  opacity: 1;
-  visibility: visible;
-  transition: opacity 0.4s ease-out;
-}
-
-/* While the sheet animates out, the dim fades with it ([closing] is set by
-   both the bundled module and the drag-dismiss script). */
-body:has(#toc-popup[closing]) #page-backdrop {
-  opacity: 0;
-  visibility: hidden;
-  transition:
-    opacity 0.3s cubic-bezier(0.42, 0, 1, 1),
-    visibility 0s 0.3s;
 }
