@@ -192,59 +192,57 @@
   margin-top: v.$topbar-height;
   min-width: 20rem;
 
-  @include bp.lt(bp.get(lg)) {
-    /* iOS-style bottom sheet */
-    margin: 0;
-    inset: auto 0 0 0;
-    width: 100%;
-    max-width: 100%;
-    max-height: 85vh;
-    min-width: 0;
-    border-radius: 1.25rem 1.25rem 0 0;
-    --sheet-progress: 1;
-    transition: --sheet-progress 0.35s ease-out, transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
-    touch-action: none;
+  /* iOS-style bottom sheet */
+  margin: 0 auto;
+  inset: auto 0 0 0;
+  width: 100%;
+  max-width: 32rem;
+  max-height: 85vh;
+  min-width: 0;
+  border-radius: 1.25rem 1.25rem 0 0;
+  --sheet-progress: 1;
+  transition: --sheet-progress 0.35s ease-out, transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  touch-action: none;
 
-    &::before {
-      content: '';
-      display: block;
-      width: 2.5rem;
-      height: 0.3rem;
-      border-radius: 999px;
-      background: var(--text-muted-color);
-      opacity: 0.35;
-      margin: 0.6rem auto 0.2rem;
-      cursor: grab;
-    }
+  &::before {
+    content: '';
+    display: block;
+    width: 2.5rem;
+    height: 0.3rem;
+    border-radius: 999px;
+    background: var(--text-muted-color);
+    opacity: 0.35;
+    margin: 0.6rem auto 0.2rem;
+    cursor: grab;
+  }
 
-    .header {
-      border-bottom: none;
-      padding-left: 1rem;
-      padding-right: 1rem;
-      cursor: grab;
-      user-select: none;
-    }
+  .header {
+    border-bottom: none;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    cursor: grab;
+    user-select: none;
+  }
 
-    #toc-popup-content {
-      padding: 0.5rem 1rem 1rem;
-      max-height: calc(85vh - 3rem);
-    }
+  #toc-popup-content {
+    padding: 0.5rem 1rem 1rem;
+    max-height: calc(85vh - 3rem);
+  }
 
-    &[open] {
-      animation: none;
-      opacity: 1;
-      transform: translateY(0);
-    }
+  &[open] {
+    animation: none;
+    opacity: 1;
+    transform: translateY(0);
+  }
 
-    &[closing] {
-      animation: none;
-    }
+  &[closing] {
+    animation: none;
+  }
 
-    &::backdrop {
-      backdrop-filter: blur(calc(var(--sheet-progress, 1) * 6px));
-      -webkit-backdrop-filter: blur(calc(var(--sheet-progress, 1) * 6px));
-      background: rgba(0, 0, 0, calc(var(--sheet-progress, 1) * 0.35));
-    }
+  &::backdrop {
+    backdrop-filter: blur(calc(var(--sheet-progress, 1) * 6px));
+    -webkit-backdrop-filter: blur(calc(var(--sheet-progress, 1) * 6px));
+    background: rgba(0, 0, 0, calc(var(--sheet-progress, 1) * 0.35));
   }
   font-size: 1.05rem;
   transition: all 100ms linear;
