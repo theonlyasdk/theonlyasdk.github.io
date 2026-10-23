@@ -70,6 +70,7 @@
   /* No `from` frame: it starts from the sheet's current transform, so it
      stays smooth even after an interactive drag (iOS-style dismissal). */
   to {
+    opacity: 0;
     transform: translateY(100%);
     --sheet-progress: 0;
   }
@@ -268,8 +269,7 @@
 
   /* iOS-style bottom sheet: anchored to the bottom edge, slides up on open
      (via @starting-style) and slides down on close. Declared last so it wins
-     the cascade over the popup's base rules. Motion is the exact UIKit sheet
-     spring (stiffness 280, damping 28, mass 1) baked into a linear() token. */
+     the cascade over the popup's base rules. */
   margin: 0 auto;
   inset: auto 0 0 0;
   width: 100%;
@@ -278,8 +278,9 @@
   border-radius: 1.25rem 1.25rem 0 0;
   --sheet-progress: 1;
   transition:
-    transform 0.5s linear(0.0000, 0.0005 2%, 0.0022 4%, 0.0048 6%, 0.0083 8%, 0.0128 10%, 0.0180 12%, 0.0241 14%, 0.0309 16%, 0.0383 18%, 0.0464 20%, 0.0552 22%, 0.0644 24%, 0.0742 26%, 0.0844 28%, 0.0951 30%, 0.1062 32%, 0.1177 34%, 0.1295 36%, 0.1416 38%, 0.1540 40%, 0.1666 42%, 0.1795 44%, 0.1925 46%, 0.2057 48%, 0.2191 50%, 0.2326 52%, 0.2461 54%, 0.6206 56%, 0.4932 58%, 0.3794 60%, 0.2828 62%, 0.2038 64%, 0.1416 66%, 0.0940 68%, 0.0588 70%, 0.0336 72%, 0.0162 74%, 0.0048 76%, 0.0000 78%, 0.0000 80%, 0.0000 82%, 0.0000 84%, 0.0000 86%, 0.0000 88%, 0.0000 90%, 0.0000 92%, 0.0000 94%, 0.0000 96%, 0.0000 98%, 1),
-    --sheet-progress 0.5s linear(0.0000, 0.0005 2%, 0.0022 4%, 0.0048 6%, 0.0083 8%, 0.0128 10%, 0.0180 12%, 0.0241 14%, 0.0309 16%, 0.0383 18%, 0.0464 20%, 0.0552 22%, 0.0644 24%, 0.0742 26%, 0.0844 28%, 0.0951 30%, 0.1062 32%, 0.1177 34%, 0.1295 36%, 0.1416 38%, 0.1540 40%, 0.1666 42%, 0.1795 44%, 0.1925 46%, 0.2057 48%, 0.2191 50%, 0.2326 52%, 0.2461 54%, 0.6206 56%, 0.4932 58%, 0.3794 60%, 0.2828 62%, 0.2038 64%, 0.1416 66%, 0.0940 68%, 0.0588 70%, 0.0336 72%, 0.0162 74%, 0.0048 76%, 0.0000 78%, 0.0000 80%, 0.0000 82%, 0.0000 84%, 0.0000 86%, 0.0000 88%, 0.0000 90%, 0.0000 92%, 0.0000 94%, 0.0000 96%, 0.0000 98%, 1);
+    opacity 0.35s ease-out,
+    --sheet-progress 0.4s ease-out,
+    transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
 
   .sheet-grabber {
     position: absolute;
@@ -303,13 +304,6 @@
     touch-action: none;
   }
 
-  /* iOS sheets have no close button; dismissing is a slide-down (drag,
-     backdrop tap, Esc). The element stays in the markup because the bundled
-     toc module binds it at startup. */
-  #toc-popup-close {
-    display: none !important;
-  }
-
   #toc-popup-content {
     max-height: min(calc(85vh - 5rem), calc(100vh - 4 * v.$topbar-height));
     touch-action: pan-y;
@@ -318,11 +312,12 @@
 
   &[open] {
     animation: none;
+    opacity: 1;
     transform: translateY(0);
   }
 
   &[closing] {
-    animation: sheet-slide-down 0.5s linear(0.0000, 0.0005 2%, 0.0022 4%, 0.0048 6%, 0.0083 8%, 0.0128 10%, 0.0180 12%, 0.0241 14%, 0.0309 16%, 0.0383 18%, 0.0464 20%, 0.0552 22%, 0.0644 24%, 0.0742 26%, 0.0844 28%, 0.0951 30%, 0.1062 32%, 0.1177 34%, 0.1295 36%, 0.1416 38%, 0.1540 40%, 0.1666 42%, 0.1795 44%, 0.1925 46%, 0.2057 48%, 0.2191 50%, 0.2326 52%, 0.2461 54%, 0.6206 56%, 0.4932 58%, 0.3794 60%, 0.2828 62%, 0.2038 64%, 0.1416 66%, 0.0940 68%, 0.0588 70%, 0.0336 72%, 0.0162 74%, 0.0048 76%, 0.0000 78%, 0.0000 80%, 0.0000 82%, 0.0000 84%, 0.0000 86%, 0.0000 88%, 0.0000 90%, 0.0000 92%, 0.0000 94%, 0.0000 96%, 0.0000 98%, 1) forwards;
+    animation: sheet-slide-down 0.3s cubic-bezier(0.42, 0, 1, 1) forwards;
   }
 
   &::backdrop {
@@ -334,29 +329,8 @@
 
 @starting-style {
   #toc-popup[open] {
+    opacity: 0;
     transform: translateY(100%);
     --sheet-progress: 0;
-  }
-}
-
-/* The sheet's dim/blur layer, drawn below the fixed page header so the
-   header stays visible while the sheet is open (native iOS behavior). */
-#page-backdrop {
-  position: fixed;
-  inset: 8.75rem 0 0 0;
-  z-index: 999;
-  background: rgba(0, 0, 0, 0.35);
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.5s ease-in-out;
-
-  &.sheet-open {
-    opacity: 1;
-    pointer-events: auto;
-
-    /* Tapping the dim dismisses the sheet (same as the modal backdrop). */
-    cursor: pointer;
   }
 }
