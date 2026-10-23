@@ -1,0 +1,128 @@
+#photos-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  background: #000;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+#photos-viewer[hidden] {
+  display: none;
+}
+
+#pv-backdrop {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: #000;
+  transition: opacity 0.38s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+#pv-track {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
+.pv-item {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.pv-item-current {
+  z-index: 1;
+}
+
+.pv-item img {
+  position: absolute;
+  transform-origin: 0 0;
+  -webkit-user-drag: none;
+  transition: opacity 0.3s ease;
+}
+
+/* Neighbors stay invisible while the hero flies in/out; they fade in once
+   the sheet is fully open, like Photos. */
+#photos-viewer[data-state='opening'] .pv-item-current,
+#photos-viewer[data-state='closing'] .pv-item-current,
+#photos-viewer[data-state='open'] .pv-item {
+  opacity: 1;
+}
+
+.pv-nav {
+  position: absolute;
+  top: calc(50% - 22px);
+  width: 44px;
+  height: 44px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: rgba(40, 40, 40, 0.55);
+  color: #fff;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+#photos-viewer[data-chrome='show'] .pv-nav {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.pv-nav::before {
+  content: '';
+  width: 11px;
+  height: 11px;
+  border-left: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: rotate(45deg) translate(2px, -2px);
+}
+
+#pv-next::before {
+  transform: rotate(-135deg) translate(-2px, -2px);
+}
+
+#pv-prev {
+  left: calc(12px + env(safe-area-inset-left, 0px));
+}
+
+#pv-next {
+  right: calc(12px + env(safe-area-inset-right, 0px));
+}
+
+#pv-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  z-index: 2;
+  padding: 0 1.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.8);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+#photos-viewer[data-chrome='show'] #pv-caption {
+  opacity: 1;
+}
+
+@media (pointer: coarse) {
+  .pv-nav {
+    display: none;
+  }
+}
