@@ -115,6 +115,7 @@ script_includes:
 
     <dialog id="toc-popup" class="p-0">
       <div class="header d-flex flex-row align-items-center justify-content-between">
+        <div class="sheet-grabber"></div>
         <div class="label text-truncate py-2 ms-4">{{- page.title -}}</div>
         <button id="toc-popup-close" type="button" class="btn mx-1 my-1 opacity-75">
           <i class="fas fa-close"></i>
@@ -124,90 +125,109 @@ script_includes:
     </dialog>
 
     <script>
-      /* iOS-style bottom sheet drag-to-dismiss for the mobile ToC dialog. */
+      /* iOS-style slide-to-dismiss for the ToC bottom sheet. The sheet follows
+         the pointer 1:1 while dragging, then springs back or slides away with a
+         flick. Pointer events cover touch on mobile and mouse on desktop. */
       (function () {
         var popup = document.getElementById('toc-popup');
         if (!popup) return;
-        var header = popup.querySelector('.header');
-        if (!header) return;
 
-        var isMobile = function () {
-          return window.matchMedia('(max-width: 991.98px)').matches;
-        };
-
+        var activeId = null;
         var dragging = false;
         var startY = 0;
-        var currentOffset = 0;
+        var movedY = 0;
         var sheetHeight = 0;
+        var lastY = 0;
+        var lastT = 0;
+        var velY = 0;
+        var closeTimer = null;
 
-        /* Override showModal to play the iOS slide-up entrance. */
-        var originalShowModal = popup.showModal.bind(popup);
-        popup.showModal = function () {
-          popup.style.transform = 'translateY(100%)';
-          popup.style.setProperty('--sheet-progress', '0');
-          originalShowModal();
-          requestAnimationFrame(function () {
-            requestAnimationFrame(function () {
-              popup.style.transform = 'translateY(0)';
-              popup.style.setProperty('--sheet-progress', '1');
-            });
-          });
-        };
-
-        popup.addEventListener('close', function () {
-          popup.style.transform = '';
-          popup.style.transition = '';
-          popup.style.removeProperty('--sheet-progress');
-        });
-
-        header.addEventListener('pointerdown', function (e) {
-          if (!isMobile()) return;
-          dragging = true;
-          startY = e.clientY;
-          sheetHeight = popup.offsetHeight || 300;
-          currentOffset = 0;
-          popup.style.transition = 'none';
-          try { header.setPointerCapture(e.pointerId); } catch (err) {}
-        });
-
-        header.addEventListener('pointermove', function (e) {
-          if (!dragging) return;
-          var offset = e.clientY - startY;
-          if (offset < 0) offset = 0;
-          currentOffset = offset;
-          popup.style.transform = 'translateY(' + offset + 'px)';
-          var progress = 1 - offset / sheetHeight;
-          if (progress < 0) progress = 0;
-          if (progress > 1) progress = 1;
-          popup.style.setProperty('--sheet-progress', progress);
-        });
-
-        function endDrag() {
-          if (!dragging) return;
-          dragging = false;
-          var threshold = Math.max(80, sheetHeight * 0.2);
-          if (currentOffset > threshold) {
-            popup.style.transition = 'transform 0.25s ease-in, --sheet-progress 0.25s ease-in';
-            popup.style.transform = 'translateY(100%)';
-            popup.style.setProperty('--sheet-progress', '0');
-            setTimeout(function () {
-              popup.close();
-            }, 260);
-            document.documentElement.classList.remove('overflow-hidden');
-            document.body.classList.remove('overflow-hidden');
-          } else {
-            popup.style.transition = 'transform 0.35s cubic-bezier(0.32, 0.72, 0, 1), --sheet-progress 0.35s ease-out';
-            popup.style.transform = 'translateY(0)';
-            popup.style.setProperty('--sheet-progress', '1');
-            setTimeout(function () {
-              popup.style.transition = '';
-            }, 360);
-          }
+        function clamp(value) {
+          return Math.min(1, Math.max(0, value));
         }
 
-        header.addEventListener('pointerup', endDrag);
-        header.addEventListener('pointercancel', endDrag);
-        header.addEventListener('lostpointercapture', endDrag);
+        popup.addEventListener('pointerdown', function (e) {
+          if (activeId !== null) return;
+          if (popup.hasAttribute('closing')) return;
+          /* Skip the scrollable content and buttons; everything else drags. */
+          if (e.target.closest('#toc-popup-content')) return;
+          if (e.target.closest('button')) return;
+          activeId = e.pointerId;
+          startY = e.clientY;
+          movedY = 0;
+          dragging = false;
+          sheetHeight = popup.offsetHeight || 320;
+          lastY = e.clientY;
+          lastT = e.timeStamp;
+          velY = 0;
+        });
+
+        popup.addEventListener('pointermove', function (e) {
+          if (activeId !== e.pointerId) return;
+          var dy = e.clientY - startY;
+          if (!dragging) {
+            if (Math.abs(dy) < 6) return;
+            if (dy < 0) {
+              /* Dragging up is not a dismissal gesture. */
+              activeId = null;
+              return;
+            }
+            dragging = true;
+            try { popup.setPointerCapture(e.pointerId); } catch (err) {}
+            popup.style.transition = 'none';
+          }
+          movedY = Math.max(0, dy);
+          var dt = e.timeStamp - lastT;
+          if (dt > 0) {
+            velY = (e.clientY - lastY) / dt;
+            lastY = e.clientY;
+            lastT = e.timeStamp;
+          }
+          popup.style.transform = 'translateY(' + movedY + 'px)';
+          popup.style.setProperty('--sheet-progress', String(clamp(1 - movedY / sheetHeight)));
+        });
+
+        function endDrag(e) {
+          if (activeId === null || (e && e.pointerId !== activeId)) return;
+          var wasDragging = dragging;
+          var offset = movedY;
+          activeId = null;
+          dragging = false;
+          if (!wasDragging) return;
+          var threshold = Math.max(80, sheetHeight * 0.2);
+          if (offset > threshold || (offset > 40 && velY > 0.5)) {
+            /* Flick or long pull: slide out and close. */
+            popup.style.transition = 'transform 0.3s cubic-bezier(0.42, 0, 1, 1), --sheet-progress 0.3s ease-in';
+            popup.style.transform = 'translateY(100%)';
+            popup.style.setProperty('--sheet-progress', '0');
+            document.documentElement.classList.remove('overflow-hidden');
+            document.body.classList.remove('overflow-hidden');
+            closeTimer = window.setTimeout(function () {
+              closeTimer = null;
+              popup.close();
+            }, 300);
+          } else {
+            /* Short pull: spring back to the top. */
+            popup.style.transition = '';
+            popup.style.transform = '';
+            popup.style.setProperty('--sheet-progress', '1');
+          }
+        }
+        window.addEventListener('pointerup', endDrag, true);
+        window.addEventListener('pointercancel', endDrag, true);
+
+        popup.addEventListener('close', function () {
+          if (closeTimer) {
+            window.clearTimeout(closeTimer);
+            closeTimer = null;
+          }
+          activeId = null;
+          dragging = false;
+          popup.removeAttribute('closing');
+          popup.style.transition = '';
+          popup.style.transform = '';
+          popup.style.removeProperty('--sheet-progress');
+        });
       })();
     </script>
   {% endif %}

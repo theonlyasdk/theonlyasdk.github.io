@@ -66,25 +66,13 @@
   }
 }
 
-@keyframes sheet-slide-up {
-  from {
-    opacity: 0;
-    transform: translateY(100%);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 @keyframes sheet-slide-down {
-  from {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  /* No `from` frame: it starts from the sheet's current transform, so it
+     stays smooth even after an interactive drag (iOS-style dismissal). */
   to {
     opacity: 0;
     transform: translateY(100%);
+    --sheet-progress: 0;
   }
 }
 
@@ -189,77 +177,14 @@
   border-radius: v.$radius-lg;
   color: var(--text-color);
   background: var(--card-bg);
-  margin-top: v.$topbar-height;
-  min-width: 20rem;
 
-  /* iOS-style bottom sheet */
-  margin: 0 auto;
-  inset: auto 0 0 0;
-  width: 100%;
-  max-width: 32rem;
-  max-height: 85vh;
-  min-width: 0;
-  border-radius: 1.25rem 1.25rem 0 0;
-  --sheet-progress: 1;
-  transition: --sheet-progress 0.35s ease-out, transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
-  touch-action: none;
-
-  &::before {
-    content: '';
-    display: block;
-    width: 2.5rem;
-    height: 0.3rem;
-    border-radius: 999px;
-    background: var(--text-muted-color);
-    opacity: 0.35;
-    margin: 0.6rem auto 0.2rem;
-    cursor: grab;
-  }
-
-  .header {
-    border-bottom: none;
-    padding-left: 1rem;
-    padding-right: 1rem;
-    cursor: grab;
-    user-select: none;
-  }
-
-  #toc-popup-content {
-    padding: 0.5rem 1rem 1rem;
-    max-height: calc(85vh - 3rem);
-  }
-
-  &[open] {
-    animation: none;
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  &[closing] {
-    animation: none;
-  }
-
-  &::backdrop {
-    backdrop-filter: blur(calc(var(--sheet-progress, 1) * 6px));
-    -webkit-backdrop-filter: blur(calc(var(--sheet-progress, 1) * 6px));
-    background: rgba(0, 0, 0, calc(var(--sheet-progress, 1) * 0.35));
-  }
   font-size: 1.05rem;
-  transition: all 100ms linear;
 
   @include bp.sm {
     max-width: 32rem;
   }
 
-  &[open] {
-    -webkit-animation: popup-zoom-in 0.3s cubic-bezier(0.09, 0.11, 0, 1.14) forwards;
-    animation: popup-zoom-in 0.3s cubic-bezier(0.09, 0.11, 0, 1.14) forwards;
-  }
 
-  &[closing] {
-    -webkit-animation: popup-fade-out 0.2s ease-out forwards;
-    animation: popup-fade-out 0.2s ease-out forwards;
-  }
 
   @include bp.lg {
     left: v.$sidebar-width;
@@ -324,22 +249,8 @@
     font-weight: 600;
   }
 
-  &::-webkit-backdrop {
-    -webkit-backdrop-filter: $backdrop;
-    backdrop-filter: $backdrop;
-  }
 
-  &::backdrop {
-    -webkit-backdrop-filter: $backdrop;
-    backdrop-filter: $backdrop;
-    -webkit-animation: popup-fade-in 0.3s cubic-bezier(0.09, 0.11, 0, 1.14) forwards;
-    animation: popup-fade-in 0.3s cubic-bezier(0.09, 0.11, 0, 1.14) forwards;
-  }
   
-  &[closing]::backdrop {
-    -webkit-animation: popup-fade-out 0.2s ease-out forwards;
-    animation: popup-fade-out 0.2s ease-out forwards;
-  }
 
   &::after {
     display: flex;
@@ -354,5 +265,72 @@
     max-height: calc(100vh - 4 * v.$topbar-height);
     font-family: v.$font-family-heading;
     margin-bottom: -$curtain-height;
+  }
+
+  /* iOS-style bottom sheet: anchored to the bottom edge, slides up on open
+     (via @starting-style) and slides down on close. Declared last so it wins
+     the cascade over the popup's base rules. */
+  margin: 0 auto;
+  inset: auto 0 0 0;
+  width: 100%;
+  max-width: 32rem;
+  min-width: 0;
+  border-radius: 1.25rem 1.25rem 0 0;
+  --sheet-progress: 1;
+  transition:
+    opacity 0.35s ease-out,
+    --sheet-progress 0.4s ease-out,
+    transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+
+  .sheet-grabber {
+    position: absolute;
+    top: 0.65rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2.5rem;
+    height: 0.3rem;
+    border-radius: 999px;
+    background: var(--text-muted-color);
+    opacity: 0.35;
+    cursor: grab;
+    touch-action: none;
+  }
+
+  .header {
+    border-bottom: none;
+    padding: 1.1rem 1rem 0.5rem;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+  }
+
+  #toc-popup-content {
+    max-height: min(calc(85vh - 5rem), calc(100vh - 4 * v.$topbar-height));
+    touch-action: pan-y;
+    overscroll-behavior: contain;
+  }
+
+  &[open] {
+    animation: none;
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  &[closing] {
+    animation: sheet-slide-down 0.3s cubic-bezier(0.42, 0, 1, 1) forwards;
+  }
+
+  &::backdrop {
+    -webkit-backdrop-filter: blur(calc(var(--sheet-progress, 1) * 6px));
+    backdrop-filter: blur(calc(var(--sheet-progress, 1) * 6px));
+    background: rgba(0, 0, 0, calc(var(--sheet-progress, 1) * 0.35));
+  }
+}
+
+@starting-style {
+  #toc-popup[open] {
+    opacity: 0;
+    transform: translateY(100%);
+    --sheet-progress: 0;
   }
 }
