@@ -12,11 +12,7 @@ search,
   padding: 0 0.5rem;
   margin-right: 0;
   margin-left: auto;
-  transition: width 0.25s ease-out, max-width 0.25s ease-out, border-color 0.25s ease-out, box-shadow 0.25s ease-out, opacity 0.25s ease-out, display 0.25s ease-out allow-discrete;
-
-  &.d-none {
-    opacity: 0;
-  }
+  transition: width 0.25s linear, max-width 0.25s linear, border-color 0.25s linear, box-shadow 0.25s linear;
 
   i {
     z-index: 2;
@@ -197,12 +193,6 @@ search,
   white-space: nowrap;
 
   @extend %cursor-pointer;
-
-  transition: opacity 0.25s ease-out, display 0.25s ease-out allow-discrete;
-
-  &.d-none {
-    opacity: 0;
-  }
 }
 
 #search-input {
