@@ -163,6 +163,11 @@
   background: var(--card-bg);
   margin-top: v.$topbar-height;
   min-width: 20rem;
+
+  @include bp.lt(bp.get(lg)) {
+    margin-top: auto;
+    margin-bottom: auto;
+  }
   font-size: 1.05rem;
   transition: all 100ms linear;
 
