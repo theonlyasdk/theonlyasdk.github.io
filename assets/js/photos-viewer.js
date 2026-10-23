@@ -26,6 +26,7 @@
   var state = 'idle';
   var gesture = null;
   var chromeShown = false;
+  var hiddenThumb = null;
 
   function isDark() {
     var mode = document.documentElement.getAttribute('data-mode');
@@ -184,6 +185,27 @@
     caption.textContent = items[i].alt;
     prevBtn.disabled = i === 0;
     nextBtn.disabled = i === items.length - 1;
+    if (items.length) {
+      hideActiveThumb(items[i]);
+    }
+  }
+
+  /* Only the active image's copy in the page is hidden (keeping its layout
+     size via visibility), so the active cell is free for the hero flight
+     while the rest of the grid stays put. */
+  function hideActiveThumb(it) {
+    if (hiddenThumb && hiddenThumb !== it.thumb) {
+      hiddenThumb.classList.remove('pv-thumb-hidden');
+    }
+    hiddenThumb = it.thumb;
+    it.thumb.classList.add('pv-thumb-hidden');
+  }
+
+  function revealThumb() {
+    if (hiddenThumb) {
+      hiddenThumb.classList.remove('pv-thumb-hidden');
+    }
+    hiddenThumb = null;
   }
 
   function openViewer(anchor) {
@@ -194,20 +216,17 @@
     }
     ensureOverlay();
     fillTrack(anchors);
-    setCurrent(start);
-
-    /* The viewer's images take over the page's own copies: hide those (they
-       keep their layout size) so the flying image never doubles with the
-       original during translucent-dim dismissals. */
+    /* Sweep stray markers from any previous interrupted session before the
+       fresh take-over. */
     document
       .querySelectorAll('.pv-thumb-hidden')
       .forEach(function (el) {
         el.classList.remove('pv-thumb-hidden');
       });
-    items.forEach(function (it) {
-      it.thumb.classList.add('pv-thumb-hidden');
-    });
+    setCurrent(start);
 
+    /* setCurrent hides the active image's page copy here; the rest of the
+       gallery stays visible in the grid. */
     var it = items[index];
     var r0 = it.thumb.getBoundingClientRect();
     layoutAll();
@@ -438,12 +457,8 @@
     viewer.setAttribute('data-state', 'idle');
     showChrome(false);
     document.removeEventListener('keydown', onKey);
-    /* Reveal the page's own images now that the overlay has landed on them. */
-    document
-      .querySelectorAll('.pv-thumb-hidden')
-      .forEach(function (el) {
-        el.classList.remove('pv-thumb-hidden');
-      });
+    /* Reveal the page's own copy now that the overlay has landed on it. */
+    revealThumb();
     track.innerHTML = '';
     items = [];
     gesture = null;
