@@ -123,6 +123,8 @@ script_includes:
       </div>
       <div id="toc-popup-content" class="px-4 py-3 pb-4"></div>
     </dialog>
+    <!-- Sheet dim layer; shown/hidden by CSS (:has on the dialog state). -->
+    <div id="page-backdrop" aria-hidden="true"></div>
 
     <script>
       /* iOS-style slide-to-dismiss for the ToC bottom sheet. The sheet follows
@@ -196,10 +198,9 @@ script_includes:
           if (!wasDragging) return;
           var threshold = Math.max(80, sheetHeight * 0.2);
           if (offset > threshold || (offset > 40 && velY > 0.5)) {
-            /* Flick or long pull: slide out and close. */
-            popup.style.transition = 'transform 0.3s cubic-bezier(0.42, 0, 1, 1), --sheet-progress 0.3s ease-in';
-            popup.style.transform = 'translateY(100%)';
-            popup.style.setProperty('--sheet-progress', '0');
+            /* Flick or long pull: mark the sheet closing so it takes the
+               slide-down exit animation and the dim fades out with it. */
+            popup.setAttribute('closing', '');
             document.documentElement.classList.remove('overflow-hidden');
             document.body.classList.remove('overflow-hidden');
             closeTimer = window.setTimeout(function () {
