@@ -112,3 +112,24 @@
     display: block;
   }
 }
+
+/* Simple crossfade for the mobile search open/close. */
+#search-trigger,
+#topbar-title,
+#sidebar-trigger {
+  transition: opacity 0.25s ease-out, display 0.25s ease-out allow-discrete;
+}
+
+#search-trigger.d-none,
+#topbar-title.d-none,
+#sidebar-trigger.d-none {
+  opacity: 0;
+}
+
+@starting-style {
+  #search-trigger:not(.d-none),
+  #topbar-title:not(.d-none),
+  #sidebar-trigger:not(.d-none) {
+    opacity: 0;
+  }
+}
