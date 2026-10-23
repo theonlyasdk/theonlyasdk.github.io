@@ -20,6 +20,7 @@
   var caption = null;
   var prevBtn = null;
   var nextBtn = null;
+  var closeBtn = null;
 
   var items = [];
   var index = 0;
@@ -92,11 +93,19 @@
     nextBtn.addEventListener('click', function () {
       navigate(1);
     });
+    closeBtn = document.createElement('button');
+    closeBtn.id = 'pv-close';
+    closeBtn.className = 'pv-close';
+    closeBtn.setAttribute('aria-label', 'Close viewer');
+    closeBtn.addEventListener('click', function () {
+      dismissToCell();
+    });
 
     viewer.appendChild(backdrop);
     viewer.appendChild(track);
     viewer.appendChild(prevBtn);
     viewer.appendChild(nextBtn);
+    viewer.appendChild(closeBtn);
     viewer.appendChild(caption);
     document.body.appendChild(viewer);
 
@@ -190,15 +199,17 @@
     }
   }
 
-  /* Only the active image's copy in the page is hidden (keeping its layout
-     size via visibility), so the active cell is free for the hero flight
-     while the rest of the grid stays put. */
+  /* Only the active image's anchor is hidden from the page (visibility
+     keeps its layout size). Hiding the whole anchor rather than the bare
+     img also takes away the theme's shimmer placeholder, which would
+     otherwise blink through under the dim in the empty cell while the hero
+     flies back into it. */
   function hideActiveThumb(it) {
-    if (hiddenThumb && hiddenThumb !== it.thumb) {
+    if (hiddenThumb && hiddenThumb !== it.anchor) {
       hiddenThumb.classList.remove('pv-thumb-hidden');
     }
-    hiddenThumb = it.thumb;
-    it.thumb.classList.add('pv-thumb-hidden');
+    hiddenThumb = it.anchor;
+    it.anchor.classList.add('pv-thumb-hidden');
   }
 
   function revealThumb() {
@@ -299,7 +310,7 @@
     if (state !== 'open' || gesture !== null) {
       return;
     }
-    if (e.target.closest && e.target.closest('.pv-nav')) {
+    if (e.target.closest && e.target.closest('.pv-nav, .pv-close')) {
       return;
     }
     gesture = {
@@ -334,6 +345,9 @@
       gesture.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
       if (gesture.axis === 'y') {
         items[index].img.style.transition = 'none';
+        /* Hide the chrome right away: caption and arrows must not float
+           over an in-flight image while the drag is held. */
+        showChrome(false);
         /* Dim follows the finger 1:1 while dragging. */
         backdrop.style.transition = 'none';
       } else if (gesture.axis === 'x') {
@@ -379,9 +393,15 @@
     var g = gesture;
     gesture = null;
     if (state !== 'open' || g.axis === null) {
-      if (g.axis === null && state === 'open') {
-        /* Plain tap: toggle the chrome, like Photos. */
-        showChrome(!chromeShown);
+      if (g.axis === null && state === 'open' && e.type !== 'pointercancel') {
+        /* Plain tap: tapping the open image toggles the chrome; tapping
+           anywhere outside it dismisses with the hero flight, like
+           clicking outside. */
+        if (e.target === items[index].img) {
+          showChrome(!chromeShown);
+        } else {
+          dismissToCell();
+        }
       }
       return;
     }
@@ -416,11 +436,15 @@
     img.style.borderRadius = '0';
     backdrop.style.transition = 'opacity 0.32s ' + EASE;
     backdrop.style.opacity = '1';
+    showChrome(true);
   }
 
   /* Fly the open image back into its originating grid cell (hero-out), or
      fall away and fade when the cell is off-screen. */
   function dismissToCell() {
+    if (state !== 'open') {
+      return;
+    }
     state = 'closing';
     viewer.setAttribute('data-state', 'closing');
     showChrome(false);
@@ -428,14 +452,26 @@
     var it = items[index];
     var r0 = it.thumb.getBoundingClientRect();
     var img = it.img;
+    var finished = false;
+
+    function finish() {
+      if (finished) {
+        return;
+      }
+      finished = true;
+      closeDone();
+    }
 
     if (r0.width > 2 && r0.bottom > 0 && r0.top < window.innerHeight) {
       var dx = r0.left - it.fit.left;
       var dy = r0.top - it.fit.top;
       var s = r0.width / it.fit.w;
+      /* Land with the same corner rounding the page copy renders with, so
+         the final overlay-to-page swap is invisible. */
+      var pageRadius = window.getComputedStyle(it.thumb).borderRadius;
       img.style.transition =
         'transform 0.35s ' + EASE + ', border-radius 0.35s ease';
-      img.style.borderRadius = '0';
+      img.style.borderRadius = pageRadius;
       img.style.transform =
         'translate(' + dx + 'px, ' + dy + 'px) scale(' + s + ')';
     } else {
@@ -448,7 +484,15 @@
     backdrop.style.transition = 'opacity 0.35s ' + EASE;
     backdrop.style.opacity = '0';
 
-    window.setTimeout(closeDone, 380);
+    /* Unmount only after the flight actually paints its last frame; a
+       fixed timer can fire a frame early on slow renders and flash at the
+       landing cell. */
+    img.addEventListener('transitionend', function (ev) {
+      if (ev.propertyName === 'transform') {
+        finish();
+      }
+    });
+    window.setTimeout(finish, 450);
   }
 
   function closeDone() {
