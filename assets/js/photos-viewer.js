@@ -205,6 +205,7 @@
     viewer.setAttribute('data-state', 'opening');
     viewer.removeAttribute('data-chrome');
     chromeShown = false;
+    backdrop.style.transition = 'opacity 0.38s ' + EASE;
     backdrop.style.opacity = '0';
 
     document.addEventListener('keydown', onKey);
@@ -302,6 +303,8 @@
       gesture.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
       if (gesture.axis === 'y') {
         items[index].img.style.transition = 'none';
+        /* Dim follows the finger 1:1 while dragging. */
+        backdrop.style.transition = 'none';
       } else if (gesture.axis === 'x') {
         track.style.transition = 'none';
       }
@@ -380,6 +383,7 @@
       'transform 0.32s ' + EASE + ', border-radius 0.32s ease';
     img.style.transform = 'translate(0, 0) scale(1)';
     img.style.borderRadius = '0';
+    backdrop.style.transition = 'opacity 0.32s ' + EASE;
     backdrop.style.opacity = '1';
   }
 
@@ -410,6 +414,7 @@
         'translate(0, ' + (window.innerHeight * 0.25) + 'px) scale(0.9)';
       img.style.opacity = '0';
     }
+    backdrop.style.transition = 'opacity 0.35s ' + EASE;
     backdrop.style.opacity = '0';
 
     window.setTimeout(closeDone, 380);

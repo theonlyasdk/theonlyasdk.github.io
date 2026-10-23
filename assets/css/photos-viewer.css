@@ -2,7 +2,6 @@
   position: fixed;
   inset: 0;
   z-index: 2147483000;
-  background: #000;
   touch-action: none;
   -webkit-user-select: none;
   user-select: none;
