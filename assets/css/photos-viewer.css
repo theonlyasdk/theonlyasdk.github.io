@@ -101,10 +101,12 @@
 }
 
 #pv-prev {
+  top: calc(50% - 22px);
   left: calc(12px + env(safe-area-inset-left, 0px));
 }
 
 #pv-next {
+  top: calc(50% - 22px);
   right: calc(12px + env(safe-area-inset-right, 0px));
 }
 
