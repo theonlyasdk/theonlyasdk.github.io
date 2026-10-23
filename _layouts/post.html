@@ -122,6 +122,94 @@ script_includes:
       </div>
       <div id="toc-popup-content" class="px-4 py-3 pb-4"></div>
     </dialog>
+
+    <script>
+      /* iOS-style bottom sheet drag-to-dismiss for the mobile ToC dialog. */
+      (function () {
+        var popup = document.getElementById('toc-popup');
+        if (!popup) return;
+        var header = popup.querySelector('.header');
+        if (!header) return;
+
+        var isMobile = function () {
+          return window.matchMedia('(max-width: 991.98px)').matches;
+        };
+
+        var dragging = false;
+        var startY = 0;
+        var currentOffset = 0;
+        var sheetHeight = 0;
+
+        /* Override showModal to play the iOS slide-up entrance. */
+        var originalShowModal = popup.showModal.bind(popup);
+        popup.showModal = function () {
+          popup.style.transform = 'translateY(100%)';
+          popup.style.setProperty('--sheet-progress', '0');
+          originalShowModal();
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+              popup.style.transform = 'translateY(0)';
+              popup.style.setProperty('--sheet-progress', '1');
+            });
+          });
+        };
+
+        popup.addEventListener('close', function () {
+          popup.style.transform = '';
+          popup.style.transition = '';
+          popup.style.removeProperty('--sheet-progress');
+        });
+
+        header.addEventListener('pointerdown', function (e) {
+          if (!isMobile()) return;
+          dragging = true;
+          startY = e.clientY;
+          sheetHeight = popup.offsetHeight || 300;
+          currentOffset = 0;
+          popup.style.transition = 'none';
+          try { header.setPointerCapture(e.pointerId); } catch (err) {}
+        });
+
+        header.addEventListener('pointermove', function (e) {
+          if (!dragging) return;
+          var offset = e.clientY - startY;
+          if (offset < 0) offset = 0;
+          currentOffset = offset;
+          popup.style.transform = 'translateY(' + offset + 'px)';
+          var progress = 1 - offset / sheetHeight;
+          if (progress < 0) progress = 0;
+          if (progress > 1) progress = 1;
+          popup.style.setProperty('--sheet-progress', progress);
+        });
+
+        function endDrag() {
+          if (!dragging) return;
+          dragging = false;
+          var threshold = Math.max(80, sheetHeight * 0.2);
+          if (currentOffset > threshold) {
+            popup.style.transition = 'transform 0.25s ease-in, --sheet-progress 0.25s ease-in';
+            popup.style.transform = 'translateY(100%)';
+            popup.style.setProperty('--sheet-progress', '0');
+            setTimeout(function () {
+              popup.close();
+            }, 260);
+            document.documentElement.classList.remove('overflow-hidden');
+            document.body.classList.remove('overflow-hidden');
+          } else {
+            popup.style.transition = 'transform 0.35s cubic-bezier(0.32, 0.72, 0, 1), --sheet-progress 0.35s ease-out';
+            popup.style.transform = 'translateY(0)';
+            popup.style.setProperty('--sheet-progress', '1');
+            setTimeout(function () {
+              popup.style.transition = '';
+            }, 360);
+          }
+        }
+
+        header.addEventListener('pointerup', endDrag);
+        header.addEventListener('pointercancel', endDrag);
+        header.addEventListener('lostpointercapture', endDrag);
+      })();
+    </script>
   {% endif %}
 
   <div class="content">

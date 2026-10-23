@@ -2,6 +2,12 @@
 @use '../abstracts/breakpoints' as bp;
 @use '../abstracts/placeholders';
 
+@property --sheet-progress {
+  syntax: '<number>';
+  initial-value: 1;
+  inherits: true;
+}
+
 @-webkit-keyframes popup-zoom-in {
   from {
     opacity: 0;
@@ -195,6 +201,9 @@
     max-height: 85vh;
     min-width: 0;
     border-radius: 1.25rem 1.25rem 0 0;
+    --sheet-progress: 1;
+    transition: --sheet-progress 0.35s ease-out, transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+    touch-action: none;
 
     &::before {
       content: '';
@@ -205,12 +214,15 @@
       background: var(--text-muted-color);
       opacity: 0.35;
       margin: 0.6rem auto 0.2rem;
+      cursor: grab;
     }
 
     .header {
       border-bottom: none;
       padding-left: 1rem;
       padding-right: 1rem;
+      cursor: grab;
+      user-select: none;
     }
 
     #toc-popup-content {
@@ -219,11 +231,19 @@
     }
 
     &[open] {
-      animation: sheet-slide-up 0.35s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+      animation: none;
+      opacity: 1;
+      transform: translateY(0);
     }
 
     &[closing] {
-      animation: sheet-slide-down 0.25s ease-in forwards;
+      animation: none;
+    }
+
+    &::backdrop {
+      backdrop-filter: blur(calc(var(--sheet-progress, 1) * 6px));
+      -webkit-backdrop-filter: blur(calc(var(--sheet-progress, 1) * 6px));
+      background: rgba(0, 0, 0, calc(var(--sheet-progress, 1) * 0.35));
     }
   }
   font-size: 1.05rem;
