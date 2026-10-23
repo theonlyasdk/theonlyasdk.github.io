@@ -196,6 +196,18 @@
     fillTrack(anchors);
     setCurrent(start);
 
+    /* The viewer's images take over the page's own copies: hide those (they
+       keep their layout size) so the flying image never doubles with the
+       original during translucent-dim dismissals. */
+    document
+      .querySelectorAll('.pv-thumb-hidden')
+      .forEach(function (el) {
+        el.classList.remove('pv-thumb-hidden');
+      });
+    items.forEach(function (it) {
+      it.thumb.classList.add('pv-thumb-hidden');
+    });
+
     var it = items[index];
     var r0 = it.thumb.getBoundingClientRect();
     layoutAll();
@@ -426,6 +438,12 @@
     viewer.setAttribute('data-state', 'idle');
     showChrome(false);
     document.removeEventListener('keydown', onKey);
+    /* Reveal the page's own images now that the overlay has landed on them. */
+    document
+      .querySelectorAll('.pv-thumb-hidden')
+      .forEach(function (el) {
+        el.classList.remove('pv-thumb-hidden');
+      });
     track.innerHTML = '';
     items = [];
     gesture = null;

@@ -47,6 +47,14 @@
   transition: opacity 0.3s ease;
 }
 
+/* While the viewer is open the page's own copies of the gallery images are
+   hidden but keep their layout size (visibility, not display), so the hero
+   fly-in/out lands into an untouched layout and the swap on close is
+   seamless. */
+.pv-thumb-hidden {
+  visibility: hidden;
+}
+
 /* Neighbors stay invisible while the hero flies in/out; they fade in once
    the sheet is fully open, like Photos. */
 #photos-viewer[data-state='opening'] .pv-item-current,
