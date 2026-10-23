@@ -4,9 +4,10 @@
 <!-- Page Preloader Script -->
 <script src="{{ '/assets/js/instantpage-5.2.0.js' | relative_url }}"></script>
 
-<!-- Photos-style hero image viewer (takes over GLightbox .popup anchors) -->
-<link rel="stylesheet" href="{{ '/assets/css/photos-viewer.css' | relative_url }}">
-<script src="{{ '/assets/js/photos-viewer.js' | relative_url }}" defer></script>
+<!-- Photos-style hero image viewer (takes over GLightbox .popup anchors).
+     Bump ?v= on changes to bust cached assets. -->
+<link rel="stylesheet" href="{{ '/assets/css/photos-viewer.css' | relative_url }}?v=2">
+<script src="{{ '/assets/js/photos-viewer.js' | relative_url }}?v=4" defer></script>
 
 {% if site.toc and page.toc %}
   <link rel="stylesheet" href="{{ site.data.origin[type].toc.css | relative_url }}">
