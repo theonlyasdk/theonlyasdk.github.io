@@ -15,9 +15,6 @@ order: 5
       margin-top: 1.25rem;
       margin-bottom: 1.5rem;
     }
-    #topbar-title {
-      visibility: hidden;
-    }
   }
 
   .shake-new {
@@ -340,6 +337,7 @@ order: 5
     box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.04);
     max-width: 100%;
     user-select: none;
+    touch-action: pan-y;
   }
   .collection-tab-pill {
     position: absolute;

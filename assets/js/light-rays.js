@@ -5,7 +5,7 @@
 (() => {
   'use strict';
 
-  const PIXEL_BUDGET = 2.4e6;
+  const PIXEL_BUDGET = 4.8e6;
   const MAX_PULSES = 4;
 
   const ORIGINS = {

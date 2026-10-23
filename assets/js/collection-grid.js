@@ -304,16 +304,6 @@
 
     // Search box.
     if (search) {
-      // On phones, bring the search box to the top of the viewport on focus.
-      search.addEventListener('focus', () => {
-        if (!window.matchMedia('(max-width: 576px)').matches) return;
-        const reduce = REDUCE_MOTION.matches;
-        const box = search.closest('[role="search"]') || search;
-        const bar = document.getElementById('topbar-wrapper');
-        const offset = (bar ? bar.getBoundingClientRect().height : 0) + 8;
-        const top = box.getBoundingClientRect().top + window.scrollY - offset;
-        window.scrollTo({ top: Math.max(top, 0), behavior: reduce ? 'auto' : 'smooth' });
-      });
       search.addEventListener('input', () => {
         if (clearBtn) clearBtn.hidden = !search.value;
         render();

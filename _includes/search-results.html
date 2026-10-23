@@ -4,6 +4,23 @@
   <div class="col-11 content">
     <div id="search-hints">
       {% include_cached trending-tags.html lang=include.lang %}
+
+      {% if site.posts.size > 0 %}
+      <section class="mt-4">
+        <h2 class="panel-heading">{{- site.data.locales[include.lang].panel.recent_posts | default: 'Recent Posts' -}}</h2>
+        <ul class="list-unstyled mt-2 mb-0">
+          {% for post in site.posts limit: 5 %}
+            <li class="mb-2 d-flex flex-column flex-sm-row align-items-sm-baseline gap-1 gap-sm-2">
+              <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+              <span class="text-muted small">{{ post.date | date: '%b %d, %Y' }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+        <div class="text-center mt-2">
+          <a href="{{ '/archives/' | relative_url }}" class="text-muted small">... view more</a>
+        </div>
+      </section>
+      {% endif %}
     </div>
     <div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div>
   </div>

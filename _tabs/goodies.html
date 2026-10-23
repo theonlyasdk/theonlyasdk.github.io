@@ -186,6 +186,7 @@ order: 6
     position: relative;
     z-index: 2;
     isolation: isolate;
+    overflow-x: clip;
   }
 
   .goodies-rays-hero .light-rays {
@@ -265,6 +266,7 @@ order: 6
     font-family: inherit;
     font-size: var(--ll-font);
     line-height: 1;
+    margin-top: 0.5em;
   }
 
   .lattice-loader__meta {
@@ -362,23 +364,23 @@ order: 6
   }
 
   .lattice-loader__label {
-    position: relative;
-    display: inline-block;
+    display: inline-grid;
+    justify-items: center;
     font-weight: 500;
   }
 
   .lattice-loader__text {
-    position: absolute;
-    top: 0;
-    left: 0;
+    grid-area: 1 / 1;
+    justify-self: center;
+    text-align: center;
     white-space: nowrap;
+    margin-top: 1.4em;
     opacity: 0;
     filter: blur(2px);
     transition: opacity 200ms ease, filter 200ms ease;
   }
 
   .lattice-loader__text[data-active] {
-    position: static;
     opacity: 1;
     filter: blur(0);
   }
@@ -559,10 +561,11 @@ order: 6
     flex-wrap: wrap;
     gap: 0.5rem;
     margin-top: 0.9rem;
+    padding: 0.3em;
   }
 
   #goodies-grid {
-    margin-top: 0.5rem;
+    margin-top: 0.05rem;
   }
 
   .goodie-empty-col {
@@ -708,7 +711,16 @@ order: 6
   @media (max-width: 576px) {
     #goodies-grid.list-view .goodie-card:not(.is-layout-from) {
       grid-template-columns: 1fr;
-      height: auto;
+      height: auto !important;
+    }
+
+    /* Let the description take as many lines as it needs on phones instead of
+       being clamped to the desktop list view's two-line box. */
+    #goodies-grid.list-view .goodie-card:not(.is-layout-from) > p {
+      display: block;
+      -webkit-box-orient: initial;
+      -webkit-line-clamp: initial;
+      overflow: visible;
     }
 
     #goodies-grid.list-view .goodie-card:not(.is-layout-from) > .card-cover {
@@ -737,7 +749,7 @@ order: 6
       flex-wrap: nowrap;
       overflow-x: auto;
       scrollbar-width: none;
-      padding: 0.25rem 0.25rem 0.35rem;
+      padding: 0.3em;
       -webkit-mask-image: linear-gradient(to right, transparent, #000 20px, #000 calc(100% - 20px), transparent);
       mask-image: linear-gradient(to right, transparent, #000 20px, #000 calc(100% - 20px), transparent);
     }
@@ -1019,6 +1031,15 @@ order: 6
       height: 100%;
       border-radius: 0;
       max-width: none;
+    }
+
+    .custom-modal-content.credits-modal-content,
+    .custom-modal-content.goodie-info-modal-content {
+      width: 100%;
+      height: 100%;
+      max-width: none;
+      max-height: none;
+      border-radius: 0;
     }
   }
 
@@ -1319,6 +1340,7 @@ order: 6
     --acc-collapse: 250ms;
     --acc-chevron: 250ms;
     --acc-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --filter-btn-shadow: rgb(21, 21, 21, 0.42) 0 6px 8px 0, rgb(137, 135, 135, 0.24) 0 0 0 1px;
   }
 
   .t-acc {
@@ -1469,6 +1491,27 @@ order: 6
     margin: 0;
   }
 
+  /* Keep the back-to-top button above the raised goodies content column. */
+  #back-to-top {
+    z-index: 10;
+  }
+
+  /* Hide the back-to-top button while any Goodies dialog is open. */
+  body:has(.custom-modal-overlay.active) #back-to-top {
+    display: none;
+  }
+
+  /* Glossy, liquid-glass style border for the goodies filter (sorting) buttons,
+     powered by a drop-shadow ring plus an inset top highlight. */
+  .goodie-filter-btn,
+  .goodie-filter-btn:hover,
+  .goodie-filter-btn:active,
+  .goodie-filter-btn.active {
+    box-shadow:
+      0 0 0 1px rgba(137, 135, 135, 0.35),
+      inset 0 1px 0 rgba(255, 255, 255, 0.32);
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .t-acc-panel, .t-acc-panel-inner, .t-acc-chevron {
       transition: none !important;
@@ -1482,7 +1525,7 @@ order: 6
   <div class="light-rays" id="goodies-rays" data-light-rays
        data-rays-origin="top-center" data-rays-speed="1" data-light-spread="0.5"
        data-ray-length="3" data-glow="0.6" data-haze="0.25"
-       data-mouse-influence="0.1">
+       data-mouse-influence="0.1" data-max-device-pixel-ratio="3">
     <canvas class="light-rays__canvas"></canvas>
   </div>
 </div>
@@ -1505,11 +1548,11 @@ order: 6
 </div>
 <div class="goodies-loading" id="goodies-loading">
   <div class="lattice-loader" data-lattice-loader
-       data-label="Fetching goodies" data-done-label="Done in" data-error-label="Failed after"
+       data-label="Fetching goodies" data-done-label="Done" data-error-label="Failed after"
        data-pattern="ripple" data-grid="3" data-shape="round"
        data-done-color="#22c55e" data-error-color="#ef4444"
-       data-cell-size="16" data-gap="3" data-font-size="18" data-step="105"
-       data-idle-opacity="0.14" data-glow data-show-timer></div>
+       data-cell-size="16" data-gap="3" data-font-size="20" data-step="105"
+       data-idle-opacity="0.14" data-show-timer></div>
 </div>
 <div class="row row-cols-1 row-cols-md-2 g-4" id="goodies-grid" aria-live="polite"></div>
 

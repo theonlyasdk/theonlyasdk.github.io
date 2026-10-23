@@ -553,3 +553,10 @@ mjx-container {
     margin-top: 3rem;
   }
 }
+
+/* Prevent the full-bleed mobile topbar (and other minor overflows) from
+   creating a horizontal scrollbar on every page. `clip` (not `hidden`) keeps
+   vertical sticky positioning intact. */
+html, body, #main-wrapper {
+  overflow-x: clip;
+}
