@@ -60,6 +60,28 @@
   }
 }
 
+@keyframes sheet-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sheet-slide-down {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+}
+
 @-webkit-keyframes toast-zoom-in {
   from {
     opacity: 0;
@@ -165,8 +187,44 @@
   min-width: 20rem;
 
   @include bp.lt(bp.get(lg)) {
-    margin-top: auto;
-    margin-bottom: auto;
+    /* iOS-style bottom sheet */
+    margin: 0;
+    inset: auto 0 0 0;
+    width: 100%;
+    max-width: 100%;
+    max-height: 85vh;
+    min-width: 0;
+    border-radius: 1.25rem 1.25rem 0 0;
+
+    &::before {
+      content: '';
+      display: block;
+      width: 2.5rem;
+      height: 0.3rem;
+      border-radius: 999px;
+      background: var(--text-muted-color);
+      opacity: 0.35;
+      margin: 0.6rem auto 0.2rem;
+    }
+
+    .header {
+      border-bottom: none;
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    #toc-popup-content {
+      padding: 0.5rem 1rem 1rem;
+      max-height: calc(85vh - 3rem);
+    }
+
+    &[open] {
+      animation: sheet-slide-up 0.35s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+    }
+
+    &[closing] {
+      animation: sheet-slide-down 0.25s ease-in forwards;
+    }
   }
   font-size: 1.05rem;
   transition: all 100ms linear;
