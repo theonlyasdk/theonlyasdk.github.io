@@ -113,23 +113,27 @@
   }
 }
 
-/* Simple crossfade for the mobile search open/close. */
-#search-trigger,
-#topbar-title,
-#sidebar-trigger {
-  transition: opacity 0.25s ease-out, display 0.25s ease-out allow-discrete;
-}
+/* Simple crossfade for the mobile search open/close. Stack the topbar's
+   children in a single grid cell so the outgoing and incoming contents
+   overlap instead of pushing each other (which broke the crossfade). */
+@media (max-width: 991.98px) {
+  #topbar {
+    display: grid !important;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    align-items: center;
+    justify-items: stretch;
+  }
 
-#search-trigger.d-none,
-#topbar-title.d-none,
-#sidebar-trigger.d-none {
-  opacity: 0;
-}
+  #topbar > * {
+    grid-area: 1 / 1;
+    transition: opacity 0.25s ease-out;
+  }
 
-@starting-style {
-  #search-trigger:not(.d-none),
-  #topbar-title:not(.d-none),
-  #sidebar-trigger:not(.d-none) {
+  /* Keep hidden items in the flow (overlapping) so they can fade out. */
+  #topbar > .d-none {
+    display: grid !important;
     opacity: 0;
+    pointer-events: none;
   }
 }
