@@ -12,12 +12,7 @@ search,
   padding: 0 0.5rem;
   margin-right: 0;
   margin-left: auto;
-  transition: width 0.25s ease-out, max-width 0.25s ease-out, border-color 0.25s ease-out, box-shadow 0.25s ease-out, opacity 0.3s ease-out, transform 0.3s ease-out, display 0.3s ease-out allow-discrete;
-
-  &.d-none {
-    opacity: 0;
-    transform: translateX(8px);
-  }
+  transition: width 0.25s linear, max-width 0.25s linear, border-color 0.25s linear, box-shadow 0.25s linear;
 
   i {
     z-index: 2;
@@ -37,13 +32,6 @@ search,
     &:focus-within {
       width: calc(v.$search-max-width * 1.3);
       max-width: calc(v.$search-max-width * 1.3);
-    }
-  }
-
-  @starting-style {
-    &.d-flex {
-      opacity: 0;
-      transform: translateX(8px);
     }
   }
 }
@@ -310,31 +298,4 @@ search,
   opacity: 0;
   transform: translateY(-50%) scale(0.85);
   pointer-events: none;
-}
-
-/* Smooth mobile search open/close: slide the trigger icon into the box and
-   fade the search bar and cancel button in with an ease-out curve. */
-#search-trigger {
-  transition: opacity 0.3s ease-out, transform 0.3s ease-out, display 0.3s ease-out allow-discrete;
-
-  &.d-none {
-    opacity: 0;
-    transform: translateX(-8px);
-  }
-}
-
-#search-cancel {
-  transition: opacity 0.3s ease-out, transform 0.3s ease-out, display 0.3s ease-out allow-discrete;
-
-  &.d-none {
-    opacity: 0;
-    transform: translateX(8px);
-  }
-
-  @starting-style {
-    &.d-block {
-      opacity: 0;
-      transform: translateX(8px);
-    }
-  }
 }
