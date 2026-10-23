@@ -18,12 +18,6 @@ search,
     opacity: 0;
   }
 
-  @starting-style {
-    &.d-flex {
-      opacity: 0;
-    }
-  }
-
   i {
     z-index: 2;
     font-size: 0.9rem;
@@ -208,12 +202,6 @@ search,
 
   &.d-none {
     opacity: 0;
-  }
-
-  @starting-style {
-    &.d-block {
-      opacity: 0;
-    }
   }
 }
 
