@@ -209,15 +209,24 @@
   position: absolute;
   left: 0;
   right: 0;
-  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  bottom: 0;
   z-index: 2;
-  padding: 0 1.5rem;
+  /* Big bottom fade so the caption stays readable over bright photos:
+     the scrim is part of the same element, so it fades with the text. */
+  padding: 5rem 1.5rem calc(12px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.8) 0%,
+    rgba(0, 0, 0, 0.55) 30%,
+    rgba(0, 0, 0, 0.25) 60%,
+    transparent 100%
+  );
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   text-align: center;
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.92);
   opacity: 0;
   transition: opacity 0.25s ease;
 }
