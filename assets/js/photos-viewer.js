@@ -5,7 +5,8 @@
  * capture phase, then animates the tapped image from its exact on-screen
  * rectangle into a full-screen carousel (Google/Apple Photos style):
  *   - hero zoom on open, flying back into the cell on dismiss
- *   - vertical drag to dismiss with 1:1 follow
+ *   - vertical drag to dismiss with 1:1 follow; release flings the photo
+ *     off-screen along the drag direction (flick = farther)
  *   - horizontal swipe for prev/next (axis-locked, never conflated)
  *   - click-to-zoom on desktop, pinch-to-zoom on touch, drag to pan
  *   - double-tap to zoom on touch (toggles between fit and 2.5x)
@@ -616,12 +617,14 @@
       track.style.transform =
         'translateX(' + (-index * window.innerWidth + off) + 'px)';
     } else {
-      /* Vertical drag = dismiss; upward is resisted, downward follows. */
+      /* Vertical drag = dismiss; upward is resisted (eased 5x) but a hard
+         upward fling can still dismiss, exactly like Apple/Google Photos.
+         The horizontal offset is NOT eased so the photo tracks the finger. */
       var dyE = dy < 0 ? dy * 0.2 : dy;
       var p = Math.min(1, Math.abs(dyE) / (window.innerHeight * 0.45));
       var img = items[index].img;
       img.style.transform =
-        'translate(0, ' + dyE + 'px) scale(' + (1 - 0.12 * p) + ')';
+        'translate(' + dx + 'px, ' + dyE + 'px) scale(' + (1 - 0.12 * p) + ')';
       img.style.borderRadius = (14 * p) + 'px';
       backdrop.style.opacity = String(1 - p * 0.9);
     }
@@ -698,10 +701,15 @@
       setCurrent(target);
       applyTrack(true);
     } else {
+      var dyE = dy < 0 ? dy * 0.2 : dy;
       var dismiss =
-        dy > window.innerHeight * 0.22 || (dy > 40 && g.vy > 0.6);
+        Math.abs(dyE) > window.innerHeight * 0.22 ||
+        (Math.abs(dyE) > 40 && Math.abs(g.vy) > 0.6);
       if (dismiss) {
-        dismissToCell();
+        /* Fling the photo off-screen along the drag vector instead of
+           forcing it into its page cell: it keeps going where the finger
+           or cursor was heading. */
+        dismissBySwipe(g, dx, dyE);
       } else {
         springBack();
       }
@@ -772,6 +780,57 @@
     /* Unmount only after the flight actually paints its last frame; a
        fixed timer can fire a frame early on slow renders and flash at the
        landing cell. */
+    img.addEventListener('transitionend', function (ev) {
+      if (ev.propertyName === 'transform') {
+        finish();
+      }
+    });
+    window.setTimeout(finish, 450);
+  }
+
+  /* Swipe dismissal: keep the photo moving along the vector the finger or
+     cursor travelled (release point + direction of travel) until it is well
+     clear of the viewport. A fast flick throws it farther than a slow pull,
+     so the motion reads as inertia rather than a fixed lever to the corner. */
+  function dismissBySwipe(g, dx, dySwiped) {
+    state = 'closing';
+    viewer.setAttribute('data-state', 'closing');
+    showChrome(false);
+    clearTapPending();
+
+    var it = items[index];
+    var img = it.img;
+    var finished = false;
+
+    function finish() {
+      if (finished) {
+        return;
+      }
+      finished = true;
+      closeDone();
+    }
+
+    var len = Math.max(1, Math.sqrt(dx * dx + dySwiped * dySwiped));
+    var ux = dx / len;
+    var uy = dySwiped / len;
+    /* Flick speed (smoothed pointer velocity) stretches the exit distance. */
+    var speed = Math.min(1, Math.sqrt(g.vx * g.vx + g.vy * g.vy) / 1.5);
+    var dist =
+      (0.9 + 0.8 * speed) *
+      Math.sqrt(
+        window.innerWidth * window.innerWidth +
+          window.innerHeight * window.innerHeight
+      );
+    var p = Math.min(1, Math.abs(dySwiped) / (window.innerHeight * 0.45));
+
+    img.style.transition = 'transform 0.35s ' + EASE;
+    img.style.borderRadius = (14 * p) + 'px';
+    img.style.transform =
+      'translate(' + (ux * dist) + 'px, ' + (uy * dist) + 'px) scale(' +
+      (1 - 0.12 * p) + ')';
+    backdrop.style.transition = 'opacity 0.35s ' + EASE;
+    backdrop.style.opacity = '0';
+
     img.addEventListener('transitionend', function (ev) {
       if (ev.propertyName === 'transform') {
         finish();
