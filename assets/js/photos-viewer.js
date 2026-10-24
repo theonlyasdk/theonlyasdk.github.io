@@ -723,10 +723,12 @@
         Math.abs(dyE) > szg.h * 0.22 ||
         (Math.abs(dyE) > 40 && Math.abs(g.vy) > 0.6);
       if (dismiss) {
-        /* Fling the photo off-screen along the drag vector instead of
-           forcing it into its page cell: it keeps going where the finger
-           or cursor was heading. */
-        dismissBySwipe(g, dx, dyE);
+        /* Fly the photo back into the cell it came from; during the drag it
+           already followed the finger in both axes, so the flight continues
+           from wherever the pointer left it. The released offsets are passed
+           so an off-screen fallback keeps moving from the dragged position
+           instead of teleporting back to the fitted one. */
+        dismissToCell(dx, dyE);
       } else {
         springBack();
       }
@@ -745,8 +747,10 @@
   }
 
   /* Fly the open image back into its originating grid cell (hero-out), or
-     fall away and fade when the cell is off-screen. */
-  function dismissToCell() {
+     fall away and fade when the cell is off-screen. `fromDX`/`fromDY` are
+     the on-screen offsets left by a drag-to-dismiss release; the fallback
+     continues from there rather than jumping to the fitted position. */
+  function dismissToCell(fromDX, fromDY) {
     if (state !== 'open') {
       return;
     }
@@ -785,10 +789,13 @@
       img.style.transform =
         'translate(' + dx + 'px, ' + dy + 'px) scale(' + s + ')';
     } else {
+      var ex = typeof fromDX === 'number' ? fromDX : 0;
+      var ey = (typeof fromDY === 'number' ? fromDY : 0) +
+        window.innerHeight * 0.25;
       img.style.transition =
         'transform 0.3s ease-in, opacity 0.3s ease-in';
       img.style.transform =
-        'translate(0, ' + (window.innerHeight * 0.25) + 'px) scale(0.9)';
+        'translate(' + ex + 'px, ' + ey + 'px) scale(0.9)';
       img.style.opacity = '0';
     }
     backdrop.style.transition = 'opacity 0.35s ' + EASE;
@@ -797,55 +804,6 @@
     /* Unmount only after the flight actually paints its last frame; a
        fixed timer can fire a frame early on slow renders and flash at the
        landing cell. */
-    img.addEventListener('transitionend', function (ev) {
-      if (ev.propertyName === 'transform') {
-        finish();
-      }
-    });
-    window.setTimeout(finish, 450);
-  }
-
-  /* Swipe dismissal: keep the photo moving along the vector the finger or
-     cursor travelled (release point + direction of travel) until it is well
-     clear of the viewport. A fast flick throws it farther than a slow pull,
-     so the motion reads as inertia rather than a fixed lever to the corner. */
-  function dismissBySwipe(g, dx, dySwiped) {
-    state = 'closing';
-    viewer.setAttribute('data-state', 'closing');
-    showChrome(false);
-    clearTapPending();
-
-    var it = items[index];
-    var img = it.img;
-    var finished = false;
-
-    function finish() {
-      if (finished) {
-        return;
-      }
-      finished = true;
-      closeDone();
-    }
-
-    var len = Math.max(1, Math.sqrt(dx * dx + dySwiped * dySwiped));
-    var ux = dx / len;
-    var uy = dySwiped / len;
-    /* Flick speed (smoothed pointer velocity) stretches the exit distance. */
-    var speed = Math.min(1, Math.sqrt(g.vx * g.vx + g.vy * g.vy) / 1.5);
-    var sz = pvSize();
-    var dist =
-      (0.9 + 0.8 * speed) *
-      Math.sqrt(sz.w * sz.w + sz.h * sz.h);
-    var p = Math.min(1, Math.abs(dySwiped) / (sz.h * 0.45));
-
-    img.style.transition = 'transform 0.35s ' + EASE;
-    img.style.borderRadius = (14 * p) + 'px';
-    img.style.transform =
-      'translate(' + (ux * dist) + 'px, ' + (uy * dist) + 'px) scale(' +
-      (1 - 0.12 * p) + ')';
-    backdrop.style.transition = 'opacity 0.35s ' + EASE;
-    backdrop.style.opacity = '0';
-
     img.addEventListener('transitionend', function (ev) {
       if (ev.propertyName === 'transform') {
         finish();
