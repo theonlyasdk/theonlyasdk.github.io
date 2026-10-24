@@ -97,7 +97,10 @@
 }
 
 #pv-next::before {
-  transform: rotate(-135deg) translate(-2px, -2px);
+  /* Mirror of the prev chevron: rotate(-135deg) flips the shape, so the same
+     local translate lands the glyph on the optical centre instead of
+     dropping it right + down. */
+  transform: rotate(-135deg) translate(2px, -2px);
 }
 
 #pv-prev {
