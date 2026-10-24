@@ -9,6 +9,11 @@
 <link rel="stylesheet" href="{{ '/assets/css/photos-viewer.css' | relative_url }}?v=7">
 <script src="{{ '/assets/js/photos-viewer.js' | relative_url }}?v=10" defer></script>
 
+<!-- Overlay-drawer behaviour for the mobile sidebar: drag-to-close (touch and
+     mouse) plus the standard slide-out before link navigation.
+     Bump ?v= on changes to bust cached assets. -->
+<script src="{{ '/assets/js/sidebar-drawer.js' | relative_url }}?v=1" defer></script>
+
 {% if site.toc and page.toc %}
   <link rel="stylesheet" href="{{ site.data.origin[type].toc.css | relative_url }}">
 {% endif %}

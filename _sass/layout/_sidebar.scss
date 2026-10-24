@@ -19,6 +19,14 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
   border-right: 1px solid var(--sidebar-border-color);
   view-transition-name: sidebar;
 
+  /* Drawer above the header: fixed chrome and static columns never overlap
+     it at >=lg, so the high layer only takes effect where the drawer actually
+     overlays the page — while open (it covers the top bar strip in its own
+     column instead of tinting under it), and all the way through its exit
+     transition. `!important` beats the `.z-2` the theme bundle adds while
+     open (both important, then id specificity wins). */
+  z-index: 110 !important;
+
   /* Hide scrollbar for IE, Edge and Firefox */
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
@@ -33,6 +41,11 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
 
     transform: translateX(-#{v.$sidebar-width}); /* hide */
     -webkit-transform: translateX(-#{v.$sidebar-width});
+
+    /* Horizontal drags on the drawer must reach the drag-to-close pointer
+       handler instead of being stolen by native scrolling; the vertical
+       axis keeps scrolling the drawer contents natively. */
+    touch-action: pan-y;
 
     [#{$sidebar-display}] & {
       transform: translateX(0);
