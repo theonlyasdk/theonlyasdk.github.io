@@ -78,13 +78,54 @@
   color: #fff;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.25s ease;
+  transition:
+    opacity 0.25s ease,
+    background-color 0.18s ease,
+    transform 0.18s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 #photos-viewer[data-chrome='show'] .pv-nav,
 #photos-viewer[data-chrome='show'] .pv-close {
   opacity: 1;
   pointer-events: auto;
+}
+
+/* Hover only where a real cursor exists, so a tap on a touch screen doesn't
+   leave a stuck highlight behind. */
+@media (hover: hover) {
+  .pv-nav:hover,
+  .pv-close:hover {
+    background: rgba(72, 72, 72, 0.72);
+  }
+
+  .pv-nav:hover {
+    transform: scale(1.06);
+  }
+}
+
+.pv-nav:active,
+.pv-close:active {
+  background: rgba(26, 26, 26, 0.82);
+  transform: scale(0.94);
+}
+
+.pv-nav:focus-visible,
+.pv-close:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.85);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pv-nav,
+  .pv-close {
+    transition: opacity 0.25s ease, background-color 0.18s ease;
+  }
+
+  .pv-nav:hover,
+  .pv-nav:active,
+  .pv-close:active {
+    transform: none;
+  }
 }
 
 .pv-nav::before {
