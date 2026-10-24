@@ -7,11 +7,14 @@
  *      release completes the close; otherwise the drawer springs back open.
  *   2. Overscroll stretch — rubber-band overshoot: pulling the open drawer
  *      in the "open further" direction (rightward) has nowhere to go, so
- *      the panel stretches instead of moving. The extra painted width is
- *      produced with an opaque box-shadow silhouette behind the panel's
- *      right edge; content is never re-laid out (px-anchored) and covered
- *      page simply gains more drawer area on its left. Release springs
- *      the panel back to its natural width.
+ *      the panel stretches instead of moving. The growth is real box
+ *      width; the content wrapper stays pinned at its natural width and
+ *      the aside's own align-items: flex-end keeps it flush with the
+ *      widening right edge, so the content rides right rigidly and the
+ *      empty pad opens between the viewport edge and the content.
+ *      Nothing ever overhangs the panel, so no overflow clipping or
+ *      phantom horizontal scroll can occur. Release springs the panel
+ *      back to its natural width.
  *   3. Same slide-out for every close path — links tapped inside the drawer
  *      are intercepted while it is open: the drawer performs the standard
  *      0.4s eased slide-out (identical to the open animation) BEFORE the
@@ -52,12 +55,11 @@
       sidebar.style.transition = '';
       sidebar.style.transform = '';
       sidebar.style.userSelect = '';
-      sidebar.style.boxShadow = '';
-      sidebar.style.borderRightColor = '';
-      sidebar.style.overflowX = '';
+      sidebar.style.width = '';
       if (contentEl) {
         contentEl.style.transition = '';
         contentEl.style.transform = '';
+        contentEl.style.width = '';
       }
       if (scrim) {
         scrim.style.transition = '';
@@ -68,43 +70,35 @@
     /* --- 2. overscroll stretch (paint-only, no layout) -------------------- */
 
     /* Rubber-band profile: responds immediately and saturates well before
-       the panel would reach mid-page. The cap (~22% of the panel, about
-       57px at 260px wide) keeps the deformation modest. */
+       the panel would reach mid-page. The cap (~15% of the panel, about
+       39px at 260px wide) keeps the deformation subtle. */
     function stretchFor(pull, panelWidth) {
-      var cap = panelWidth * 0.22;
-      var soft = panelWidth * 0.46;
+      var cap = panelWidth * 0.15;
+      var soft = panelWidth * 0.35;
       return cap * pull / (pull + soft);
     }
 
-    /* The stretched silhouette is drawn with an opaque box-shadow copy of the
-       panel shifted right. The element's border-right would cut a seam
-       through the union mid-panel, so it is hidden while stretched; the copy
-       carries the same 1rem right-side radii, so the extended edge keeps the
-       drawer's silhouette. */
-    function setStretch(px) {
-      if (px > 0) {
-        sidebar.style.boxShadow = px + 'px 0 0 0 var(--sidebar-bg)';
-        sidebar.style.borderRightColor = 'transparent';
+    /* The stretch is real box growth: the panel's inline width grows by the
+       rubber-band amount while the content wrapper stays pinned at its
+       natural width. The aside's own align-items: flex-end then holds the
+       wrapper flush against the widening right edge, so the content rides
+       right rigidly and the pad opens between the viewport edge and the
+       content. Nothing overhangs the panel box, so there is no clipping. */
+    function setStretch(px, panelWidth) {
+      if (px > 0 && panelWidth > 0) {
+        sidebar.style.width = (panelWidth + px) + 'px';
         sidebar.style.transform = '';
-        /* The content rides right by the same elastic amount, so the pad the
-           stretch creates opens on the drawer's LEFT side — between the
-           viewport edge and the content — instead of at the right rim.
-           Clipping horizontal overflow keeps the overhanging translated box
-           from becoming phantom-scrollable. */
         if (contentEl) {
-          contentEl.style.transform = 'translateX(' + px + 'px)';
+          contentEl.style.width = panelWidth + 'px';
         }
-        sidebar.style.overflowX = 'clip';
         if (scrim) {
           scrim.style.opacity = '';
         }
       } else {
-        sidebar.style.boxShadow = '';
-        sidebar.style.borderRightColor = '';
+        sidebar.style.width = '';
         if (contentEl) {
-          contentEl.style.transform = '';
+          contentEl.style.width = '';
         }
-        sidebar.style.overflowX = '';
       }
     }
 
@@ -117,24 +111,18 @@
       if (spring.onEnd) {
         sidebar.removeEventListener('transitionend', spring.onEnd);
       }
-      if (spring.onEndContent) {
-        contentEl.removeEventListener('transitionend', spring.onEndContent);
-      }
       if (spring.timer) {
         window.clearTimeout(spring.timer);
       }
       spring = null;
-      sidebar.style.boxShadow = '';
+      sidebar.style.width = '';
       sidebar.style.transition = '';
-      sidebar.style.borderRightColor = '';
-      sidebar.style.overflowX = '';
       if (contentEl) {
-        contentEl.style.transition = '';
-        contentEl.style.transform = '';
+        contentEl.style.width = '';
       }
     }
 
-    function startStretchSpring() {
+    function startStretchSpring(panelWidth) {
       var reduce = false;
       try {
         reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -142,44 +130,32 @@
         /* treat as motion-capable */
       }
       if (reduce) {
-        sidebar.style.boxShadow = '';
-        sidebar.style.borderRightColor = '';
-        sidebar.style.overflowX = '';
+        sidebar.style.width = '';
         if (contentEl) {
-          contentEl.style.transform = '';
+          contentEl.style.width = '';
         }
         return;
       }
       /* Same duration/easing family as the drawer slide; the earlier clear
          already removed per-move values, so this transition starts from the
-         current stretched offset. */
-      sidebar.style.transition = 'box-shadow 0.4s var(--spring-ease)';
-      sidebar.style.boxShadow = '0px 0 0 0 var(--sidebar-bg)';
+         current stretched width. Only the panel tweens — the wrapper is
+         re-pinned at its natural width so the content rides rigidly via
+         align-items: flex-end. */
+      sidebar.style.transition = 'width 0.4s var(--spring-ease)';
+      sidebar.style.width = panelWidth + 'px';
+      if (contentEl) {
+        contentEl.style.width = panelWidth + 'px';
+      }
       spring = {
         timer: null,
         onEnd: function (ev) {
-          if (ev && ev.propertyName !== 'box-shadow') {
+          if (ev && ev.propertyName !== 'width') {
             return;
           }
           endStretchSpring();
-        },
-        onEndContent: null
+        }
       };
       sidebar.addEventListener('transitionend', spring.onEnd);
-      /* Border stays hidden through the spring so no seam shows before the
-         silhouette has fully retracted; restored on settle. */
-      sidebar.style.borderRightColor = 'transparent';
-      if (contentEl) {
-        contentEl.style.transition = 'transform 0.4s var(--spring-ease)';
-        contentEl.style.transform = 'translateX(0px)';
-        spring.onEndContent = function (ev) {
-          if (ev && ev.propertyName !== 'transform') {
-            return;
-          }
-          endStretchSpring();
-        };
-        contentEl.addEventListener('transitionend', spring.onEndContent);
-      }
       spring.timer = window.setTimeout(endStretchSpring, 600);
     }
 
@@ -252,7 +228,7 @@
          crosses over continuously at dx = 0. */
       if (dx > 0) {
         var st = stretchFor(dx, drag.w);
-        setStretch(st);
+        setStretch(st, drag.w);
         if (st > drag.maxStretch) {
           drag.maxStretch = st;
         }
@@ -297,9 +273,9 @@
       if (drawerIsOpen() && (progress >= 0.3 || (progress > 0.08 && d.vx <= -0.35))) {
         trigger.click(); /* the theme toggle: attribute off + standard slide-out */
       } else if (d.maxStretch > 1) {
-        /* Overshoot release: the stretched silhouette eases back to the
-           panel's natural width. */
-        startStretchSpring();
+        /* Overshoot release: the panel eases back to its natural width;
+           the pinned content rides it. */
+        startStretchSpring(d.w);
       }
 
       window.setTimeout(function () {
