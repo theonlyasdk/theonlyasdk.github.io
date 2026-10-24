@@ -604,10 +604,12 @@
     gesture = null;
     if (state !== 'open' || g.axis === null) {
       if (g.axis === null && state === 'open' && e.type !== 'pointercancel') {
-        /* Plain click: on a mouse the image zooms toward the click (the
-           cursor advertises it); tapping a touch screen toggles the chrome.
-           Anything outside the image dismisses with the hero flight. */
-        if (e.target === items[index].img) {
+        /* Pointer capture retargets pointerup to the viewer, so hit-test
+           the real element under the finger: a click on the open image
+           zooms toward it (mouse, the cursor advertises it) or toggles the
+           chrome (touch); anything outside dismisses with the hero flight. */
+        var hit = document.elementFromPoint(e.clientX, e.clientY);
+        if (hit && items[index].fig && items[index].fig.contains(hit)) {
           if (g.pointerType === 'mouse') {
             toggleZoomAt(e.clientX, e.clientY);
           } else {
@@ -624,9 +626,12 @@
       var pdx = e.clientX - g.x0;
       var pdy = e.clientY - g.y0;
       /* A pan that never really moved is a click: zoom back out (mouse) or
-         toggle the chrome (touch), and let an outside click dismiss. */
+         toggle the chrome (touch) on the image; anything outside dismisses.
+         Same hit-test as the unzoomed tap: pointer capture retargets the
+         pointerup, so e.target can't be trusted. */
       if (Math.abs(pdx) < 6 && Math.abs(pdy) < 6 && e.type !== 'pointercancel') {
-        if (e.target === items[index].img) {
+        var hit = document.elementFromPoint(e.clientX, e.clientY);
+        if (hit && items[index].fig && items[index].fig.contains(hit)) {
           if (g.pointerType === 'mouse') {
             toggleZoomAt(e.clientX, e.clientY);
           } else {
