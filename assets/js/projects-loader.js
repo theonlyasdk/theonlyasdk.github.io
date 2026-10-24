@@ -310,6 +310,10 @@ function tiltInstallGlobal() {
   window.addEventListener(
     'pointermove',
     (e) => {
+      /* Don't run the card-tilt loop while interacting with the top bar
+         controls (filter/view toggles) — it thrashes layout and blocks drags. */
+      var t = e.target;
+      if (t && t.closest && t.closest('.projects-top-bar')) return;
       tiltPointer = { x: e.clientX, y: e.clientY, type: e.pointerType };
       tiltSchedule();
     },
