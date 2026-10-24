@@ -10,7 +10,7 @@ order: 5
     h1.dynamic-title {
       display: block !important;
       text-align: center;
-      font-size: 2.25rem;
+      font-size: calc(2.25rem + 8px);
       font-weight: 700;
       margin-top: 1.25rem;
       margin-bottom: 1.5rem;

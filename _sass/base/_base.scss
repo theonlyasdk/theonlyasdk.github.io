@@ -118,6 +118,16 @@ dialog {
 }
 
 h1.dynamic-title {
+  font-family: 'Edu NSW ACT Cursive', cursive;
+
+  /* = the theme's h1 size + 8px (the theme headings follow Bootstrap's two
+     responsive tiers: fluid under 1200px, fixed 2.5rem at >= 1200px) */
+  font-size: calc((1.375rem + 1.5vw) + 8px);
+
+  @media (min-width: 1200px) {
+    font-size: calc(2.5rem + 8px);
+  }
+
   @include bp.lt(bp.get(lg)) {
     display: none;
 
