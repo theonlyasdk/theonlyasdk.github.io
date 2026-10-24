@@ -217,6 +217,10 @@
   }
 
   function applyTrack(animate) {
+    if (animate) {
+      track.style.transition = 'none';
+      void track.offsetWidth;
+    }
     track.style.transition = animate ? 'transform 0.35s ' + EASE : 'none';
     track.style.transform = 'translateX(-' + (index * 100) + '%)';
   }
@@ -737,10 +741,16 @@
 
   function springBack() {
     var img = items[index].img;
+    /* Force a reflow so the transition is committed before the transform
+       changes; otherwise the browser can skip the animation and flash. */
+    img.style.transition = 'none';
+    void img.offsetWidth;
     img.style.transition =
       'transform 0.32s ' + EASE + ', border-radius 0.32s ease';
     img.style.transform = 'translate(0, 0) scale(1)';
     img.style.borderRadius = '0';
+    backdrop.style.transition = 'none';
+    void backdrop.offsetWidth;
     backdrop.style.transition = 'opacity 0.32s ' + EASE;
     backdrop.style.opacity = '1';
     showChrome(true);
