@@ -704,6 +704,7 @@
 
     var dx = e.clientX - g.x0;
     var dy = e.clientY - g.y0;
+    var szg = pvSize();
 
     if (g.axis === 'x') {
       var target = Math.abs(dx) > szg.w * 0.2 ||
