@@ -29,23 +29,43 @@
 'use strict';
 
 (function () {
-  'use strict';
-
   function init() {
     var sidebar = document.getElementById('sidebar');
     var trigger = document.getElementById('sidebar-trigger');
     var scrim = document.getElementById('sidebar-scrim');
-    var contentEl = sidebar.querySelector ? sidebar.querySelector('.sidebar-zoom') : null;
     if (!sidebar || !trigger || sidebar.dataset.drawerInit) {
       return;
     }
     sidebar.dataset.drawerInit = '1';
+    var contentEl = sidebar.querySelector('.sidebar-zoom') || null;
 
     /* Mirrors the panel's own bound: @media all and (max-width: 850px - 1px). */
     var isDrawerMode = window.matchMedia('(max-width: 849px)');
 
     function drawerIsOpen() {
       return document.body.hasAttribute('sidebar-display');
+    }
+
+    function primaryButton(e) {
+      return e.button === undefined || e.button === 0;
+    }
+
+    function dragPointer(e) {
+      return drag && e.pointerId === drag.id;
+    }
+
+    /* Slide distance as a 0..1 fraction of the panel width. */
+    function slideProgress(dx, panelWidth) {
+      var off = Math.min(0, dx);
+      return panelWidth > 1 ? Math.min(1, -off / panelWidth) : 0;
+    }
+
+    /* Forget any stretched-width state so the stylesheet width rules resume. */
+    function unstretch() {
+      sidebar.style.width = '';
+      if (contentEl) {
+        contentEl.style.width = '';
+      }
     }
 
     /* A drag marks the drawer's inline motion; clearing the values lets the
@@ -55,19 +75,14 @@
       sidebar.style.transition = '';
       sidebar.style.transform = '';
       sidebar.style.userSelect = '';
-      sidebar.style.width = '';
-      if (contentEl) {
-        contentEl.style.transition = '';
-        contentEl.style.transform = '';
-        contentEl.style.width = '';
-      }
+      unstretch();
       if (scrim) {
         scrim.style.transition = '';
         scrim.style.opacity = '';
       }
     }
 
-    /* --- 2. overscroll stretch (paint-only, no layout) -------------------- */
+    /* --- 2. overscroll stretch -------------------------------------------- */
 
     /* Rubber-band profile: responds immediately and saturates well before
        the panel would reach mid-page. The cap (~15% of the panel, about
@@ -79,11 +94,8 @@
     }
 
     /* The stretch is real box growth: the panel's inline width grows by the
-       rubber-band amount while the content wrapper stays pinned at its
-       natural width. The aside's own align-items: flex-end then holds the
-       wrapper flush against the widening right edge, so the content rides
-       right rigidly and the pad opens between the viewport edge and the
-       content. Nothing overhangs the panel box, so there is no clipping. */
+       rubber-band amount while the wrapper stays pinned at its natural
+       width (see the header note about align-items: flex-end). */
     function setStretch(px, panelWidth) {
       if (px > 0 && panelWidth > 0) {
         sidebar.style.width = (panelWidth + px) + 'px';
@@ -95,10 +107,7 @@
           scrim.style.opacity = '';
         }
       } else {
-        sidebar.style.width = '';
-        if (contentEl) {
-          contentEl.style.width = '';
-        }
+        unstretch();
       }
     }
 
@@ -108,18 +117,11 @@
       if (!spring) {
         return;
       }
-      if (spring.onEnd) {
-        sidebar.removeEventListener('transitionend', spring.onEnd);
-      }
-      if (spring.timer) {
-        window.clearTimeout(spring.timer);
-      }
+      sidebar.removeEventListener('transitionend', spring.onEnd);
+      window.clearTimeout(spring.timer);
       spring = null;
-      sidebar.style.width = '';
       sidebar.style.transition = '';
-      if (contentEl) {
-        contentEl.style.width = '';
-      }
+      unstretch();
     }
 
     function startStretchSpring(panelWidth) {
@@ -130,17 +132,13 @@
         /* treat as motion-capable */
       }
       if (reduce) {
-        sidebar.style.width = '';
-        if (contentEl) {
-          contentEl.style.width = '';
-        }
+        unstretch();
         return;
       }
       /* Same duration/easing family as the drawer slide; the earlier clear
          already removed per-move values, so this transition starts from the
          current stretched width. Only the panel tweens — the wrapper is
-         re-pinned at its natural width so the content rides rigidly via
-         align-items: flex-end. */
+         re-pinned at its natural width so the content rides rigidly. */
       sidebar.style.transition = 'width 0.4s var(--spring-ease)';
       sidebar.style.width = panelWidth + 'px';
       if (contentEl) {
@@ -165,14 +163,10 @@
     var suppressClick = false;
 
     sidebar.addEventListener('pointerdown', function (e) {
-      if (!isDrawerMode.matches || !drawerIsOpen() || drag) {
+      if (!isDrawerMode.matches || !drawerIsOpen() || drag ||
+          (e.pointerType === 'touch' && e.isPrimary === false) ||
+          !primaryButton(e)) {
         return;
-      }
-      if (e.pointerType === 'touch' && e.isPrimary === false) {
-        return; /* second finger: not a drag */
-      }
-      if (e.button !== undefined && e.button !== 0) {
-        return; /* right/middle click */
       }
       endStretchSpring(); /* grabbing mid-spring takes over the motion */
       drag = {
@@ -194,7 +188,7 @@
     });
 
     sidebar.addEventListener('pointermove', function (e) {
-      if (!drag || e.pointerId !== drag.id) {
+      if (!dragPointer(e)) {
         return;
       }
       var dx = e.clientX - drag.x0;
@@ -234,34 +228,29 @@
         }
       } else {
         setStretch(0); /* melt any stretch from earlier in this gesture */
-        var off = Math.min(0, dx);
-        var progress = off < 0 ? Math.min(1, -off / drag.w) : 0;
-        sidebar.style.transform = 'translateX(' + off + 'px)';
+        sidebar.style.transform = 'translateX(' + Math.min(0, dx) + 'px)';
         if (scrim) {
           /* The dim follows the drawer's slide amount proportionally. */
           scrim.style.transition = 'none';
-          scrim.style.opacity = (0.5 * (1 - progress)).toFixed(3);
+          scrim.style.opacity = (0.5 * (1 - slideProgress(dx, drag.w))).toFixed(3);
         }
       }
 
       var dt = e.timeStamp - drag.lastT;
       if (dt > 0) {
-        var vx = (e.clientX - drag.lastX) / dt;
-        drag.vx = drag.vx * 0.6 + vx * 0.4;
+        drag.vx = drag.vx * 0.6 + ((e.clientX - drag.lastX) / dt) * 0.4;
         drag.lastX = e.clientX;
         drag.lastT = e.timeStamp;
       }
     });
 
     function onRelease(e) {
-      if (!drag || e.pointerId !== drag.id) {
+      if (!dragPointer(e)) {
         return;
       }
       var d = drag;
       drag = null;
-
-      var off = Math.min(0, e.clientX - d.x0);
-      var progress = d.w > 1 ? Math.min(1, -off / d.w) : 0;
+      var progress = slideProgress(e.clientX - d.x0, d.w);
 
       /* Hand the motion back to CSS first: the slide continues from wherever
          the finger left the drawer, on the standard eased animation. */
@@ -294,19 +283,11 @@
       }
     }, true);
 
-    /* --- 2. links inside the drawer close it first, then navigate --------- */
+    /* --- 3. links inside the drawer close it first, then navigate --------- */
 
     sidebar.addEventListener('click', function (e) {
-      if (!isDrawerMode.matches || !drawerIsOpen() || suppressClick) {
-        return;
-      }
-      if (e.defaultPrevented) {
-        return;
-      }
-      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
-        return;
-      }
-      if (e.button !== undefined && e.button !== 0) {
+      if (!isDrawerMode.matches || !drawerIsOpen() || suppressClick || e.defaultPrevented ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || !primaryButton(e)) {
         return;
       }
       var a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
