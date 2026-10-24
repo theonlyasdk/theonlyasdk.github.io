@@ -38,21 +38,22 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
       transform: translateX(0);
     }
 
-    /* Contents zoom from 60% as the panel slides in */
+    /* Android-style drawer: slides OVER the page as its own floating
+       surface, so it reads on top of the content and stays distinguishable
+       from the background at every theme. Only the two content-facing
+       corners are rounded. */
+    border: 1px solid var(--sidebar-border-color);
+    border-radius: 0 1rem 1rem 0;
+
+    /* Drawer wrapper: structure only — the flex column with the full-height
+       minimum is what keeps .sidebar-bottom pinned to the bottom of the
+       drawer. (The old scale-in animation was removed.) */
     .sidebar-zoom {
       display: flex;
       flex-direction: column;
       width: 100%;
       min-height: 100vh;
       min-height: 100dvh;
-      transform: scale(0.6);
-      transform-origin: center;
-      /* Same duration/easing as mx.slide, so zoom and slide stay locked together */
-      transition: transform v.$sidebar-transition-dur v.$easing-func;
-    }
-
-    [#{$sidebar-display}] & .sidebar-zoom {
-      transform: scale(1);
     }
   }
 
@@ -512,17 +513,12 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
     } /* .sidebar-bottom */
 } /* #sidebar */
 
-[#{$sidebar-display}] {
-  #main-wrapper {
-    @include bp.lt(bp.get(lg)) {
-      transform: translateX(v.$sidebar-width);
-    }
-  }
-}
+/* Push-aside removed: the drawer is a pure overlay, the page stays put
+   while it slides in. (The open-state panel transform is declared inside
+   #sidebar's <lg block.) */
 
 @media (prefers-reduced-motion: reduce) {
-  #sidebar .sidebar-zoom {
-    transform: none;
+  #sidebar-scrim {
     transition: none;
   }
 

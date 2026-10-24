@@ -484,15 +484,41 @@ mjx-container {
   inset: 0 0 0 0;
 }
 
+/* Drawer scrim: dims the page in step with the overlay sidebar — the same
+   duration and easing as the drawer's transform, so the dim amount stays
+   proportional to the slide amount in both directions. Decorative only:
+   pointer events pass through to #mask, which handles click-to-close, and
+   it sits under the opened drawer (.z-2) and the topbar (z-index 100). */
+#sidebar-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+
+  background: var(--mask-bg);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+
+  @include bp.lt(bp.get(lg)) {
+    transition:
+      opacity v.$sidebar-transition-dur v.$easing-func,
+      visibility 0s linear v.$sidebar-transition-dur;
+
+    [sidebar-display] & {
+      opacity: 0.5;
+      visibility: visible;
+      transition: opacity v.$sidebar-transition-dur v.$easing-func;
+    }
+  }
+}
+
 #main-wrapper {
   position: relative;
 
   @include mx.pl-pr(0);
 
-  @include bp.lt(bp.get(lg)) {
-    /* Content leads the drawer so it never lags behind the panel */
-    @include mx.slide(null, v.$sidebar-content-dur);
-  }
+  /* Overlay drawer: the content no longer slides or shifts when the drawer
+     opens, so no transform transition here. */
 
   @include bp.lg {
     margin-left: v.$sidebar-width;

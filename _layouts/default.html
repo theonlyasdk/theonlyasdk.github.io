@@ -70,6 +70,10 @@ layout: compress
 
   <div id="mask" class="d-none position-fixed w-100 h-100 z-1"></div>
 
+  <!-- Drawer scrim: dims behind the overlay sidebar; its opacity transition
+       mirrors the drawer's slide (see _base.scss). Clicks fall through. -->
+  <div id="sidebar-scrim" aria-hidden="true"></div>
+
   {% if site.pwa.enabled and site.pwa.cache.enabled %}
   {% include_cached notification.html lang=lang %}
   {% endif %}

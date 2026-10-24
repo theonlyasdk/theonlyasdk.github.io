@@ -10,7 +10,7 @@
   >
 
   <!-- Preload Resources -->
-  <link rel="preload" href="{{ '/assets/css/:THEME.css' | replace: ':THEME', site.theme | relative_url }}" as="style" />
+  <link rel="preload" href="{{ '/assets/css/:THEME.css' | replace: ':THEME', site.theme | relative_url }}?v=2" as="style" />
   <link rel="preload" href="{{ '/assets/js/dist/theme.min.js' | relative_url }}" as="script" />
   <!-- <link rel="preload" href="{{ site.data.origin[type].webfonts | relative_url }}" as="font" type="font/woff2" crossorigin="anonymous" /> -->
   <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
@@ -88,7 +88,7 @@
   {% endunless %}
 
   <!-- Theme style -->
-  <link rel="stylesheet" href="{{ '/assets/css/:THEME.css' | replace: ':THEME', site.theme | relative_url }}">
+  <link rel="stylesheet" href="{{ '/assets/css/:THEME.css' | replace: ':THEME', site.theme | relative_url }}?v=2">
 
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="{{ site.data.origin[type].fontawesome.css | relative_url }}">
