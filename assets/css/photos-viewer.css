@@ -47,6 +47,23 @@
   transition: opacity 0.3s ease;
 }
 
+/* Desktop affordance: the open image is click-to-zoom, and the cursor says
+   so. While zoomed a drag pans and a click zooms back out. */
+.pv-item-current img {
+  cursor: zoom-in;
+}
+
+#photos-viewer[data-zoom='out'] .pv-item-current img {
+  cursor: zoom-out;
+}
+
+/* Touch screens pinch instead, and the magnifier cursor is meaningless. */
+@media (pointer: coarse) {
+  .pv-item-current img {
+    cursor: auto;
+  }
+}
+
 /* While the viewer is open the page's own copies of the gallery images are
    hidden but keep their layout size (visibility, not display), so the hero
    fly-in/out lands into an untouched layout and the swap on close is
@@ -88,6 +105,15 @@
 #photos-viewer[data-chrome='show'] .pv-close {
   opacity: 1;
   pointer-events: auto;
+}
+
+/* No neighbour to go to: fade the arrow out instead of showing a dead
+   control (the JS disables it at the first/last image). Needs the same
+   specificity as the chrome rule above to win while the chrome is up. */
+.pv-nav[disabled],
+#photos-viewer[data-chrome='show'] .pv-nav[disabled] {
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* Hover only where a real cursor exists, so a tap on a touch screen doesn't

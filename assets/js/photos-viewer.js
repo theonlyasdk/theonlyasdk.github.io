@@ -7,6 +7,7 @@
  *   - hero zoom on open, flying back into the cell on dismiss
  *   - vertical drag to dismiss with 1:1 follow
  *   - horizontal swipe for prev/next (axis-locked, never conflated)
+ *   - click-to-zoom on desktop, pinch-to-zoom on touch, drag to pan
  */
 (function () {
   'use strict';
@@ -28,6 +29,15 @@
   var gesture = null;
   var chromeShown = false;
   var hiddenThumb = null;
+
+  /* Zoom: `zoom` is the live transform of the current image, expressed in
+     the same translate-then-scale space the hero animation uses (the image
+     box is already positioned at its fitted rect, transform-origin is 0 0). */
+  var MAX_ZOOM = 4;
+  var TAP_ZOOM = 2.5;
+  var zoom = { s: 1, tx: 0, ty: 0 };
+  var pointers = [];
+  var pinch = null;
 
   function isDark() {
     var mode = document.documentElement.getAttribute('data-mode');
@@ -81,7 +91,6 @@
     prevBtn.className = 'pv-nav';
     prevBtn.setAttribute('aria-label', 'Previous image');
 
-    nextBtn = document.createElement('next-placeholder');
     nextBtn = document.createElement('button');
     nextBtn.id = 'pv-next';
     nextBtn.className = 'pv-nav';
@@ -157,6 +166,11 @@
   function layoutAll() {
     var vw = window.innerWidth;
     var vh = window.innerHeight;
+    /* A resize invalidates the zoom transform, so drop back to fit. */
+    zoom.s = 1;
+    zoom.tx = 0;
+    zoom.ty = 0;
+    setZoomAttr();
     items.forEach(function (it, i) {
       it.fig.style.left = (i * 100) + '%';
       var nw = it.img.naturalWidth || it.img.getAttribute('width') || 1600;
@@ -241,6 +255,9 @@
     var it = items[index];
     var r0 = it.thumb.getBoundingClientRect();
     layoutAll();
+    pointers = [];
+    pinch = null;
+    setZoomAttr();
 
     state = 'opening';
     viewer.hidden = false;
@@ -286,13 +303,14 @@
   }
 
   function navigate(delta) {
-    if (state !== 'open') {
+    if (state !== 'open' || pinch) {
       return;
     }
     var next = index + delta;
     if (next < 0 || next >= items.length) {
       return;
     }
+    resetZoom(false);
     setCurrent(next);
     applyTrack(true);
     itResetTransform(items[index].img);
@@ -304,17 +322,164 @@
     img.style.borderRadius = '0';
   }
 
+  /* --- Zoom -------------------------------------------------------------- */
+
+  function isZoomed() {
+    return zoom.s > 1.001;
+  }
+
+  function setZoomAttr() {
+    if (viewer) {
+      viewer.setAttribute('data-zoom', isZoomed() ? 'out' : 'in');
+    }
+  }
+
+  /* Keep the zoomed image inside the viewport: centre it on an axis where it
+     is smaller than the screen, otherwise clamp its overscroll. */
+  function clampZoom() {
+    var fit = items[index].fit;
+    var vw = window.innerWidth;
+    var vh = window.innerHeight;
+    var w = fit.w * zoom.s;
+    var h = fit.h * zoom.s;
+    if (w <= vw) {
+      zoom.tx = (vw - w) / 2 - fit.left;
+    } else {
+      zoom.tx = Math.min(-fit.left, Math.max(vw - w - fit.left, zoom.tx));
+    }
+    if (h <= vh) {
+      zoom.ty = (vh - h) / 2 - fit.top;
+    } else {
+      zoom.ty = Math.min(-fit.top, Math.max(vh - h - fit.top, zoom.ty));
+    }
+  }
+
+  function applyZoom(animate) {
+    var it = items[index];
+    if (!it || !it.fit) {
+      return;
+    }
+    it.img.style.transition = animate ? 'transform 0.28s ' + EASE : 'none';
+    it.img.style.transform =
+      'translate(' + zoom.tx + 'px, ' + zoom.ty + 'px) scale(' + zoom.s + ')';
+    setZoomAttr();
+  }
+
+  function resetZoom(animate) {
+    zoom.s = 1;
+    zoom.tx = 0;
+    zoom.ty = 0;
+    var it = items[index];
+    if (it && it.fit) {
+      it.img.style.transition = animate ? 'transform 0.28s ' + EASE : '';
+      it.img.style.transform = '';
+      it.img.style.borderRadius = '0';
+    }
+    setZoomAttr();
+  }
+
+  /* Zoom to `scale` keeping the given screen point anchored under the
+     cursor/fingers, then clamp back into the viewport. */
+  function zoomTo(scale, cx, cy) {
+    var fit = items[index].fit;
+    var lx = (cx - fit.left - zoom.tx) / zoom.s;
+    var ly = (cy - fit.top - zoom.ty) / zoom.s;
+    zoom.s = scale;
+    zoom.tx = cx - fit.left - scale * lx;
+    zoom.ty = cy - fit.top - scale * ly;
+    clampZoom();
+    applyZoom(true);
+  }
+
+  function toggleZoomAt(cx, cy) {
+    if (isZoomed()) {
+      resetZoom(true);
+    } else {
+      zoomTo(TAP_ZOOM, cx, cy);
+    }
+  }
+
+  /* Settle after a pinch/pan: fall back to the fitted rect when the user
+     pinched all the way out, otherwise keep the clamped zoom. */
+  function settleZoom() {
+    if (state !== 'open' || !items[index]) {
+      return;
+    }
+    if (zoom.s <= 1.02) {
+      resetZoom(true);
+    } else {
+      clampZoom();
+      applyZoom(true);
+    }
+  }
+
+  function pinchGeometry() {
+    var a = pointers[0];
+    var b = pointers[1];
+    var dx = a.x - b.x;
+    var dy = a.y - b.y;
+    return {
+      dist: Math.max(1, Math.sqrt(dx * dx + dy * dy)),
+      x: (a.x + b.x) / 2,
+      y: (a.y + b.y) / 2
+    };
+  }
+
+  function startPinch() {
+    var g = pinchGeometry();
+    var fit = items[index].fit;
+    pinch = {
+      dist0: g.dist,
+      s0: zoom.s,
+      /* Image-local point that must stay under the pinch midpoint. */
+      localX: (g.x - fit.left - zoom.tx) / zoom.s,
+      localY: (g.y - fit.top - zoom.ty) / zoom.s
+    };
+    items[index].img.style.transition = 'none';
+  }
+
+  function removePointer(pid) {
+    pointers = pointers.filter(function (p) {
+      return p.id !== pid;
+    });
+  }
+
   /* --- Gestures --------------------------------------------------------- */
 
   function onPointerDown(e) {
-    if (state !== 'open' || gesture !== null) {
+    if (state !== 'open') {
       return;
     }
     if (e.target.closest && e.target.closest('.pv-nav, .pv-close')) {
       return;
     }
+    pointers.push({ id: e.pointerId, x: e.clientX, y: e.clientY });
+    try {
+      viewer.setPointerCapture(e.pointerId);
+    } catch (err) {
+      /* capture is best-effort */
+    }
+
+    if (pointers.length === 2) {
+      /* Second finger: drop whatever the first one started and pinch. */
+      if (gesture) {
+        if (gesture.axis === 'y') {
+          springBack();
+        } else if (gesture.axis === 'x') {
+          applyTrack(true);
+        }
+        gesture = null;
+      }
+      startPinch();
+      return;
+    }
+    if (pointers.length > 2 || pinch) {
+      return;
+    }
+
     gesture = {
       id: e.pointerId,
+      pointerType: e.pointerType || 'mouse',
       x0: e.clientX,
       y0: e.clientY,
       lastX: e.clientX,
@@ -322,21 +487,52 @@
       lastT: e.timeStamp,
       vx: 0,
       vy: 0,
-      axis: null
+      /* While zoomed a drag pans the zoomed image instead of dismissing or
+         flipping pages. */
+      axis: isZoomed() ? 'pan' : null,
+      tx0: zoom.tx,
+      ty0: zoom.ty
     };
-    try {
-      viewer.setPointerCapture(e.pointerId);
-    } catch (err) {
-      /* capture is best-effort */
-    }
   }
 
   function onPointerMove(e) {
-    if (gesture === null || e.pointerId !== gesture.id || state !== 'open') {
+    var i;
+    for (i = 0; i < pointers.length; i++) {
+      if (pointers[i].id === e.pointerId) {
+        pointers[i].x = e.clientX;
+        pointers[i].y = e.clientY;
+      }
+    }
+
+    if (state !== 'open') {
+      return;
+    }
+
+    if (pinch) {
+      var g = pinchGeometry();
+      var s = Math.min(MAX_ZOOM, Math.max(1, pinch.s0 * g.dist / pinch.dist0));
+      var fit = items[index].fit;
+      zoom.s = s;
+      zoom.tx = g.x - fit.left - s * pinch.localX;
+      zoom.ty = g.y - fit.top - s * pinch.localY;
+      clampZoom();
+      applyZoom(false);
+      return;
+    }
+
+    if (gesture === null || e.pointerId !== gesture.id) {
       return;
     }
     var dx = e.clientX - gesture.x0;
     var dy = e.clientY - gesture.y0;
+
+    if (gesture.axis === 'pan') {
+      zoom.tx = gesture.tx0 + dx;
+      zoom.ty = gesture.ty0 + dy;
+      clampZoom();
+      applyZoom(false);
+      return;
+    }
 
     if (gesture.axis === null) {
       if (Math.abs(dx) < 8 && Math.abs(dy) < 8) {
@@ -387,6 +583,20 @@
   }
 
   function onPointerUp(e) {
+    removePointer(e.pointerId);
+
+    if (pinch) {
+      if (pointers.length >= 2) {
+        /* Lifted one of three+ fingers: re-baseline the remaining pinch. */
+        startPinch();
+        return;
+      }
+      pinch = null;
+      gesture = null;
+      settleZoom();
+      return;
+    }
+
     if (gesture === null || e.pointerId !== gesture.id) {
       return;
     }
@@ -394,15 +604,40 @@
     gesture = null;
     if (state !== 'open' || g.axis === null) {
       if (g.axis === null && state === 'open' && e.type !== 'pointercancel') {
-        /* Plain tap: tapping the open image toggles the chrome; tapping
-           anywhere outside it dismisses with the hero flight, like
-           clicking outside. */
+        /* Plain click: on a mouse the image zooms toward the click (the
+           cursor advertises it); tapping a touch screen toggles the chrome.
+           Anything outside the image dismisses with the hero flight. */
         if (e.target === items[index].img) {
-          showChrome(!chromeShown);
+          if (g.pointerType === 'mouse') {
+            toggleZoomAt(e.clientX, e.clientY);
+          } else {
+            showChrome(!chromeShown);
+          }
         } else {
           dismissToCell();
         }
       }
+      return;
+    }
+
+    if (g.axis === 'pan') {
+      var pdx = e.clientX - g.x0;
+      var pdy = e.clientY - g.y0;
+      /* A pan that never really moved is a click: zoom back out (mouse) or
+         toggle the chrome (touch), and let an outside click dismiss. */
+      if (Math.abs(pdx) < 6 && Math.abs(pdy) < 6 && e.type !== 'pointercancel') {
+        if (e.target === items[index].img) {
+          if (g.pointerType === 'mouse') {
+            toggleZoomAt(e.clientX, e.clientY);
+          } else {
+            showChrome(!chromeShown);
+          }
+        } else {
+          dismissToCell();
+        }
+        return;
+      }
+      settleZoom();
       return;
     }
 
@@ -415,6 +650,9 @@
         ? index + (dx < 0 ? 1 : -1)
         : index;
       target = Math.max(0, Math.min(items.length - 1, target));
+      if (target !== index) {
+        resetZoom(false);
+      }
       setCurrent(target);
       applyTrack(true);
     } else {
@@ -448,6 +686,11 @@
     state = 'closing';
     viewer.setAttribute('data-state', 'closing');
     showChrome(false);
+    /* A zoomed image can't fly back to its cell from a scaled state, so snap
+       the transform to the fitted rect first and let the flight take over. */
+    if (isZoomed()) {
+      resetZoom(false);
+    }
 
     var it = items[index];
     var r0 = it.thumb.getBoundingClientRect();
@@ -506,6 +749,14 @@
     track.innerHTML = '';
     items = [];
     gesture = null;
+    pinch = null;
+    pointers = [];
+    zoom.s = 1;
+    zoom.tx = 0;
+    zoom.ty = 0;
+    if (viewer) {
+      viewer.removeAttribute('data-zoom');
+    }
     backdrop.style.opacity = '0';
   }
 
