@@ -5,7 +5,14 @@
  *      mouse. The drawer tracks the finger 1:1; the dim scrim follows it
  *      proportionally. Past the threshold (or with a leftward flick) the
  *      release completes the close; otherwise the drawer springs back open.
- *   2. Same slide-out for every close path — links tapped inside the drawer
+ *   2. Overscroll stretch — rubber-band overshoot: pulling the open drawer
+ *      in the "open further" direction (rightward) has nowhere to go, so
+ *      the panel stretches instead of moving. The extra painted width is
+ *      produced with an opaque box-shadow silhouette behind the panel's
+ *      right edge; content is never re-laid out (px-anchored) and covered
+ *      page simply gains more drawer area on its left. Release springs
+ *      the panel back to its natural width.
+ *   3. Same slide-out for every close path — links tapped inside the drawer
  *      are intercepted while it is open: the drawer performs the standard
  *      0.4s eased slide-out (identical to the open animation) BEFORE the
  *      navigation happens. Without this, cross-document view transitions
@@ -44,10 +51,89 @@
       sidebar.style.transition = '';
       sidebar.style.transform = '';
       sidebar.style.userSelect = '';
+      sidebar.style.boxShadow = '';
+      sidebar.style.borderRightColor = '';
       if (scrim) {
         scrim.style.transition = '';
         scrim.style.opacity = '';
       }
+    }
+
+    /* --- 2. overscroll stretch (paint-only, no layout) -------------------- */
+
+    /* Rubber-band profile: responds immediately (~0.73x at small pulls) and
+       saturates well before the panel would reach mid-page. */
+    function stretchFor(pull, panelWidth) {
+      var cap = panelWidth * 0.34;
+      var soft = panelWidth * 0.46;
+      return cap * pull / (pull + soft);
+    }
+
+    /* The stretched silhouette is drawn with an opaque box-shadow copy of the
+       panel shifted right. The element's border-right would cut a seam
+       through the union mid-panel, so it is hidden while stretched; the copy
+       carries the same 1rem right-side radii, so the extended edge keeps the
+       drawer's silhouette. */
+    function setStretch(px) {
+      if (px > 0) {
+        sidebar.style.boxShadow = px + 'px 0 0 0 var(--sidebar-bg)';
+        sidebar.style.borderRightColor = 'transparent';
+        sidebar.style.transform = '';
+        if (scrim) {
+          scrim.style.opacity = '';
+        }
+      } else {
+        sidebar.style.boxShadow = '';
+        sidebar.style.borderRightColor = '';
+      }
+    }
+
+    var spring = null; /* active stretch spring-back, if any */
+
+    function endStretchSpring() {
+      if (!spring) {
+        return;
+      }
+      if (spring.onEnd) {
+        sidebar.removeEventListener('transitionend', spring.onEnd);
+      }
+      if (spring.timer) {
+        window.clearTimeout(spring.timer);
+      }
+      spring = null;
+      sidebar.style.boxShadow = '';
+      sidebar.style.transition = '';
+      sidebar.style.borderRightColor = '';
+    }
+
+    function startStretchSpring() {
+      var reduce = false;
+      try {
+        reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      } catch (err) {
+        /* treat as motion-capable */
+      }
+      if (reduce) {
+        sidebar.style.boxShadow = '';
+        sidebar.style.borderRightColor = '';
+        return;
+      }
+      /* Same duration/easing family as the drawer slide; the earlier clear
+         already removed per-move values, so this transition starts from the
+         current stretched offset. */
+      sidebar.style.transition = 'box-shadow 0.4s var(--spring-ease)';
+      sidebar.style.boxShadow = '0px 0 0 0 var(--sidebar-bg)';
+      spring = {
+        timer: null,
+        onEnd: function (ev) {
+          if (ev && ev.propertyName !== 'box-shadow') {
+            return;
+          }
+          endStretchSpring();
+        }
+      };
+      sidebar.addEventListener('transitionend', spring.onEnd);
+      spring.timer = window.setTimeout(endStretchSpring, 600);
     }
 
     /* --- 1. drag to close ------------------------------------------------- */
@@ -65,6 +151,7 @@
       if (e.button !== undefined && e.button !== 0) {
         return; /* right/middle click */
       }
+      endStretchSpring(); /* grabbing mid-spring takes over the motion */
       drag = {
         id: e.pointerId,
         x0: e.clientX,
@@ -73,6 +160,7 @@
         lastT: e.timeStamp,
         vx: 0,
         axis: null,
+        maxStretch: 0,
         w: sidebar.getBoundingClientRect().width || sidebar.clientWidth || 260
       };
       try {
@@ -110,15 +198,27 @@
         sidebar.style.userSelect = 'none';
       }
 
-      /* The drawer only ever travels left while closing; movement to the
-         right is a no-op (it is already fully open). */
-      var off = Math.min(0, dx);
-      var progress = off < 0 ? Math.min(1, -off / drag.w) : 0;
-      sidebar.style.transform = 'translateX(' + off + 'px)';
-      if (scrim) {
-        /* The dim follows the drawer's slide amount proportionally. */
-        scrim.style.transition = 'none';
-        scrim.style.opacity = (0.5 * (1 - progress)).toFixed(3);
+      /* Biomechanics: leftward travel slides the drawer toward closed, so it
+         is real movement (translate + dim). Rightward travel has nowhere to
+         go — the panel is fully open — so it stretches the panel instead.
+         Both share the same x0, so sweeping from one side to the other
+         crosses over continuously at dx = 0. */
+      if (dx > 0) {
+        var st = stretchFor(dx, drag.w);
+        setStretch(st);
+        if (st > drag.maxStretch) {
+          drag.maxStretch = st;
+        }
+      } else {
+        setStretch(0); /* melt any stretch from earlier in this gesture */
+        var off = Math.min(0, dx);
+        var progress = off < 0 ? Math.min(1, -off / drag.w) : 0;
+        sidebar.style.transform = 'translateX(' + off + 'px)';
+        if (scrim) {
+          /* The dim follows the drawer's slide amount proportionally. */
+          scrim.style.transition = 'none';
+          scrim.style.opacity = (0.5 * (1 - progress)).toFixed(3);
+        }
       }
 
       var dt = e.timeStamp - drag.lastT;
@@ -149,6 +249,10 @@
          cleared inline transform springs back to the open position. */
       if (drawerIsOpen() && (progress >= 0.3 || (progress > 0.08 && d.vx <= -0.35))) {
         trigger.click(); /* the theme toggle: attribute off + standard slide-out */
+      } else if (d.maxStretch > 1) {
+        /* Overshoot release: the stretched silhouette eases back to the
+           panel's natural width. */
+        startStretchSpring();
       }
 
       window.setTimeout(function () {
