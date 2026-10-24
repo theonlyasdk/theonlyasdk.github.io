@@ -532,7 +532,28 @@ header {
     -webkit-box-orient: vertical;
   }
 
+  /* Joined strip: the row's gutters are removed so the cards touch,
+     every card carries a 1px inset ring that coincides exactly with its
+     neighbour's (one hairline between cards, none doubled), and the row
+     rounds + clips the group so only the four outer corners are rounded.
+     The low-tech ring (rather than a container divider background) avoids
+     artifacts when the last grid row is not fully filled. */
+  >nav.row {
+    --bs-gutter-x: 0;
+    --bs-gutter-y: 0;
+    border-radius: v.$radius-lg;
+    overflow: hidden;
+    /* Only the group casts a drop shadow; individual card shadows would
+       bleed into the seams. */
+    box-shadow: var(--card-shadow);
+  }
+
   .card {
+    border-radius: 0;
+    box-shadow: none;
+    outline: 1px solid var(--btn-border-color);
+    outline-offset: -0.5px;
+
     h4 {
       @extend %text-clip;
     }
