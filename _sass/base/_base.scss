@@ -497,12 +497,15 @@ mjx-container {
 /* Drawer scrim: dims the page in step with the overlay sidebar — the same
    duration and easing as the drawer's transform, so the dim amount stays
    proportional to the slide amount in both directions. Decorative only:
-   pointer events pass through to #mask, which handles click-to-close, and
-   it sits under the opened drawer (.z-2) and the topbar (z-index 100). */
+   pointer-events: none, so clicks still fall through to #mask regardless
+   of stacking. The z-index rides the free lane above every layer a page
+   raises content to (goodies: column 2 + FLIP copy 2 + #back-to-top 10;
+   projects: 2) but below the topbar (100), the toast stack (1080), the
+   goodies modal (9999) and the opened drawer (110). */
 #sidebar-scrim {
   position: fixed;
   inset: 0;
-  z-index: 1;
+  z-index: 50;
 
   background: var(--mask-bg);
   opacity: 0;

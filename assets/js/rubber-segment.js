@@ -366,9 +366,9 @@ function paint() {
 
     /* --- the phase machine, mirroring the component --- */
 
-    function commit(i) {
+    function commit(i, fromDrag) {
       committed = i;
-      if (onChange) onChange(i, items[i]);
+      if (onChange) onChange(i, items[i], !!fromDrag);
     }
 
     function land(to, v, flick, withSquash) {
@@ -436,7 +436,7 @@ function paint() {
         /* capture is best-effort */
       }
       var x = localX(e);
-      var onThumb = draggable && x >= edgeL.v && x <= edgeR.v;
+      var onThumb = draggable;
       drag = {
         id: e.pointerId,
         x0: x,
@@ -481,6 +481,16 @@ function paint() {
         d.tR = edgeR.v;
       }
       var width = innerW;
+
+      /* Let the thumb adopt the target slot's width while dragging, so the
+         active highlight resizes in real time instead of staying at the
+         starting slot's width until release. */
+      var centreProbe = (x - d.offset) + d.w / 2;
+      var nearProbe = nearestSlot(slots, centreProbe);
+      if (slots[nearProbe]) {
+        var targetW = slots[nearProbe].r - slots[nearProbe].l;
+        if (targetW > 0) d.w = targetW;
+      }
       var l = x - d.offset;
 
       /* Detent. Without it the thumb tracks the finger 1:1 and only ever
@@ -526,7 +536,7 @@ function paint() {
       var near = nearestSlot(slots, (d.tL + d.tR) / 2);
       if (near !== d.committedIndex) {
         d.committedIndex = near;
-        if (near !== committed) commit(near);
+        if (near !== committed) commit(near, true);
       }
       requestTick();
     }
@@ -562,7 +572,7 @@ function paint() {
       if (flick && to === committed) {
         to = clamp(to + Math.sign(v), 0, items.length - 1);
       }
-      commit(to);
+      commit(to, true);
       if (reduced()) jumpTo(to);
       else land(to, v, flick, flick);
     }
@@ -650,6 +660,13 @@ function paint() {
       el.addEventListener('pointerdown', function (e) {
         onPointerDown(e, i);
       });
+
+    track.addEventListener('pointerdown', function (e) {
+      /* Pressing empty track space (not a button) still starts a drag. */
+      if (e.target !== track) return;
+      var idx = nearestSlot(slots, localX(e));
+      onPointerDown(e, idx >= 0 ? idx : committed);
+    });
       el.addEventListener('keydown', onKeyDown);
       /* Keyboard activation. Enter/Space on a focused <button> fires click with
          no pointer event at all, so a pointer-only engine would silently ignore

@@ -822,33 +822,41 @@ function setup_projects_view_toggle() {
    the matching filter and mirrors state back into aria-pressed. */
 function setup_projects_filter_toggle() {
   const bar = document.querySelector('.filter-toggle');
-  if (!bar || !window.RubberSegment) return;
-
+  if (!bar) return;
   const pill = bar.querySelector('.t-tabs-pill');
   const tabs = Array.from(bar.querySelectorAll('.t-tab'));
+  if (!tabs.length || !pill) return;
 
-  const segment = window.RubberSegment.create({
-    track: bar,
-    pill: pill,
-    items: tabs,
-    inset: 3,
-    stretch: 100,
-    squash: 3,
-    speed: 1,
-    glide: 75,
-    draggable: true,
-    onChange: index => {
-      if (index === 1) {
-        filter_by_demo();
-      } else if (index === 0) {
-        filter_by_tag('');
-      }
-    }
-  });
+  // RubberSegment is optional; fall back to a simple clickable toggle.
+  const segment = window.RubberSegment
+    ? window.RubberSegment.create({
+        track: bar,
+        pill: pill,
+        items: tabs,
+        inset: 3,
+        stretch: 100,
+        squash: 3,
+        speed: 1,
+        glide: 75,
+        draggable: true,
+        onChange: (index, item, fromDrag) => {
+          tabs.forEach((t, i) => t.setAttribute('aria-pressed', i === index ? 'true' : 'false'));
+          if (pill) pill.style.opacity = '1';
+          if (fromDrag) {
+            // live drag: apply filter without panel toggles
+            set_filter_tag_text_and_visibility(false, '');
+            if (index === 1) apply_projects_visibility(wrap => !!wrap.querySelector('.demo-button'));
+            else apply_projects_visibility(wrap => true);
+          } else {
+            // tap/keyboard: full behavior
+            if (index === 1) filter_by_demo();
+            else filter_by_tag('');
+          }
+        }
+      })
+    : null;
 
-  /* Reflect filter state in the toggle. `null` presses neither tab, which is
-     what a tag filter needs - otherwise "All" would stay lit while a tag was
-     actually filtering, which reads as a lie. */
+  /* Reflect filter state in the toggle (used by tag filters). */
   window.set_projects_filter_tab = function (name) {
     if (!name) {
       tabs.forEach(t => t.setAttribute('aria-pressed', 'false'));
@@ -858,7 +866,16 @@ function setup_projects_filter_toggle() {
     const index = name === 'demo' ? 1 : 0;
     tabs.forEach((t, i) => t.setAttribute('aria-pressed', i === index ? 'true' : 'false'));
     if (pill) pill.style.opacity = '1';
-    segment.animateTo(index);
+    if (segment) segment.animateTo(index);
+    else {
+      // fallback pill paint
+      const btn = tabs[index];
+      const barRect = bar.getBoundingClientRect();
+      const btnRect = btn.getBoundingClientRect();
+      pill.style.transition = 'left 0.22s ease, width 0.22s ease';
+      pill.style.left = (btnRect.left - barRect.left) + 'px';
+      pill.style.width = btnRect.width + 'px';
+    }
   };
 }
 

@@ -6,13 +6,13 @@ order: 5
 
 <style>
   /* Show "Collections" heading in mobile view for collections page: big font, centered */
-  @media all and (max-width: 849px) {
+  @media (max-width: 849px) {
     h1.dynamic-title {
       display: block !important;
       text-align: center;
       font-size: calc(2.25rem + 8px);
       font-weight: 700;
-      margin-top: 1.25rem;
+      margin-top: 3.25rem;
       margin-bottom: 1.5rem;
     }
   }

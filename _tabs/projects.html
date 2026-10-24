@@ -408,6 +408,8 @@ order: 4
      their labels instead of the 38px icon square. */
   .filter-toggle {
     gap: 2px;
+    touch-action: none;
+    user-select: none;
   }
 
   .t-tabs--auto .t-tab {
@@ -574,7 +576,7 @@ order: 4
       justify-content: space-evenly;
       overflow-x: scroll;
       overflow-y: visible;
-      margin-bottom: .5em;
+      margin-bottom: -0.5em;
       padding: 0.35rem 0.4rem 0.85em;
     }
 
@@ -601,6 +603,25 @@ order: 4
 
     .projects-search-box {
       background: none !important;
+    }
+
+    .layout-toggle {
+      display: none;
+    }
+
+    .filter-tags {
+      flex-wrap: wrap;
+      width: 100%;
+    }
+
+    .filter-toggle {
+      flex: 1 1 100%;
+      width: 100%;
+    }
+
+    .filter-toggle .t-tab {
+      flex: 1 1 0;
+      justify-content: center;
     }
   }
 </style>

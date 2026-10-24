@@ -26,16 +26,28 @@ layout: compress
             "sizes": "512x512",
             "type": "image/webp",
             "form_factor": "wide"
+        },
+        {
+            "src": "{{ favicon_path }}/android-chrome-512x512.webp",
+            "sizes": "512x512",
+            "type": "image/webp"
         }
     ],
     "start_url": "{{ '/index.html' | relative_url }}",
     "theme_color": "#1b1b1e",
     "background_color": "#1b1b1e",
     "display": "fullscreen",
+    "display_override": ["window-controls-overlay", "fullscreen", "standalone"],
     "orientation": "portrait",
     "scope": "/",
     "id": "/",
     "lang": "en",
     "dir": "ltr",
-    "prefer_related_applications": false
+    "prefer_related_applications": false,
+    "protocol_handlers": [
+        {
+            "protocol": "web+asdk",
+            "url": "{{ '/' | relative_url }}?protocol=%s"
+        }
+    ]
 }

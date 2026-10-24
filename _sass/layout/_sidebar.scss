@@ -14,9 +14,11 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
   left: 0;
   height: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
   width: v.$sidebar-width;
   background: var(--sidebar-bg);
   border-right: 1px solid var(--sidebar-border-color);
+  box-shadow: 4px 0 16px rgba(0, 0, 0, 0.18);
   view-transition-name: sidebar;
 
   /* Drawer above the header: fixed chrome and static columns never overlap
@@ -38,6 +40,10 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
 
   @include bp.lt(bp.get(lg)) {
     @include mx.slide;
+
+    /* Keep drawer content pinned to the left edge during the overscroll
+       stretch so the nav items never slide with the widening panel. */
+    align-items: flex-start;
 
     transform: translateX(-#{v.$sidebar-width}); /* hide */
     -webkit-transform: translateX(-#{v.$sidebar-width});
@@ -64,7 +70,7 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
     .sidebar-zoom {
       display: flex;
       flex-direction: column;
-      width: 100%;
+      width: v.$sidebar-width;
       min-height: 100vh;
       min-height: 100dvh;
     }

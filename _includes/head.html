@@ -10,7 +10,7 @@
   >
 
   <!-- Preload Resources -->
-  <link rel="preload" href="{{ '/assets/css/:THEME.css' | replace: ':THEME', site.theme | relative_url }}?v=4" as="style" />
+  <link rel="preload" href="{{ '/assets/css/:THEME.css' | replace: ':THEME', site.theme | relative_url }}?v=5" as="style" />
   <link rel="preload" href="{{ '/assets/js/dist/theme.min.js' | relative_url }}" as="script" />
   <!-- <link rel="preload" href="{{ site.data.origin[type].webfonts | relative_url }}" as="font" type="font/woff2" crossorigin="anonymous" /> -->
   <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
@@ -22,6 +22,40 @@
   <link rel="preload" fetchpriority="high" as="image" href="/assets/img/favicons/android-chrome-512x512.webp" type="image/webp" />
 
   <style> * { font-display: swap; } </style>
+
+  <!-- Window Controls Overlay (PWA) support -->
+  <style>
+    @media (display-mode: window-controls-overlay) {
+      #topbar-title { app-region: drag; cursor: grab; }
+      #topbar-wrapper { padding-top: env(titlebar-area-y, 0px); }
+    }
+  </style>
+  <script>
+    /* React to Window Controls Overlay geometry changes */
+    (function () {
+      if (!('windowControlsOverlay' in navigator)) return;
+      function debounce(fn, wait) {
+        var t;
+        return function () {
+          var args = arguments;
+          clearTimeout(t);
+          t = setTimeout(function () { fn.apply(null, args); }, wait);
+        };
+      }
+      var onGeom = debounce(function (e) {
+        var visible = navigator.windowControlsOverlay.visible;
+        var r = (e && e.titlebarAreaRect) ? e.titlebarAreaRect : null;
+        document.documentElement.style.setProperty('--wco-visible', visible ? '1' : '0');
+        if (r) {
+          document.documentElement.style.setProperty('--wco-x', r.x + 'px');
+          document.documentElement.style.setProperty('--wco-y', r.y + 'px');
+          document.documentElement.style.setProperty('--wco-w', r.width + 'px');
+          document.documentElement.style.setProperty('--wco-h', r.height + 'px');
+        }
+      }, 200);
+      navigator.windowControlsOverlay.addEventListener('geometrychange', onGeom);
+    })();
+  </script>
 
   {%- capture seo_tags -%}
     {% seo title=false %}
@@ -88,7 +122,7 @@
   {% endunless %}
 
   <!-- Theme style -->
-  <link rel="stylesheet" href="{{ '/assets/css/:THEME.css' | replace: ':THEME', site.theme | relative_url }}?v=4">
+  <link rel="stylesheet" href="{{ '/assets/css/:THEME.css' | replace: ':THEME', site.theme | relative_url }}?v=5">
 
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="{{ site.data.origin[type].fontawesome.css | relative_url }}">

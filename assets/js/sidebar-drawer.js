@@ -63,9 +63,7 @@
     /* Forget any stretched-width state so the stylesheet width rules resume. */
     function unstretch() {
       sidebar.style.width = '';
-      if (contentEl) {
-        contentEl.style.width = '';
-      }
+      sidebar.style.transform = '';
     }
 
     /* A drag marks the drawer's inline motion; clearing the values lets the
@@ -99,10 +97,7 @@
     function setStretch(px, panelWidth) {
       if (px > 0 && panelWidth > 0) {
         sidebar.style.width = (panelWidth + px) + 'px';
-        sidebar.style.transform = '';
-        if (contentEl) {
-          contentEl.style.width = panelWidth + 'px';
-        }
+        sidebar.style.transform = 'translateX(0px)';
         if (scrim) {
           scrim.style.opacity = '';
         }
@@ -140,10 +135,8 @@
          current stretched width. Only the panel tweens — the wrapper is
          re-pinned at its natural width so the content rides rigidly. */
       sidebar.style.transition = 'width 0.4s var(--spring-ease)';
+      sidebar.style.transform = 'translateX(0px)';
       sidebar.style.width = panelWidth + 'px';
-      if (contentEl) {
-        contentEl.style.width = panelWidth + 'px';
-      }
       spring = {
         timer: null,
         onEnd: function (ev) {
@@ -323,6 +316,14 @@
       };
       sidebar.addEventListener('transitionend', onSlideOut);
       window.setTimeout(go, 550); /* fallback if transitionend never fires */
+    });
+
+    /* Close the drawer when clicking its background (empty area), not links. */
+    sidebar.addEventListener('click', function (e) {
+      if (!isDrawerMode.matches || !drawerIsOpen() || suppressClick) return;
+      var t = e.target;
+      if (t && t.closest && t.closest('a, button, input, select, textarea, .nav-link')) return;
+      trigger.click();
     });
   }
 
