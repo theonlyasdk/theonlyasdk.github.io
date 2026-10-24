@@ -48,6 +48,18 @@
   var lastTap = null;
   var tapTimer = null;
 
+  /* Real overlay metrics. #photos-viewer is position:fixed with inset 0, so
+     its box matches the layout viewport EXCLUDING the page scrollbar, while
+     window.innerWidth/Height include it. Mixing the two made each pixel
+     swipe land index * scrollbarWidth off, so any left-to-right drag jerked
+     the photo left by 10px per image before it. */
+  function pvSize() {
+    if (viewer && viewer.clientWidth) {
+      return { w: viewer.clientWidth, h: viewer.clientHeight };
+    }
+    return { w: window.innerWidth, h: window.innerHeight };
+  }
+
   function isDark() {
     var mode = document.documentElement.getAttribute('data-mode');
     if (mode) {
@@ -173,8 +185,8 @@
 
   /* Place every image in its fitted, centered box for the current viewport. */
   function layoutAll() {
-    var vw = window.innerWidth;
-    var vh = window.innerHeight;
+    var vw = pvSize().w;
+    var vh = pvSize().h;
     /* A resize invalidates the zoom transform, so drop back to fit. */
     zoom.s = 1;
     zoom.tx = 0;
@@ -347,8 +359,9 @@
      is smaller than the screen, otherwise clamp its overscroll. */
   function clampZoom() {
     var fit = items[index].fit;
-    var vw = window.innerWidth;
-    var vh = window.innerHeight;
+    var sz = pvSize();
+    var vw = sz.w;
+    var vh = sz.h;
     var w = fit.w * zoom.s;
     var h = fit.h * zoom.s;
     if (w <= vw) {
@@ -609,19 +622,21 @@
     }
 
     if (gesture.axis === 'x') {
-      /* Horizontal swipe = carousel navigation with edge rubber-banding. */
+      /* Horizontal swipe = carousel navigation with edge rubber-banding, in
+         overlay pixel space so the dragged item stays exactly under the
+         pointer at every index. */
       var off = dx;
       if ((index === 0 && dx > 0) || (index === items.length - 1 && dx < 0)) {
         off = dx * 0.35;
       }
       track.style.transform =
-        'translateX(' + (-index * window.innerWidth + off) + 'px)';
+        'translateX(' + (-index * pvSize().w + off) + 'px)';
     } else {
       /* Vertical drag = dismiss; upward is resisted (eased 5x) but a hard
          upward fling can still dismiss, exactly like Apple/Google Photos.
          The horizontal offset is NOT eased so the photo tracks the finger. */
       var dyE = dy < 0 ? dy * 0.2 : dy;
-      var p = Math.min(1, Math.abs(dyE) / (window.innerHeight * 0.45));
+      var p = Math.min(1, Math.abs(dyE) / (pvSize().h * 0.45));
       var img = items[index].img;
       img.style.transform =
         'translate(' + dx + 'px, ' + dyE + 'px) scale(' + (1 - 0.12 * p) + ')';
@@ -650,6 +665,7 @@
     }
     var g = gesture;
     gesture = null;
+
     if (state !== 'open' || g.axis === null) {
       if (g.axis === null && state === 'open' && e.type !== 'pointercancel') {
         /* Pointer capture retargets pointerup to the viewer, so hit-test
@@ -690,7 +706,7 @@
     var dy = e.clientY - g.y0;
 
     if (g.axis === 'x') {
-      var target = Math.abs(dx) > window.innerWidth * 0.2 ||
+      var target = Math.abs(dx) > szg.w * 0.2 ||
         (Math.abs(dx) > 40 && Math.abs(g.vx) > 0.5)
         ? index + (dx < 0 ? 1 : -1)
         : index;
@@ -703,7 +719,7 @@
     } else {
       var dyE = dy < 0 ? dy * 0.2 : dy;
       var dismiss =
-        Math.abs(dyE) > window.innerHeight * 0.22 ||
+        Math.abs(dyE) > szg.h * 0.22 ||
         (Math.abs(dyE) > 40 && Math.abs(g.vy) > 0.6);
       if (dismiss) {
         /* Fling the photo off-screen along the drag vector instead of
@@ -815,13 +831,11 @@
     var uy = dySwiped / len;
     /* Flick speed (smoothed pointer velocity) stretches the exit distance. */
     var speed = Math.min(1, Math.sqrt(g.vx * g.vx + g.vy * g.vy) / 1.5);
+    var sz = pvSize();
     var dist =
       (0.9 + 0.8 * speed) *
-      Math.sqrt(
-        window.innerWidth * window.innerWidth +
-          window.innerHeight * window.innerHeight
-      );
-    var p = Math.min(1, Math.abs(dySwiped) / (window.innerHeight * 0.45));
+      Math.sqrt(sz.w * sz.w + sz.h * sz.h);
+    var p = Math.min(1, Math.abs(dySwiped) / (sz.h * 0.45));
 
     img.style.transition = 'transform 0.35s ' + EASE;
     img.style.borderRadius = (14 * p) + 'px';
