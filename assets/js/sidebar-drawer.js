@@ -32,6 +32,7 @@
     var sidebar = document.getElementById('sidebar');
     var trigger = document.getElementById('sidebar-trigger');
     var scrim = document.getElementById('sidebar-scrim');
+    var contentEl = sidebar.querySelector ? sidebar.querySelector('.sidebar-zoom') : null;
     if (!sidebar || !trigger || sidebar.dataset.drawerInit) {
       return;
     }
@@ -53,6 +54,11 @@
       sidebar.style.userSelect = '';
       sidebar.style.boxShadow = '';
       sidebar.style.borderRightColor = '';
+      sidebar.style.overflowX = '';
+      if (contentEl) {
+        contentEl.style.transition = '';
+        contentEl.style.transform = '';
+      }
       if (scrim) {
         scrim.style.transition = '';
         scrim.style.opacity = '';
@@ -61,10 +67,11 @@
 
     /* --- 2. overscroll stretch (paint-only, no layout) -------------------- */
 
-    /* Rubber-band profile: responds immediately (~0.73x at small pulls) and
-       saturates well before the panel would reach mid-page. */
+    /* Rubber-band profile: responds immediately and saturates well before
+       the panel would reach mid-page. The cap (~22% of the panel, about
+       57px at 260px wide) keeps the deformation modest. */
     function stretchFor(pull, panelWidth) {
-      var cap = panelWidth * 0.34;
+      var cap = panelWidth * 0.22;
       var soft = panelWidth * 0.46;
       return cap * pull / (pull + soft);
     }
@@ -79,12 +86,25 @@
         sidebar.style.boxShadow = px + 'px 0 0 0 var(--sidebar-bg)';
         sidebar.style.borderRightColor = 'transparent';
         sidebar.style.transform = '';
+        /* The content rides right by the same elastic amount, so the pad the
+           stretch creates opens on the drawer's LEFT side — between the
+           viewport edge and the content — instead of at the right rim.
+           Clipping horizontal overflow keeps the overhanging translated box
+           from becoming phantom-scrollable. */
+        if (contentEl) {
+          contentEl.style.transform = 'translateX(' + px + 'px)';
+        }
+        sidebar.style.overflowX = 'clip';
         if (scrim) {
           scrim.style.opacity = '';
         }
       } else {
         sidebar.style.boxShadow = '';
         sidebar.style.borderRightColor = '';
+        if (contentEl) {
+          contentEl.style.transform = '';
+        }
+        sidebar.style.overflowX = '';
       }
     }
 
@@ -97,6 +117,9 @@
       if (spring.onEnd) {
         sidebar.removeEventListener('transitionend', spring.onEnd);
       }
+      if (spring.onEndContent) {
+        contentEl.removeEventListener('transitionend', spring.onEndContent);
+      }
       if (spring.timer) {
         window.clearTimeout(spring.timer);
       }
@@ -104,6 +127,11 @@
       sidebar.style.boxShadow = '';
       sidebar.style.transition = '';
       sidebar.style.borderRightColor = '';
+      sidebar.style.overflowX = '';
+      if (contentEl) {
+        contentEl.style.transition = '';
+        contentEl.style.transform = '';
+      }
     }
 
     function startStretchSpring() {
@@ -116,6 +144,10 @@
       if (reduce) {
         sidebar.style.boxShadow = '';
         sidebar.style.borderRightColor = '';
+        sidebar.style.overflowX = '';
+        if (contentEl) {
+          contentEl.style.transform = '';
+        }
         return;
       }
       /* Same duration/easing family as the drawer slide; the earlier clear
@@ -130,9 +162,24 @@
             return;
           }
           endStretchSpring();
-        }
+        },
+        onEndContent: null
       };
       sidebar.addEventListener('transitionend', spring.onEnd);
+      /* Border stays hidden through the spring so no seam shows before the
+         silhouette has fully retracted; restored on settle. */
+      sidebar.style.borderRightColor = 'transparent';
+      if (contentEl) {
+        contentEl.style.transition = 'transform 0.4s var(--spring-ease)';
+        contentEl.style.transform = 'translateX(0px)';
+        spring.onEndContent = function (ev) {
+          if (ev && ev.propertyName !== 'transform') {
+            return;
+          }
+          endStretchSpring();
+        };
+        contentEl.addEventListener('transitionend', spring.onEndContent);
+      }
       spring.timer = window.setTimeout(endStretchSpring, 600);
     }
 
