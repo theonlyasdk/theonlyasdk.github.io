@@ -8,6 +8,7 @@
  *   - vertical drag to dismiss with 1:1 follow
  *   - horizontal swipe for prev/next (axis-locked, never conflated)
  *   - click-to-zoom on desktop, pinch-to-zoom on touch, drag to pan
+ *   - double-tap to zoom on touch (toggles between fit and 2.5x)
  */
 (function () {
   'use strict';
@@ -38,6 +39,13 @@
   var zoom = { s: 1, tx: 0, ty: 0 };
   var pointers = [];
   var pinch = null;
+
+  /* Double-tap to zoom (touch only): a lone tap still toggles the chrome,
+     but delayed ~DBL_TAP_MS until we know no second tap is coming; two
+     quick taps land on the same spot and zoom toward them. */
+  var DBL_TAP_MS = 320;
+  var lastTap = null;
+  var tapTimer = null;
 
   function isDark() {
     var mode = document.documentElement.getAttribute('data-mode');
@@ -399,6 +407,40 @@
     }
   }
 
+  function clearTapPending() {
+    if (tapTimer) {
+      clearTimeout(tapTimer);
+      tapTimer = null;
+    }
+    lastTap = null;
+  }
+
+  /* Decides what a completed tap does. On a mouse, clicks zoom straight
+     away. On touch the second quick tap wins the double-tap zoom; the
+     lone tap's chrome toggle is deferred until the window closes. */
+  function handleTap(x, y, ts, pointerType) {
+    if (pointerType === 'mouse') {
+      toggleZoomAt(x, y);
+      return;
+    }
+    if (
+      lastTap &&
+      ts - lastTap.t <= DBL_TAP_MS &&
+      Math.abs(x - lastTap.x) < 40 &&
+      Math.abs(y - lastTap.y) < 40
+    ) {
+      clearTapPending();
+      zoomTo(isZoomed() ? 1 : TAP_ZOOM, x, y);
+      return;
+    }
+    clearTapPending();
+    lastTap = { x: x, y: y, t: ts };
+    tapTimer = setTimeout(function () {
+      tapTimer = null;
+      showChrome(!chromeShown);
+    }, DBL_TAP_MS);
+  }
+
   /* Settle after a pinch/pan: fall back to the fitted rect when the user
      pinched all the way out, otherwise keep the clamped zoom. */
   function settleZoom() {
@@ -462,6 +504,7 @@
 
     if (pointers.length === 2) {
       /* Second finger: drop whatever the first one started and pinch. */
+      clearTapPending();
       if (gesture) {
         if (gesture.axis === 'y') {
           springBack();
@@ -539,6 +582,8 @@
         return;
       }
       gesture.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+      /* A drag is no tap: cancel any deferred chrome toggle. */
+      clearTapPending();
       if (gesture.axis === 'y') {
         items[index].img.style.transition = 'none';
         /* Hide the chrome right away: caption and arrows must not float
@@ -610,11 +655,7 @@
            chrome (touch); anything outside dismisses with the hero flight. */
         var hit = document.elementFromPoint(e.clientX, e.clientY);
         if (hit && items[index].fig && items[index].fig.contains(hit)) {
-          if (g.pointerType === 'mouse') {
-            toggleZoomAt(e.clientX, e.clientY);
-          } else {
-            showChrome(!chromeShown);
-          }
+          handleTap(e.clientX, e.clientY, e.timeStamp, g.pointerType);
         } else {
           dismissToCell();
         }
@@ -632,11 +673,7 @@
       if (Math.abs(pdx) < 6 && Math.abs(pdy) < 6 && e.type !== 'pointercancel') {
         var hit = document.elementFromPoint(e.clientX, e.clientY);
         if (hit && items[index].fig && items[index].fig.contains(hit)) {
-          if (g.pointerType === 'mouse') {
-            toggleZoomAt(e.clientX, e.clientY);
-          } else {
-            showChrome(!chromeShown);
-          }
+          handleTap(e.clientX, e.clientY, e.timeStamp, g.pointerType);
         } else {
           dismissToCell();
         }
@@ -756,6 +793,7 @@
     gesture = null;
     pinch = null;
     pointers = [];
+    clearTapPending();
     zoom.s = 1;
     zoom.tx = 0;
     zoom.ty = 0;
