@@ -626,6 +626,12 @@ order: 6
     gap: 8px;
   }
 
+  @media (min-width: 768px) {
+    #goodies-grid > .col {
+      width: calc(50% - 4px);
+    }
+  }
+
   #goodies-grid > .col {
     transform-origin: 0 0;
   }
@@ -803,16 +809,14 @@ order: 6
     border: none;
   }
 
-  .goodie-filter-btn:hover,
+  .goodie-filter-btn:hover {
+    background: var(--card-bg);
+  }
+
   .goodie-filter-btn:active,
   .goodie-filter-btn.active {
     background: var(--card-bg-active);
     box-shadow: var(--filter-btn-shadow-active);
-  }
-
-  .view-toggle .t-tab:hover,
-  .view-toggle .t-tab:active {
-    background: var(--card-bg-active);
   }
 
   .goodie-demo-link {
