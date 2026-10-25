@@ -60,7 +60,7 @@ refactor: true
         {% endif %}
       {% endfor %}
       {% if rec_post %}
-        <a class="card flex-shrink-0 text-decoration-none" href="{{ rec_post.url | relative_url }}" style="width: 18rem; scroll-snap-align: start;">
+        <a class="card-wrapper card flex-shrink-0 text-decoration-none" href="{{ rec_post.url | relative_url }}" style="width: 18rem; scroll-snap-align: start;">
           <div class="card-body">
             <h3 class="card-title h6 mb-0">{{ rec_post.title }}</h3>
           </div>
