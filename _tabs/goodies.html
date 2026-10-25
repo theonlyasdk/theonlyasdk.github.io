@@ -854,9 +854,11 @@ order: 6
   .goodie-modal-demo-link .goodie-action-text {
     opacity: 0;
     transform: translateX(-6px);
-    transition: opacity 0.2s ease, transform 0.2s ease;
+    transition: opacity 0.2s ease, transform 0.2s ease, max-width 0.3s ease;
     white-space: nowrap;
     margin-left: 0.35rem;
+    max-width: 0;
+    overflow: hidden;
   }
 
   @media (min-width: 768px) {
@@ -867,6 +869,7 @@ order: 6
     .goodie-modal-demo-link:hover .goodie-action-text {
       opacity: 1;
       transform: translateX(0);
+      max-width: 7rem;
     }
   }
 
