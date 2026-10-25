@@ -628,19 +628,28 @@ order: 6
      pinned to the top-left. With the default 50% 50% origin the scale would
      grow the box out of its own centre and the translate would no longer land it
      on the source box. assets/js/goodies.js relies on this. */
-  /* First row has no card above it, so it needs no top gutter margin. */
-  #goodies-grid > .col:nth-child(1) {
-    margin-top: 0;
-  }
-
-  @media (min-width: 768px) {
-    #goodies-grid > .col:nth-child(-n+2) {
-      margin-top: 0;
-    }
+  /* First row has no card above it, so it needs no top gutter margin;
+     later rows keep the 8px gap. Reset Bootstrap's row-level negative
+     margin so the first row is not pulled upward. */
+  #goodies-grid {
+    margin-top: 0 !important;
   }
 
   #goodies-grid > .col {
+    margin-top: 0;
     transform-origin: 0 0;
+  }
+
+  /* Mobile: single column - every item after the first gets a gap. */
+  #goodies-grid > .col:nth-child(n+2) {
+    margin-top: 8px;
+  }
+
+  /* Desktop: two columns - third item onward starts a new row. */
+  @media (min-width: 768px) {
+    #goodies-grid > .col:nth-child(n+3) {
+      margin-top: 8px;
+    }
   }
 
   /* Promote the columns for the length of the morph only. Leaving will-change on
