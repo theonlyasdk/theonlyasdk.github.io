@@ -21,15 +21,14 @@ layout: page
     {% assign sub_categories = '' | split: '' %}
 
     {% for post in posts_of_category %}
-      {% assign second_category = post.categories[1] %}
-      {% if second_category %}
-        {% unless sub_categories contains second_category %}
-          {% assign sub_categories = sub_categories | push: second_category %}
+      {% for tag in post.tags %}
+        {% unless sub_categories contains tag %}
+          {% assign sub_categories = sub_categories | push: tag %}
         {% endunless %}
-      {% endif %}
+      {% endfor %}
     {% endfor %}
 
-    {% assign sub_categories = sub_categories | sort %}
+    {% assign sub_categories = sub_categories | sort_natural %}
     {% assign sub_categories_size = sub_categories | size %}
 
     <div class="card categories">
@@ -103,13 +102,18 @@ layout: page
         <div id="{{ LIST_PREFIX }}{{ group_index }}" class="collapse show" aria-expanded="true">
           <ul class="list-group">
             {% for sub_category in sub_categories %}
+              {% assign posts_size = 0 %}
+              {% for post in posts_of_category %}
+                {% if post.tags contains sub_category %}
+                  {% assign posts_size = posts_size | plus: 1 %}
+                {% endif %}
+              {% endfor %}
               <li class="list-group-item">
                 <i class="far fa-folder fa-fw"></i>
 
-                {% capture _sub_ctg_url %}/categories/{{ sub_category | slugify | url_encode }}/{% endcapture %}
+                {% capture _sub_ctg_url %}/tags/{{ sub_category | slugify | url_encode }}/{% endcapture %}
                 <a href="{{ _sub_ctg_url | relative_url }}" class="mx-2">{{ sub_category }}</a>
 
-                {% assign posts_size = site.categories[sub_category] | size %}
                 <span class="text-muted small font-weight-light">
                   {{ posts_size }}
 
