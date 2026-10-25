@@ -727,12 +727,14 @@
     if (goodie.category) parts.push('<span class="goodie-info-kicker">' + escapeHtml(goodie.category) + '</span>');
     parts.push('</div>');
     if (summary) parts.push('<p class="goodie-info-lead">' + escapeHtml(summary) + '</p>');
-    if (info.controls) parts.push('<div class="goodie-info-section"><h6>How to use</h6><p>' + escapeHtml(info.controls) + '</p></div>');
+    const details = [];
+    if (info.controls) details.push('<div class="goodie-info-section"><h6>How to use</h6><p>' + escapeHtml(info.controls) + '</p></div>');
     const tech = Array.isArray(info.tech) ? info.tech.filter(Boolean) : [];
     if (tech.length) {
       const chips = tech.map(item => '<span class="goodie-info-chip">' + escapeHtml(item) + '</span>').join('');
-      parts.push('<div class="goodie-info-section"><h6>Built with</h6><div class="goodie-info-chips">' + chips + '</div></div>');
+      details.push('<div class="goodie-info-section"><h6>Built with</h6><div class="goodie-info-chips">' + chips + '</div></div>');
     }
+    if (details.length) parts.push('<div class="goodie-info-details">' + details.join('') + '</div>');
     return '<div class="goodie-info-body">' + parts.join('') + '</div>';
   }
 
