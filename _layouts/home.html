@@ -50,7 +50,7 @@ refactor: true
 {% if page.recommended %}
 <section class="recommended-reading mb-4">
   <h2 class="h4">Recommended reading</h2>
-  <ul class="list-unstyled">
+  <div class="d-flex gap-3 overflow-auto pb-2" style="scroll-snap-type: x mandatory;">
     {% for slug in page.recommended %}
       {% assign rec_post = nil %}
       {% for candidate in site.posts %}
@@ -60,12 +60,14 @@ refactor: true
         {% endif %}
       {% endfor %}
       {% if rec_post %}
-        <li class="mb-2">
-          <a href="{{ rec_post.url | relative_url }}">{{ rec_post.title }}</a>
-        </li>
+        <a class="card flex-shrink-0 text-decoration-none" href="{{ rec_post.url | relative_url }}" style="width: 18rem; scroll-snap-align: start;">
+          <div class="card-body">
+            <h3 class="card-title h6 mb-0">{{ rec_post.title }}</h3>
+          </div>
+        </a>
       {% endif %}
     {% endfor %}
-  </ul>
+  </div>
 </section>
 {% endif %}
 
