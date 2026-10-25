@@ -1152,7 +1152,7 @@ order: 6
        2.2rem the 1px border would push the glyph 1px right of centre. Matching
        the content box also lands the label exactly at the clipped edge, so the
        reveal starts from flush. */
-    width: calc(2.2rem - 2px);
+    width: calc(2.1rem - 2px);
     height: 2.1rem;
     display: flex;
     align-items: center;
@@ -1163,8 +1163,9 @@ order: 6
      to fill its box, so the drawn size is whatever this box is. */
   .goodie-action-icon svg {
     display: block;
-    width: 0.95rem;
-    height: 0.95rem;
+    width: 1rem;
+    height: 1rem;
+    shape-rendering: geometricPrecision;
   }
 
   .goodie-action-text {
