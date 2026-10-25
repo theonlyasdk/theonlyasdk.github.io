@@ -5,7 +5,7 @@ description: "A curated index of custom recoveries, kernels and ROMs for the Red
 image:
   path: /assets/img/posts/redmi-9-custom-roms-cover.png
   alt: "Redmi 9 custom ROMs compilation"
-categories: ["Android", "Xiaomi", "Custom ROM", "Tutorial"]
+categories: ["Android"]
 tags: ["redmi-9", "cattail", "dandelion", "blossom", "garden", "custom-rom", "android", "xiaomi", "erofs", "lineageos"]
 ---
 

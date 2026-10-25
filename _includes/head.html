@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta
     name="viewport"
-    content="width=device-width, user-scalable=no initial-scale=1, shrink-to-fit=no, viewport-fit=cover"
+    content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover"
   >
 
   <!-- Preload Resources -->
@@ -141,4 +141,26 @@
   {% include metadata-hook.html %}
 
   <!-- Some unimportant scripts are loaded in footer.html -->
+  <style>
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: auto;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
+    .skip-link:focus {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: auto;
+      height: auto;
+      padding: 0.5rem 1rem;
+      background: #1b1b1e;
+      color: #f7f7f7;
+      z-index: 9999;
+      overflow: visible;
+    }
+  </style>
 </head>

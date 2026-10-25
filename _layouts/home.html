@@ -47,6 +47,32 @@ refactor: true
   {% endfor %}
 {% endif %}
 
+<div class="home-intro mb-4">
+  <p class="lead">Welcome to my blog. I write about Linux tweaks, Android experiments, and developer guides.</p>
+</div>
+
+{% if page.recommended %}
+<section class="recommended-reading mb-4">
+  <h2 class="h4">Recommended reading</h2>
+  <ul class="list-unstyled">
+    {% for slug in page.recommended %}
+      {% assign rec_post = nil %}
+      {% for candidate in site.posts %}
+        {% if candidate.slug == slug %}
+          {% assign rec_post = candidate %}
+          {% break %}
+        {% endif %}
+      {% endfor %}
+      {% if rec_post %}
+        <li class="mb-2">
+          <a href="{{ rec_post.url | relative_url }}">{{ rec_post.title }}</a>
+        </li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
 <div id="post-list" class="flex-grow-1 px-xl-1">
   {% for post in posts %}
     <article class="card-wrapper card">

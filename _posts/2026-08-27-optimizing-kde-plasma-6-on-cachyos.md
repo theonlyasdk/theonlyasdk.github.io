@@ -1,8 +1,9 @@
 ---
 title: "Optimizing KDE Plasma 6 on CachyOS"
 date: 2026-08-27 17:58:00 +0530
-categories: ["Linux", "CachyOS", "KDE", "Plasma", "Tweaks", "Performance"]
+categories: ["Linux"]
 tags: ["cachyos", "kde", "plasma-6", "wayland", "linux", "tweaks", "performance", "optimization"]
+description: "Tweaks and environment variables to reduce latency and improve responsiveness in KDE Plasma 6 on CachyOS."
 ---
 
 CachyOS already gives your setup a solid edge right out of the box with x86-64-v3/v4 optimized packages, custom BORE/EEVDF kernels, and aggressive memory management. But if you're running KDE Plasma 6 on Wayland, you can tweak a few desktop settings and environment variables to squeeze out lower rendering latency, faster UI responses, and better power governor reaction times.

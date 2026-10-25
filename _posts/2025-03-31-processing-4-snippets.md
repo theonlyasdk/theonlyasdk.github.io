@@ -1,8 +1,9 @@
 ---
 title: Some Processing 4 Snippets
 date: 2025-03-31
-categories: ["Graphics", "Processing 4", "Snippets"]
+categories: ["Development"]
 tags: ["graphics", "processing-4", "programming", "code", "snippets"]
+description: "Short Processing 4 code snippets for common tasks like measuring text width."
 ---
 
 Here are some Processing 4 code snippets:

@@ -5,7 +5,7 @@ description: "Complete step-by-step walkthrough to unlock the bootloader on a Re
 image:
   path: /assets/img/posts/redmi-9-cattail-bootloader-cover.png
   alt: "Redmi 9 India (cattail) bootloader unlocking guide"
-categories: ["Android", "Xiaomi", "Tutorial", "Bootloader"]
+categories: ["Android"]
 tags: ["redmi-9", "cattail", "xiaomi", "mi-unlock", "bootloader", "fastboot", "android", "tutorial", "magisk", "twrp"]
 ---
 

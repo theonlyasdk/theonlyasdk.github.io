@@ -1,8 +1,9 @@
 ---
 title: My Linux Setup
 date: 2024-06-03
-categories: ["Customisation", "Gnome", "Desktop", "Linux"]
+categories: ["Linux"]
 tags: ["setup", "gnome", "desktop", "linux", "customization"]
+description: "A tour of my GNOME Linux desktop, including the utilities, extensions, and editors I use daily."
 ---
 
 Here's a quick overview of my Linux (Gnome) setup:
