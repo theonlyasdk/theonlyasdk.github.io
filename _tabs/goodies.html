@@ -628,6 +628,10 @@ order: 6
      pinned to the top-left. With the default 50% 50% origin the scale would
      grow the box out of its own centre and the translate would no longer land it
      on the source box. assets/js/goodies.js relies on this. */
+  #goodies-grid {
+    margin-top: calc(-1 * var(--bs-gutter-y, 0.5rem)) !important;
+  }
+
   #goodies-grid > .col {
     transform-origin: 0 0;
   }
