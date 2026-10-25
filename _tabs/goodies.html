@@ -39,12 +39,6 @@ order: 6
     transition: opacity 240ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  /* In grid view, the first row of cards has no card above it, so drop the
-     extra top spacing inside those cards. */
-  #goodies-grid:not(.list-view) > .col:nth-child(-n+2) .goodie-card h5 {
-    margin-top: 0;
-  }
-
   .goodie-card p {
     padding: 0 1.25rem;
     margin-bottom: 0;
@@ -628,28 +622,12 @@ order: 6
      pinned to the top-left. With the default 50% 50% origin the scale would
      grow the box out of its own centre and the translate would no longer land it
      on the source box. assets/js/goodies.js relies on this. */
-  /* First row has no card above it, so it needs no top gutter margin;
-     later rows keep the 8px gap. Reset Bootstrap's row-level negative
-     margin so the first row is not pulled upward. */
   #goodies-grid {
-    margin-top: 0 !important;
+    gap: 8px;
   }
 
   #goodies-grid > .col {
-    margin-top: 0;
     transform-origin: 0 0;
-  }
-
-  /* Mobile: single column - every item after the first gets a gap. */
-  #goodies-grid > .col:nth-child(n+2) {
-    margin-top: 8px;
-  }
-
-  /* Desktop: two columns - third item onward starts a new row. */
-  @media (min-width: 768px) {
-    #goodies-grid > .col:nth-child(n+3) {
-      margin-top: 8px;
-    }
   }
 
   /* Promote the columns for the length of the morph only. Leaving will-change on
@@ -1573,7 +1551,7 @@ order: 6
        data-cell-size="16" data-gap="3" data-font-size="20" data-step="105"
        data-idle-opacity="0.14" data-show-timer></div>
 </div>
-<div class="row row-cols-1 row-cols-md-2 g-1" id="goodies-grid" aria-live="polite"></div>
+<div class="row row-cols-1 row-cols-md-2 g-0" id="goodies-grid" aria-live="polite"></div>
 
 <!-- Custom Mini-game Modal -->
 <div id="custom-minigame-modal" class="custom-modal-overlay" onclick="closeMinigame(event)">
