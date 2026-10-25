@@ -17,7 +17,7 @@
 
 {% assign tag_list = tag_list | sort_natural %}
 
-{% assign trending_tags = '' | split: '' %}
+{% assign trending_entries = '' | split: '' %}
 
 {% for size in size_list limit: MAX %}
   {% for tag_str in tag_list %}
@@ -25,21 +25,24 @@
     {% assign tag_name = tag | first %}
     {% assign tag_size = tag | last | plus: 0 %}
     {% if tag_size == size %}
-      {% unless trending_tags contains tag_name %}
-        {% assign trending_tags = trending_tags | push: tag_name %}
+      {% unless trending_entries contains tag_str %}
+        {% assign trending_entries = trending_entries | push: tag_str %}
         {% break %}
       {% endunless %}
     {% endif %}
   {% endfor %}
 {% endfor %}
 
-{% if trending_tags.size > 0 %}
+{% if trending_entries.size > 0 %}
   <section>
     <h2 class="panel-heading">{{- site.data.locales[include.lang].panel.trending_tags -}}</h2>
     <div class="d-flex flex-wrap mt-3 mb-1 me-3">
-      {% for tag_name in trending_tags %}
+      {% for entry in trending_entries %}
+        {% assign entry_parts = entry | split: '::' %}
+        {% assign tag_name = entry_parts | first %}
+        {% assign tag_size = entry_parts | last | plus: 0 %}
         {% assign url = tag_name | slugify | url_encode | prepend: '/tags/' | append: '/' %}
-        <a class="post-tag btn btn-outline-primary" href="{{ url | relative_url }}">{{ tag_name }}</a>
+        <a class="post-tag btn btn-outline-primary" href="{{ url | relative_url }}" style="font-size: calc(0.85rem + 0.4rem * log(var(--tag-count, 1) + 1)); --tag-count: {{ tag_size }};">{{ tag_name }}</a>
       {% endfor %}
     </div>
   </section>
