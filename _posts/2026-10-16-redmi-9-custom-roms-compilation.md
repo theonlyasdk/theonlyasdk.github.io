@@ -66,63 +66,63 @@ Everything below is posted to the [Dandelion channel](https://t.me/dandelion_inf
 
 #### Custom Recoveries
 
-- **TWRP (erofs)** [1](https://t.me/dandelion_info/785)
-- **OrangeFox (erofs support)** [2](https://t.me/dandelion_info/788)
+- **TWRP (erofs)** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/785">1</a>
+- **OrangeFox (erofs support)** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/788">2</a>
 
 #### Custom Kernel
 
-- **Sashimi Kernel** [1](https://t.me/dandelion_info/825)
+- **Sashimi Kernel** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/825">1</a>
 
 #### Android 11
 
-- **Project Kasumi Revived** [1](https://t.me/dandelion_info/872)
-- **Project Kasumi reLive** [2](https://t.me/dandelion_info/875)
+- **Project Kasumi Revived** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/872">1</a>
+- **Project Kasumi reLive** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/875">2</a>
 
 #### Android 13
 
-- **LineageOS** [1](https://t.me/dandelion_info/736)
+- **LineageOS** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/736">1</a>
 
 #### Android 14
 
-- **yaoyoro project** [1](https://t.me/dandelion_info/815) [3](https://t.me/dandelion_info/837)
-- **yaoyoro project (erofs)** [2](https://t.me/dandelion_info/828)
+- **yaoyoro project** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/815">1</a> <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/837">3</a>
+- **yaoyoro project (erofs)** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/828">2</a>
 
 #### Android 15
 
-- **Project Matrixx** [1](https://t.me/dandelion_info/678)
-- **crDroid** [2](https://t.me/dandelion_info/681) [5](https://t.me/dandelion_info/693?single)
-- **MikuUI** [3](https://t.me/dandelion_info/684)
-- **AlphaDroid** [4](https://t.me/dandelion_info/687)
+- **Project Matrixx** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/678">1</a>
+- **crDroid** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/681">2</a> <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/693?single">5</a>
+- **MikuUI** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/684">3</a>
+- **AlphaDroid** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/687">4</a>
 
 #### Android 16
 
-- **Miku UI** [1](https://t.me/dandelion_info/672) [33](https://t.me/dandelion_info/800)
-- **Project Infinity X** [2](https://t.me/dandelion_info/675) [4](https://t.me/dandelion_info/697) [11](https://t.me/dandelion_info/718) [17](https://t.me/dandelion_info/739) [35](https://t.me/dandelion_info/806) [40](https://t.me/dandelion_info/831?single) [41](https://t.me/dandelion_info/840) [45](https://t.me/dandelion_info/851) [47](https://t.me/dandelion_info/862?single)
-- **CrDroid** [3](https://t.me/dandelion_info/690) [16](https://t.me/dandelion_info/733) [24](https://t.me/dandelion_info/766) [34](https://t.me/dandelion_info/803) [38](https://t.me/dandelion_info/818) [43](https://t.me/dandelion_info/846)
-- **MistOS** [5](https://t.me/dandelion_info/700) [15](https://t.me/dandelion_info/730)
-- **risingOS** [6](https://t.me/dandelion_info/703) [21](https://t.me/dandelion_info/755)
-- **axionAOSP** [7](https://t.me/dandelion_info/706) [10](https://t.me/dandelion_info/715)
-- **CherishOS (Official)** [8](https://t.me/dandelion_info/709)
-- **CherishOS** [9](https://t.me/dandelion_info/712)
-- **LunarisAOSP** [12](https://t.me/dandelion_info/721) [37](https://t.me/dandelion_info/812) [46](https://t.me/dandelion_info/859)
-- **axionAOSP (Official)** [13](https://t.me/dandelion_info/724) [20](https://t.me/dandelion_info/752) [22](https://t.me/dandelion_info/758) [31](https://t.me/dandelion_info/794)
-- **crDroid (Official)** [14](https://t.me/dandelion_info/727)
-- **Afterlife OS (Official)** [18](https://t.me/dandelion_info/746)
-- **LineageOS** [19](https://t.me/dandelion_info/749)
-- **BlissRoms (erofs)** [23](https://t.me/dandelion_info/763)
-- **Project Sakura** [25](https://t.me/dandelion_info/769)
-- **crDroid (erofs)** [26](https://t.me/dandelion_info/772)
-- **Lineage OS (erofs)** [27](https://t.me/dandelion_info/775)
-- **AlphaDroid** [28](https://t.me/dandelion_info/778) [42](https://t.me/dandelion_info/843)
-- **MistOS (official)** [29](https://t.me/dandelion_info/781?single) [39](https://t.me/dandelion_info/822?single)
-- **Project Clover** [30](https://t.me/dandelion_info/791)
-- **EvolutionX** [32](https://t.me/dandelion_info/797)
-- **Voltage OS** [36](https://t.me/dandelion_info/809)
-- **ProjectMatrixx** [44](https://t.me/dandelion_info/849)
+- **Miku UI** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/672">1</a> <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/800">33</a>
+- **Project Infinity X** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/675">2</a> <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/697">4</a> <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/718">11</a> <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/739">17</a> <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/806">35</a> <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/831?single">40</a> <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/840">41</a> <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/851">45</a> <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/862?single">47</a>
+- **CrDroid** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/690">3</a> <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/733">16</a> <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/766">24</a> <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/803">34</a> <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/818">38</a> <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/846">43</a>
+- **MistOS** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/700">5</a> <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/730">15</a>
+- **risingOS** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/703">6</a> <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/755">21</a>
+- **axionAOSP** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/706">7</a> <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/715">10</a>
+- **CherishOS (Official)** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/709">8</a>
+- **CherishOS** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/712">9</a>
+- **LunarisAOSP** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/721">12</a> <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/812">37</a> <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/859">46</a>
+- **axionAOSP (Official)** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/724">13</a> <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/752">20</a> <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/758">22</a> <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/794">31</a>
+- **crDroid (Official)** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/727">14</a>
+- **Afterlife OS (Official)** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/746">18</a>
+- **LineageOS** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/749">19</a>
+- **BlissRoms (erofs)** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/763">23</a>
+- **Project Sakura** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/769">25</a>
+- **crDroid (erofs)** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/772">26</a>
+- **Lineage OS (erofs)** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/775">27</a>
+- **AlphaDroid** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/778">28</a> <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/843">42</a>
+- **MistOS (official)** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/781?single">29</a> <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/822?single">39</a>
+- **Project Clover** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/791">30</a>
+- **EvolutionX** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/797">32</a>
+- **Voltage OS** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/809">36</a>
+- **ProjectMatrixx** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/849">44</a>
 
 #### GApps
 
-- **NikGApps A16 arm64** [1](https://t.me/dandelion_info/760)
+- **NikGApps A16 arm64** <a class="btn btn-sm btn-outline-primary m-1" href="https://t.me/dandelion_info/760">1</a>
 
 ## 5. GApps
 
