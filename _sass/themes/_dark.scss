@@ -83,6 +83,8 @@
   --btn-share-hover-color: #bfc1ca;
   --card-bg: #1e1e1e;
   --card-bg-translucent: #1e1e1ed4;
+  --color-bg-translucent: color-mix(in srgb, var(--card-bg) 85%, transparent);
+  --card-bg-lighter: color-mix(in srgb, var(--card-bg) 85%, #ffffff);
   --card-bg-active: #0e0e0e;
   --card-hovor-bg: #464d51;
   --card-shadow: rgb(21, 21, 21, 0.72) 0 6px 18px 0,

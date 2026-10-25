@@ -43,3 +43,4 @@ This document outlines architectural constraints and coding rules for AI coding 
   cmd /c "set JEKYLL_ENV=production && bundle exec jekyll build"
   ```
 - Before pushing changes to templates or inline scripts, verify that generated HTML pages in `_site/` contain no syntax errors.
+- Do not run the build or tests for every change. For trivial edits, edit the files directly and skip builds/tests. Only run the full production build, inline-script validation, and internal link checks before a final commit/push.
