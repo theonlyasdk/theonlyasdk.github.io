@@ -47,30 +47,6 @@ refactor: true
   {% endfor %}
 {% endif %}
 
-{% if page.recommended %}
-<section class="recommended-reading mb-4">
-  <h2 class="h4">Recommended reading</h2>
-  <div class="d-flex gap-3 overflow-auto pb-2" style="scroll-snap-type: x mandatory;">
-    {% for slug in page.recommended %}
-      {% assign rec_post = nil %}
-      {% for candidate in site.posts %}
-        {% if candidate.slug == slug %}
-          {% assign rec_post = candidate %}
-          {% break %}
-        {% endif %}
-      {% endfor %}
-      {% if rec_post %}
-        <a class="card-wrapper card flex-shrink-0 text-decoration-none" href="{{ rec_post.url | relative_url }}" style="width: 18rem; scroll-snap-align: start;">
-          <div class="card-body">
-            <h3 class="card-title h6 mb-0">{{ rec_post.title }}</h3>
-          </div>
-        </a>
-      {% endif %}
-    {% endfor %}
-  </div>
-</section>
-{% endif %}
-
 <div id="post-list" class="flex-grow-1 px-xl-1">
   {% for post in posts %}
     <article class="card-wrapper card">
