@@ -710,6 +710,19 @@
      as far as the data goes. */
   function renderInfoBody(goodie, info, summary) {
     const parts = [];
+    if (goodie.image) {
+      const image = siteUrl(goodie.image);
+      const fullWebp = image.replace(/\.png(?:\?.*)?$/i, '.webp');
+      const cardWebp = image.replace(/\.png(?:\?.*)?$/i, '.480.webp');
+      parts.push(
+        '<div class="goodie-info-hero">' +
+          '<picture>' +
+            '<source type="image/webp" srcset="' + escapeHtml(cardWebp) + ' 480w, ' + escapeHtml(fullWebp) + ' 960w" sizes="(max-width: 576px) 100vw, 532px">' +
+            '<img src="' + escapeHtml(image) + '" alt="' + escapeHtml(goodie.name) + ' preview" loading="eager" decoding="async">' +
+          '</picture>' +
+        '</div>'
+      );
+    }
     parts.push('<div class="goodie-info-head"><h5 class="fw-bold mb-0">' + escapeHtml(goodie.name) + '</h5>');
     if (goodie.category) parts.push('<span class="goodie-info-kicker">' + escapeHtml(goodie.category) + '</span>');
     parts.push('</div>');
