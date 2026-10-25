@@ -39,6 +39,12 @@ order: 6
     transition: opacity 240ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
+  /* In grid view, the first row of cards has no card above it, so drop the
+     extra top spacing inside those cards. */
+  #goodies-grid:not(.list-view) > .col:nth-child(-n+2) .goodie-card h5 {
+    margin-top: 0;
+  }
+
   .goodie-card p {
     padding: 0 1.25rem;
     margin-bottom: 0;
@@ -562,7 +568,7 @@ order: 6
     flex-wrap: wrap;
     gap: 0.5rem;
     margin-top: 0.9rem;
-    padding: 0.3em;
+    padding: 1em 0em;
   }
 
   #goodies-grid {
@@ -612,7 +618,6 @@ order: 6
     align-items: center;
     flex-wrap: wrap;
     gap: 0.75rem;
-    margin-top: 0.9rem;
   }
 
   .goodie-toolbar .goodie-filter {
