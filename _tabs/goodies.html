@@ -849,7 +849,6 @@ order: 6
     color: var(--text-color);
     opacity: 0.75;
     background-color: var(--sidebar-border-color);
-    width: 7rem;
   }
 
   .goodie-modal-demo-link .goodie-action-text {
@@ -860,9 +859,15 @@ order: 6
     margin-left: 0.35rem;
   }
 
-  .goodie-modal-demo-link:hover .goodie-action-text {
-    opacity: 1;
-    transform: translateX(0);
+  @media (min-width: 768px) {
+    .goodie-modal-demo-link:hover {
+      width: 7rem;
+    }
+
+    .goodie-modal-demo-link:hover .goodie-action-text {
+      opacity: 1;
+      transform: translateX(0);
+    }
   }
 
   .goodie-modal-demo-link svg {
