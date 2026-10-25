@@ -61,7 +61,7 @@
   own heading. */
 @media (min-width: 769px) {
   @view-transition {
-    navigation: auto;
+    navigation: none;
   }
 
   // Everything that is not the hero is an instant swap. The snapshots of a
@@ -94,7 +94,7 @@
   }
 
   .post-heading {
-    view-transition-name: post-hero;
+    view-transition-name: none;
   }
 
   ::view-transition-group(post-hero) {
