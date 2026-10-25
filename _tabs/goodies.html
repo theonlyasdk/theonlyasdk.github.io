@@ -497,7 +497,7 @@ order: 6
     border-radius: 0.75rem;
     padding: 0.55rem 0.9rem;
     margin-top: 2rem;
-    box-shadow: var(--card-shadow);
+    box-shadow: var(--card-shadow), 0 0 0 1px rgba(137, 135, 135, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.16);
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
 
@@ -807,6 +807,11 @@ order: 6
   .goodie-filter-btn.active {
     background: var(--card-bg-active);
     box-shadow: var(--filter-btn-shadow-active);
+  }
+
+  .view-toggle .t-tab:hover,
+  .view-toggle .t-tab:active {
+    background: var(--card-bg-active);
   }
 
   .goodie-demo-link {
@@ -1501,17 +1506,6 @@ order: 6
   /* Hide the back-to-top button while any Goodies dialog is open. */
   body:has(.custom-modal-overlay.active) #back-to-top {
     display: none;
-  }
-
-  /* Glossy, liquid-glass style border for the goodies filter (sorting) buttons,
-     powered by a drop-shadow ring plus an inset top highlight. */
-  .goodie-filter-btn,
-  .goodie-filter-btn:hover,
-  .goodie-filter-btn:active,
-  .goodie-filter-btn.active {
-    box-shadow:
-      0 0 0 1px rgba(137, 135, 135, 0.2),
-      inset 0 1px 0 rgba(255, 255, 255, 0.16);
   }
 
   @media (prefers-reduced-motion: reduce) {
