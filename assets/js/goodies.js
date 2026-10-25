@@ -11,40 +11,6 @@
   /* The page's loading state: the lattice status row above the grid, mounted by
      assets/js/lattice-loader.js. It runs from the moment this script starts and
      settles once the cards are built, reporting the frozen time either way. */
-  const goodiesLoaderHost = $('goodies-loading');
-  const goodiesLoader = window.LatticeLoader
-    ? window.LatticeLoader.mount(document.querySelector('[data-lattice-loader]'))
-    : null;
-  const goodiesLoaderStartedAt = performance.now();
-
-  function settleGoodiesLoader(failed) {
-    if (!goodiesLoader) return;
-    if (failed) {
-      goodiesLoader.setStatus('error');
-      return;
-    }
-    /* Hold the fetch state long enough to read, then show the stopwatch stopped
-       on the done mark before the row collapses out of the flow. */
-    const hold = Math.max(0, 520 - (performance.now() - goodiesLoaderStartedAt));
-    setTimeout(() => {
-      goodiesLoader.setStatus('done');
-      setTimeout(() => {
-        if (!goodiesLoaderHost) return;
-        goodiesLoaderHost.classList.add('is-finished');
-        setTimeout(() => { goodiesLoaderHost.hidden = true; }, 400);
-      }, 700);
-    }, hold);
-  }
-
-  function runGoodiesBuild(build) {
-    try {
-      build();
-      settleGoodiesLoader(false);
-    } catch (err) {
-      settleGoodiesLoader(true);
-      console.error('Failed to build the goodies grid:', err);
-    }
-  }
   const spinner = `<svg class="goodie-spinner" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" width="60" height="60" style="shape-rendering: auto; display: block; background: transparent; color: var(--text-color);"><g><g transform="rotate(0 50 50)"><rect x="49" y="24" rx="1" ry="1" width="2" height="12" fill="currentColor"><animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.9166666666666666s" repeatCount="indefinite"></animate></rect></g><g transform="rotate(30 50 50)"><rect x="49" y="24" rx="1" ry="1" width="2" height="12" fill="currentColor"><animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.8333333333333334s" repeatCount="indefinite"></animate></rect></g><g transform="rotate(60 50 50)"><rect x="49" y="24" rx="1" ry="1" width="2" height="12" fill="currentColor"><animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.75s" repeatCount="indefinite"></animate></rect></g><g transform="rotate(90 50 50)"><rect x="49" y="24" rx="1" ry="1" width="2" height="12" fill="currentColor"><animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.6666666666666666s" repeatCount="indefinite"></animate></rect></g><g transform="rotate(120 50 50)"><rect x="49" y="24" rx="1" ry="1" width="2" height="12" fill="currentColor"><animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.5833333333333334s" repeatCount="indefinite"></animate></rect></g><g transform="rotate(150 50 50)"><rect x="49" y="24" rx="1" ry="1" width="2" height="12" fill="currentColor"><animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.5s" repeatCount="indefinite"></animate></rect></g><g transform="rotate(180 50 50)"><rect x="49" y="24" rx="1" ry="1" width="2" height="12" fill="currentColor"><animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.4166666666666667s" repeatCount="indefinite"></animate></rect></g><g transform="rotate(210 50 50)"><rect x="49" y="24" rx="1" ry="1" width="2" height="12" fill="currentColor"><animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.3333333333333333s" repeatCount="indefinite"></animate></rect></g><g transform="rotate(240 50 50)"><rect x="49" y="24" rx="1" ry="1" width="2" height="12" fill="currentColor"><animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.25s" repeatCount="indefinite"></animate></rect></g><g transform="rotate(270 50 50)"><rect x="49" y="24" rx="1" ry="1" width="2" height="12" fill="currentColor"><animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.16666666666666666s" repeatCount="indefinite"></animate></rect></g><g transform="rotate(300 50 50)"><rect x="49" y="24" rx="1" ry="1" width="2" height="12" fill="currentColor"><animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.08333333333333333s" repeatCount="indefinite"></animate></rect></g><g transform="rotate(330 50 50)"><rect x="49" y="24" rx="1" ry="1" width="2" height="12" fill="currentColor"><animate attributeName="opacity" values="1;0" dur="1s" begin="0s" repeatCount="indefinite"></animate></rect></g></g></svg>`;
 
   function imageFallback(image) {
@@ -593,7 +559,8 @@
     /* Goodies are appended to _data/goodies.yml in chronological order (oldest
        first, newest last), so reverse here to surface the most recent ones
        first - mirroring the projects list convention. */
-    runGoodiesBuild(() => window.CollectionGrid({
+    try {
+      window.CollectionGrid({
       items: [...GOODIES].reverse(),
       gridId: 'goodies-grid',
       filterId: 'goodie-filter',
@@ -609,7 +576,10 @@
       /* Land a view morph before this render measures, or the fade-out ghosts
          get placed from column boxes that are mid-flight. */
       beforeRender: settleMorphNow
-    }));
+    });
+  } catch (err) {
+    console.error('Failed to build the goodies grid:', err);
+  }
   }
 
   function setupViewToggle() {
