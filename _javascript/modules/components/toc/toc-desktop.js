@@ -7,6 +7,9 @@ export class TocDesktop {
     headingSelector: 'h2, h3, h4',
     orderedList: false,
     scrollSmooth: false,
+    // tocbot 4 defaults collapseDepth to 0 (collapse everything); 6
+    // effectively disables collapsing for h2/h3/h4 outlines.
+    collapseDepth: 6,
     headingsOffset: 16 * 2 // 2rem
   };
 

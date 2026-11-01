@@ -353,6 +353,15 @@ header {
   }
 }
 
+/* tocbot 4 defaults to collapseDepth: 0, so every nested list gets its
+   `is-collapsed` class and the CDN stylesheet pins those lists at
+   max-height: 0. The desktop ToC should always show all subheadings. */
+#toc {
+  ul ul {
+    max-height: none;
+  }
+}
+
 /* --- TOC button, bar and popup in mobile/tablet --- */
 
 #toc-bar {
@@ -625,6 +634,133 @@ header {
 
   @include bp.lte(bp.get(sm)) {
     flex-basis: 100%;
+  }
+}
+
+/* Inline technical diagrams: transparent, theme-driven, one accent colour */
+
+.diagram {
+  --dg-accent: #0b7285;
+  --dg-line: rgba(0, 0, 0, 0.12);
+  --dg-tint: rgba(11, 114, 133, 0.09);
+  --dg-plain: rgba(0, 0, 0, 0.04);
+  --dg-arrow: rgba(0, 0, 0, 0.45);
+
+  margin: 2rem 0;
+  text-align: left;
+  overflow-x: auto;
+
+  svg {
+    display: block;
+    width: 100%;
+    min-width: 620px;
+    height: auto;
+  }
+
+  text {
+    font-family: inherit;
+  }
+
+  .dg-title {
+    fill: var(--heading-color);
+    font-size: 21px;
+    font-weight: 600;
+  }
+
+  .dg-sub {
+    fill: var(--text-muted-color);
+    font-size: 14px;
+  }
+
+  .dg-label,
+  .dg-th {
+    fill: var(--text-muted-color);
+    font-size: 13px;
+  }
+
+  .dg-body {
+    fill: var(--text-color);
+    font-size: 15.5px;
+  }
+
+  .dg-body-strong {
+    fill: var(--text-color);
+    font-size: 15.5px;
+    font-weight: 600;
+  }
+
+  .dg-small {
+    fill: var(--text-muted-color);
+    font-size: 13.5px;
+  }
+
+  .dg-small-strong {
+    fill: var(--text-color);
+    font-size: 13.5px;
+  }
+
+  .dg-accent {
+    fill: var(--dg-accent);
+  }
+
+  .dg-num {
+    fill: var(--dg-accent);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .dg-mono {
+    font-family: ui-monospace, "Cascadia Mono", Consolas, "Courier New", monospace;
+  }
+
+  .dg-rule {
+    stroke: var(--dg-line);
+    stroke-width: 1;
+  }
+
+  .dg-arrow {
+    stroke: var(--dg-arrow);
+    stroke-width: 1.5;
+  }
+
+  .dg-ring {
+    fill: none;
+    stroke: var(--dg-accent);
+    stroke-width: 1.5;
+  }
+
+  .dg-cell {
+    fill: var(--dg-plain);
+    stroke: var(--dg-line);
+    stroke-width: 1;
+  }
+
+  .dg-tint {
+    fill: var(--dg-tint);
+  }
+
+  .dg-cell-label {
+    fill: var(--text-color);
+    font-size: 13.5px;
+  }
+
+  em {
+    display: block;
+    margin-top: 0.75rem;
+    font-style: normal;
+    font-size: 80%;
+    line-height: 1.5;
+    color: #6d6c6c;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .diagram {
+    --dg-accent: #63c8d2;
+    --dg-line: rgba(255, 255, 255, 0.16);
+    --dg-tint: rgba(99, 200, 210, 0.12);
+    --dg-plain: rgba(255, 255, 255, 0.06);
+    --dg-arrow: rgba(255, 255, 255, 0.5);
   }
 }
 
