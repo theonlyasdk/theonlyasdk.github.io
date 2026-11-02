@@ -52,7 +52,9 @@ permalink: /collections/page-designs/
 
   .pdesign-cover {
     position: relative;
-    height: 240px;
+    /* Every sheet is A4 portrait, so the cover is tall enough to show the whole
+       page at a readable size instead of shrinking it into a narrow strip. */
+    height: 420px;
     overflow: hidden;
     margin: 0;
     flex-shrink: 0;
