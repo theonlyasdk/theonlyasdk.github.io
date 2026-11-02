@@ -57,3 +57,39 @@
   description: Monthly assignments tracker sheet with columns for Name, Paper, and Due date — perfect for students, teachers, and project tracking.
   image: /assets/img/page-designs/assignments-for-month.png
   pdf: /assets/files/page-designs/assignments-for-month.pdf
+
+- name: Assignment Sheet — Centered Page No.
+  category: Assignments
+  description: Blank A4 assignment sheet with a double border and a centered Page No. field — free writing, diagrams and worksheets.
+  image: /assets/img/page-designs/page-assignment-blank-center.png
+  pdf: /assets/files/page-designs/page-assignment-blank-center.pdf
+
+- name: Assignment Sheet — Right Page No.
+  category: Assignments
+  description: Blank A4 assignment sheet with a double border and a right-aligned Page No. field — free writing, diagrams and worksheets.
+  image: /assets/img/page-designs/page-assignment-blank-right.png
+  pdf: /assets/files/page-designs/page-assignment-blank-right.pdf
+
+- name: Assignment Sheet — Boxed Page No.
+  category: Assignments
+  description: Blank A4 assignment sheet with a double border and a boxed Page No. field — free writing, diagrams and worksheets.
+  image: /assets/img/page-designs/page-assignment-blank-box.png
+  pdf: /assets/files/page-designs/page-assignment-blank-box.pdf
+
+- name: Lined Assignment Sheet — Centered Page No.
+  category: Assignments
+  description: Ruled A4 assignment sheet with a double border and a centered Page No. field — handwriting, notes and written answers.
+  image: /assets/img/page-designs/page-assignment-lined-center.png
+  pdf: /assets/files/page-designs/page-assignment-lined-center.pdf
+
+- name: Lined Assignment Sheet — Right Page No.
+  category: Assignments
+  description: Ruled A4 assignment sheet with a double border and a right-aligned Page No. field — handwriting, notes and written answers.
+  image: /assets/img/page-designs/page-assignment-lined-right.png
+  pdf: /assets/files/page-designs/page-assignment-lined-right.pdf
+
+- name: Lined Assignment Sheet — Boxed Page No.
+  category: Assignments
+  description: Ruled A4 assignment sheet with a double border and a boxed Page No. field — handwriting, notes and written answers.
+  image: /assets/img/page-designs/page-assignment-lined-box.png
+  pdf: /assets/files/page-designs/page-assignment-lined-box.pdf
