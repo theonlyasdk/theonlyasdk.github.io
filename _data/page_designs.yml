@@ -93,3 +93,9 @@
   description: Ruled A4 assignment sheet with a double border and a boxed Page No. field — handwriting, notes and written answers.
   image: /assets/img/page-designs/page-assignment-lined-box.png
   pdf: /assets/files/page-designs/page-assignment-lined-box.pdf
+
+- name: Assignment Sheet — Border Only
+  category: Assignments
+  description: Blank A4 assignment sheet with a clean double border and no header fields — essays, diagrams and free-form answers.
+  image: /assets/img/page-designs/page-assignment-border-only.png
+  pdf: /assets/files/page-designs/page-assignment-border-only.pdf
