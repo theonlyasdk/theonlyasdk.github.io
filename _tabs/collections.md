@@ -530,9 +530,9 @@ order: 5
   }
   .mc-title {
     margin: 0;
-    font-size: 1rem;
+    font-size: 1.125rem;
     font-weight: 600;
-    line-height: 1.35;
+    line-height: 1.3;
     color: var(--text-color);
   }
   .mc-desc {
@@ -549,6 +549,12 @@ order: 5
       transform: translateY(-2px);
       box-shadow: var(--card-shadow);
     }
+  }
+  /* Press feedback: quick dip on :active, slow return on release */
+  .mc-card.is-linked:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.06);
+    transition-duration: 0.08s;
   }
   @media (prefers-reduced-motion: reduce) {
     .collection-tab-pill,
@@ -627,7 +633,7 @@ Short, print-friendly references for the desk or the workshop wall.
           <h3 class="mc-title">Printable Page Templates</h3>
           <span class="post-tag shake-new">NEW!</span>
         </div>
-        <p class="mc-desc">Solid fills, borders, assignment sheets, brainstorm planner, millimeter graph paper, PAL test chart — print-ready PDF downloads!</p>
+        <p class="mc-desc">Solid fills, borders, assignment sheets, brainstorm planner, millimeter graph paper, PAL test chart, all print-ready PDF downloads!</p>
       </div>
     </a>
   </li>
