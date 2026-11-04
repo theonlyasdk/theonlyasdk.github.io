@@ -472,8 +472,9 @@ order: 5
     filter: blur(2px);
   }
   /* Card list shared by the My Collections and Other Collections panels.
-     The whole card is the tap/click target: the anchor carries the padding,
-     so there is no tiny inline link to aim for on touch screens. */
+     The inner block (anchor for linked cards, div for locked ones) carries
+     the padding, so there is no tiny inline link to aim for on touch
+     screens and disabled cards keep the exact same geometry. */
   .mc-card-list {
     list-style: none;
     padding: 0;
@@ -492,7 +493,7 @@ order: 5
       transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
       box-shadow 0.22s cubic-bezier(0.22, 1, 0.36, 1);
   }
-  a.mc-card-inner {
+  .mc-card-inner {
     display: flex;
     align-items: flex-start;
     gap: 0.85rem;
@@ -505,6 +506,9 @@ order: 5
   a.mc-card-inner:focus-visible {
     outline: 2px solid var(--heading-color);
     outline-offset: 2px;
+  }
+  .mc-card.is-locked {
+    cursor: default;
   }
   .mc-icon {
     flex: 0 0 auto;
