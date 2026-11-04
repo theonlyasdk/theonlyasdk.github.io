@@ -10,7 +10,7 @@
   >
 
   <!-- Preload Resources -->
-  <link rel="preload" href="{{ '/assets/css/:THEME.css' | replace: ':THEME', site.theme | relative_url }}?v=9" as="style" />
+  <link rel="preload" href="{{ '/assets/css/:THEME.css' | replace: ':THEME', site.theme | relative_url }}?v=10" as="style" />
 
   <style> * { font-display: swap; } </style>
 
@@ -113,7 +113,7 @@
   {% endunless %}
 
   <!-- Theme style -->
-  <link rel="stylesheet" href="{{ '/assets/css/:THEME.css' | replace: ':THEME', site.theme | relative_url }}?v=9">
+  <link rel="stylesheet" href="{{ '/assets/css/:THEME.css' | replace: ':THEME', site.theme | relative_url }}?v=10">
 
   <!-- Font Awesome Icons (self-hosted subset: only the ~50 glyphs we use) -->
   <link rel="stylesheet" href="{{ site.data.origin[type].fontawesome.css | relative_url }}?v=2">

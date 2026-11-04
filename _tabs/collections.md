@@ -552,23 +552,28 @@ order: 5
     color: var(--text-muted-color);
   }
   @media (hover: hover) {
-    /* Button-like hover: surface tint + darker border + ring, on top of the lift */
+    /* Button-like hover: card tints + border deepens + extruded hard "side"
+       (a zero-blur shadow offset straight below), like a physical key raised
+       off the page */
     .mc-card.is-linked:hover {
-      transform: translateY(-2px);
+      transform: translateY(-1px);
       background: color-mix(in srgb, var(--text-muted-color) 6%, var(--card-bg));
       border-color: color-mix(in srgb, var(--text-muted-color) 38%, var(--main-border-color));
       box-shadow:
-        var(--card-shadow),
-        0 0 0 1px color-mix(in srgb, var(--text-muted-color) 16%, transparent);
+        0 4px 0 var(--card-extrude-color),
+        0 10px 16px rgba(0, 0, 0, 0.1);
     }
     .mc-card.is-linked:hover .mc-icon {
       background: color-mix(in srgb, var(--text-muted-color) 26%, transparent);
     }
   }
-  /* Press feedback: quick dip on :active, slow return on release */
+  /* Press feedback: the key pushes into the page (its side collapses), fast
+     snap in, slow return on release */
   .mc-card.is-linked:active {
-    transform: translateY(1px);
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.06);
+    transform: translateY(3px);
+    box-shadow:
+      0 1px 0 var(--card-extrude-color),
+      0 2px 4px rgba(0, 0, 0, 0.12);
     transition-duration: 0.08s;
   }
   @media (prefers-reduced-motion: reduce) {
