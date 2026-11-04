@@ -18,7 +18,7 @@ if (!projects_list_container) {
 
 const create_load_error_html = (msg) => `
   <div class="error-loading-projects">
-      <i class="bi bi-exclamation-circle-fill" style="font-size: 5em;"></i>
+      <i class="fa-solid fa-circle-exclamation" style="font-size: 5em;"></i>
     <h1>Oops! Couldn't load projects</h1>
     <p>Sorry, the project showcase did not load properly.<br>
       This could be due to a network issue or a problem with the server.<br>
