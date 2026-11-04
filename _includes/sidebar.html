@@ -81,20 +81,20 @@
           {{- icon_system -}}
         </button>
         <ul class="dropdown-menu" role="menu" aria-label="{{ site.data.locales[include.lang].theme.title | default: 'Theme mode' }}">
-          <li>
-            <button class="dropdown-item d-flex align-items-center" type="button" data-theme-mode="light">
+          <li role="presentation">
+            <button class="dropdown-item d-flex align-items-center" type="button" role="menuitem" data-theme-mode="light">
               {{- icon_light -}}
               {{- site.data.locales[include.lang].theme.light | default: site.data.locales['en'].theme.light -}}
             </button>
           </li>
-          <li>
-            <button class="dropdown-item d-flex align-items-center" type="button" data-theme-mode="dark">
+          <li role="presentation">
+            <button class="dropdown-item d-flex align-items-center" type="button" role="menuitem" data-theme-mode="dark">
               {{- icon_dark -}}
               {{- site.data.locales[include.lang].theme.dark | default: site.data.locales['en'].theme.dark -}}
             </button>
           </li>
-          <li>
-            <button class="dropdown-item d-flex align-items-center" type="button" data-theme-mode="system">
+          <li role="presentation">
+            <button class="dropdown-item d-flex align-items-center" type="button" role="menuitem" data-theme-mode="system">
               {{- icon_system -}}
               {{- site.data.locales[include.lang].theme.system | default: site.data.locales['en'].theme.system -}}
             </button>

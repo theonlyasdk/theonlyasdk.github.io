@@ -68,7 +68,7 @@ refactor: true
           {% endif %}
 
           <div class="col-md-5">
-            <img src="{{ src }}" alt="{{ alt }}" {{ lqip }} loading="lazy">
+            <img src="{{ src }}" alt="{{ alt }}" {{ lqip }}{% if forloop.first %} fetchpriority="high" loading="eager"{% else %} loading="lazy"{% endif %}>
           </div>
 
           {% assign card_body_col = '7' %}
