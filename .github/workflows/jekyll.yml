@@ -18,13 +18,14 @@ permissions:
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# Queued duplicates are canceled: for this site the latest pushed commit is
-# the desired production state, so mid-deploy runs keep superseding, and
-# burst pushes skip straight to the newest one.
+# Allow only one concurrent deployment at a time.
+# Do NOT cancel in-progress runs: a deploy builds from the pushed commit and
+# then syncs to Pages, so cancelling mid-flight loses the pushed code and the
+# site stays on the previous commit. Queue instead — the next deploy runs
+# right after the current one finishes.
 concurrency:
   group: "pages"
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   # Build job
