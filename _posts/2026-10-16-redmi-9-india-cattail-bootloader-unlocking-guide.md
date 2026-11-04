@@ -3,7 +3,7 @@ title: "Redmi 9 India (cattail) Bootloader Unlocking Guide"
 date: 2026-10-16 20:30:00 +0530
 description: "Complete step-by-step walkthrough to unlock the bootloader on a Redmi 9 India (cattail) running MIUI, using the official Mi Unlock Tool — plus what to do after unlocking."
 image:
-  path: /assets/img/posts/redmi-9-cattail-bootloader-cover.png
+  path: /assets/img/posts/redmi-9-cattail-bootloader-cover.webp
   alt: "Redmi 9 India (cattail) bootloader unlocking guide"
 categories: ["Android"]
 tags: ["redmi-9", "cattail", "xiaomi", "mi-unlock", "bootloader", "fastboot", "android", "tutorial", "magisk", "twrp"]

@@ -3,7 +3,7 @@ title: "Redmi 9 Custom ROMs Compilation (Dandelion / cattail)"
 date: 2026-10-16 22:05:00 +0530
 description: "A curated index of custom recoveries, kernels and ROMs for the Redmi 9 family — cattail, dandelion, angelica and friends on the garden platform — covering Android 11 through Android 16."
 image:
-  path: /assets/img/posts/redmi-9-custom-roms-cover.png
+  path: /assets/img/posts/redmi-9-custom-roms-cover.webp
   alt: "Redmi 9 custom ROMs compilation"
 categories: ["Android"]
 tags: ["redmi-9", "cattail", "dandelion", "blossom", "garden", "custom-rom", "android", "xiaomi", "erofs", "lineageos"]

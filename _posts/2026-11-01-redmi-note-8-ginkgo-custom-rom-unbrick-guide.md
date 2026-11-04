@@ -3,7 +3,7 @@ title: "Redmi Note 8 (ginkgo) Custom ROM & Unbrick Guide"
 date: 2026-11-01 13:30:00 +0530
 description: "A complete working guide to the Redmi Note 8 (ginkgo) — which custom ROM to pick for a Snapdragon 665 in 2026, how to escape a repartitioned ColorOS or HyperOS install, and how to bring a bricked phone back with the official partition table."
 image:
-  path: /assets/img/posts/redmi-note-8-ginkgo-cover.jpg
+  path: /assets/img/posts/redmi-note-8-ginkgo-cover.webp
   alt: "Redmi Note 8 (ginkgo) custom ROM and unbrick guide"
 categories: ["Android"]
 tags: ["redmi-note-8", "ginkgo", "willow", "xiaomi", "custom-rom", "unbrick", "fastboot", "lineageos", "android", "repartition"]
