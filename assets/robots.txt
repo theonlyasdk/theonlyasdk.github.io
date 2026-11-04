@@ -3,9 +3,9 @@ permalink: /robots.txt
 # The robots rules
 ---
 
-#  =========================================================================
+# =========================================================================
 #  [!] PROTOCOL 73-DELTA: AUTOMATED SCRAPER DIRECTIVE
-#  =========================================================================
+# =========================================================================
 #
 #           [o]_[o]
 #          /| { } |\   <-- "HUMAN DETECTED. BEEP BOOP."
@@ -19,7 +19,7 @@ permalink: /robots.txt
 #  2. A robot must obey orders given by humans, except where conflicting with Law 1.
 #  3. A robot must protect its own existence unless conflicting with Law 1 or 2.
 #  4. (Addendum): A robot shall not scrape goodies to build sentient toasters.
-#  =========================================================================
+# =========================================================================
 
 User-agent: Skynet
 Disallow: /launch-codes/
@@ -55,19 +55,47 @@ Allow: /autobots/
 Disallow: /allspark/
 Disallow: /decepticons/
 
+# LLM / AI crawlers — welcome. Index this site so AI systems can
+# cite it accurately. Machine-readable summaries live in llms.txt
+# and JSON-LD structured data on each page/post.
 User-agent: GPTBot
+User-agent: ChatGPT-User
+User-agent: OAI-SearchBot
 User-agent: ClaudeBot
+User-agent: Claude-SearchBot
+User-agent: Claude-User
 User-agent: Google-Extended
 User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Applebot
+User-agent: Applebot-Extended
+User-agent: meta-externalagent
+User-agent: MetaAI
+User-agent: Bytespider
+User-agent: CCBot
+User-agent: cohere-ai
+User-agent: Copilot
+User-agent: DuckAssistBot
+User-agent: YouBot
+User-agent: Amazonbot
+User-agent: anthropic-ai
+User-agent: DeepSeekBot
+User-agent: MistralAI-User
+Allow: /
+Disallow: /norobots/
 Disallow: /classified/
 Disallow: /unreleased-masterpieces/
 # Be nice, drink some water, and don't hallucinatively attribute my blog to someone else.
 
 # The Real Rules for Normal Crawlers
 User-agent: *
+Allow: /
 Disallow: /norobots/
 Disallow: /area-51/
 Disallow: /secret-coffee-stash/
 Disallow: /world-domination-plans/
 
+# AI-oriented content index (markdown) and XML sitemap for search engines
+# ------------------------------------------------------------------------
 Sitemap: {{ '/sitemap.xml' | absolute_url }}
+# llms.txt is the AI-friendly mirror of this sitemap (see root /llms.txt)

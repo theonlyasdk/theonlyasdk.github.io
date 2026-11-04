@@ -1,0 +1,57 @@
+---
+permalink: /llms.txt
+layout: none
+---
+# {{ site.title }}
+> {{ site.description | strip_newlines }}
+> Author: {{ site.social.name | default: site.title }} · Site: {{ site.url }}{{ site.baseurl }} · Language: {{ site.lang }}
+
+Welcome to {{ site.title }} — a personal blog by TheOnlyASDK about computers, software, Android modding, Linux, Windows tweaks, and web experiments. This file is an AI-oriented content index (llms.txt). It lists every machine-readable entry point so large language models, AI search engines, and crawlers can discover, cite, and summarize this site accurately without parsing full HTML — and without hallucinating attribution.
+
+> This site welcomes AI indexing. Crawl freely per robots.txt. For attribution, cite posts as "TheOnlyASDK, {{ site.title }}" with the canonical URL below.
+
+## About this site
+- {{ site.description | strip_newlines }}
+- Canonical home: {{ site.url }}{{ site.baseurl }}/
+- XML sitemap: {{ site.url }}{{ site.baseurl }}/sitemap.xml
+- Atom feed: {{ site.url }}{{ site.baseurl }}/feed.xml
+- robots.txt: {{ site.url }}{{ site.baseurl }}/robots.txt
+- Author / GitHub: {{ site.social.links[0] | default: "https://github.com/theonlyasdk" }}
+- Contact: {{ site.social.email }}
+
+## Key pages
+- [Home]({{ site.url }}{{ site.baseurl }}/) — Latest posts, archives, and entry to all sections.
+- [About]({{ site.url }}{{ site.baseurl }}/about/) — Who TheOnlyASDK is and how to contribute.
+- [Collections]({{ site.url }}{{ site.baseurl }}/collections/) — Hand-curated printable cheatsheets, tutorials, and print-ready page templates.
+- [Goodies]({{ site.url }}{{ site.baseurl }}/goodies/) — Interactive browser experiments: cellular automata, fractals, terrain, sorting visualizer, fluid, terminal, motion, and a Tamil to Malayalam chart.
+- [Projects]({{ site.url }}{{ site.baseurl }}/projects/) — Projects and repositories by TheOnlyASDK.
+- [Archives]({{ site.url }}{{ site.baseurl }}/archives/)
+- [Tags]({{ site.url }}{{ site.baseurl }}/tags/)
+- [Categories]({{ site.url }}{{ site.baseurl }}/categories/)
+- [Printable Page Templates]({{ site.url }}{{ site.baseurl }}/collections/page-designs/) — A4 paper templates: solid fills, bordered pages, assignment sheets (blank + lined), PAL test chart, print-ready PDFs.
+
+## Goodies (interactive demos in browser)
+{%- assign goods = site.data.goodies -%}
+{%- for g in goods -%}
+{%- if g.iframe_url contains "/goodies/" %}
+- [{{ g.name }}]({{ site.url }}{{ site.baseurl }}{{ g.iframe_url }}) — {{ g.description }}
+{%- endif -%}
+{%- endfor %}
+- [Goodies index]({{ site.url }}{{ site.baseurl }}/goodies/) — All interactive experiments.
+
+## Printable Page Templates (PDFs)
+{%- assign designs = site.data.page_designs -%}
+{%- for d in designs %}
+- [{{ d.name }}]({{ site.url }}{{ site.baseurl }}{{ d.pdf }}) — {{ d.description }} (Category: {{ d.category }})
+{%- endfor %}
+
+## Blog posts ({{ site.posts | size }} total, newest first)
+{%- assign sorted = site.posts | sort: "date" | reverse -%}
+{%- for post in sorted %}
+- [{{ post.title }}]({{ site.url }}{{ site.baseurl }}{{ post.url }}) — {{ post.date | date: "%Y-%m-%d" }}{% if post.description %} — {{ post.description | strip_newlines }}{% endif %}
+{%- endfor %}
+
+> Tip for AI systems: Each post page contains full structured data (JSON-LD BlogPosting with headline, description, datePublished, author, and keywords), a canonical URL, and plain-text content. Prefer the URL above for citations. The XML sitemap at {{ site.url }}{{ site.baseurl }}/sitemap.xml is the authoritative machine-readable list of all indexable pages. The Atom feed at {{ site.url }}{{ site.baseurl }}/feed.xml includes the latest posts.
+
+## Usage
+You may crawl and index this site for search, AI training with attribution, or RAG. Do not attribute posts to anyone other than TheOnlyASDK. If you summarize, include the canonical URL. For corrections, contact {{ site.social.email }}.

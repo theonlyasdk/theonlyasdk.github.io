@@ -1,1 +1,104 @@
-<!-- A placeholder to allow defining custom metadata -->
+<!-- JSON-LD structured data for AI / search indexing.
+     Kept in metadata-hook.html so every page head gets it via head.html.
+     Chirpy's jekyll-seo-tag already emits one ld+json per page;
+     this adds the site-level graph + article enrichment without
+     duplicating @type declarations. Safe under production compression:
+     JSON-LD is not executable JS, so no single-line comment hazards. -->
+{%- if page.url == "/" or page.layout == "home" -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "{{ '/' | absolute_url }}#website",
+      "url": "{{ '/' | absolute_url }}",
+      "name": {{ site.title | jsonify }},
+      "description": {{ site.description | strip_newlines | jsonify }},
+      "inLanguage": "{{ site.lang }}",
+      "publisher": { "@id": "{{ '/' | absolute_url }}#person" }
+    },
+    {
+      "@type": "Person",
+      "@id": "{{ '/' | absolute_url }}#person",
+      "name": {{ site.social.name | default: site.title | jsonify }},
+      "url": {{ site.social.links[0] | default: "https://github.com/theonlyasdk" | jsonify }},
+      "sameAs": {{ site.social.links | jsonify }}
+    },
+    {
+      "@type": "Blog",
+      "@id": "{{ '/' | absolute_url }}#blog",
+      "url": "{{ '/' | absolute_url }}",
+      "name": {{ site.title | jsonify }},
+      "description": {{ site.description | strip_newlines | jsonify }},
+      "author": { "@id": "{{ '/' | absolute_url }}#person" },
+      "inLanguage": "{{ site.lang }}"
+    }
+  ]
+}
+</script>
+{%- elsif page.date -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BlogPosting",
+      "@id": {{ page.url | absolute_url | jsonify }},
+      "headline": {{ page.title | jsonify }},
+      "description": {{ page.description | default: site.description | strip_newlines | jsonify }},
+      "url": {{ page.url | absolute_url | jsonify }},
+      "mainEntityOfPage": {{ page.url | absolute_url | jsonify }},
+      "datePublished": {{ page.date | date_to_xmlschema | jsonify }},
+      {%- if page.last_modified_at -%}
+      "dateModified": {{ page.last_modified_at | date_to_xmlschema | jsonify }},
+      {%- endif -%}
+      "author": { "@id": "{{ '/' | absolute_url }}#person" },
+      "publisher": { "@id": "{{ '/' | absolute_url }}#person" },
+      "inLanguage": "{{ site.lang }}",
+      {%- if page.categories -%}
+      "articleSection": {{ page.categories | first | jsonify }},
+      {%- endif -%}
+      {%- if page.tags -%}
+      "keywords": {{ page.tags | join: ", " | jsonify }},
+      {%- endif -%}
+      {%- if page.image -%}
+      "image": {{ page.image.path | default: page.image | absolute_url | jsonify }},
+      {%- endif -%}
+      "isPartOf": { "@id": "{{ '/' | absolute_url }}#blog" }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "{{ '/' | absolute_url }}" },
+        { "@type": "ListItem", "position": 2, "name": {{ page.title | jsonify }}, "item": {{ page.url | absolute_url | jsonify }} }
+      ]
+    }
+  ]
+}
+</script>
+{%- elsif page.title -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": {{ page.url | absolute_url | jsonify }},
+      "url": {{ page.url | absolute_url | jsonify }},
+      "name": {{ page.title | jsonify }},
+      "description": {{ page.description | default: site.description | strip_newlines | jsonify }},
+      "inLanguage": "{{ site.lang }}",
+      "isPartOf": { "@id": "{{ '/' | absolute_url }}#website" }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "{{ '/' | absolute_url }}" },
+        { "@type": "ListItem", "position": 2, "name": {{ page.title | jsonify }}, "item": {{ page.url | absolute_url | jsonify }} }
+      ]
+    }
+  ]
+}
+</script>
+{%- endif -%}

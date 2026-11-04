@@ -1,0 +1,30 @@
+---
+permalink: /sitemap.xml
+robots: noindex
+layout: none
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  {%- assign docs = site.posts | concat: site.pages | concat: site.tabs -%}
+  {%- for doc in docs -%}
+    {%- if doc.sitemap == false -%}{% continue %}{%- endif -%}
+    {%- if doc.url contains ".pdf" or doc.url contains ".png" or doc.url contains ".jpg" -%}{% continue %}{%- endif -%}
+    {%- if doc.url contains "/tags/" or doc.url contains "/categories/" -%}{% continue %}{%- endif -%}
+    {%- if doc.url == "/robots.txt" or doc.url == "/llms.txt" or doc.url == "/404.html" or doc.url == "/feed.xml" -%}{% continue %}{%- endif -%}
+    {%- if doc.url contains "/assets/" -%}{% continue %}{%- endif -%}
+    {%- if doc.permalink == "/sitemap.xml" -%}{% continue %}{%- endif -%}
+    {%- if doc.layout == null and doc.title == null -%}{% continue %}{%- endif -%}
+  <url>
+    <loc>{{ doc.url | absolute_url | xml_escape }}</loc>
+    {%- if doc.date %}
+    <lastmod>{{ doc.date | date_to_xmlschema }}</lastmod>
+    {%- elsif doc.last_modified_at %}
+    <lastmod>{{ doc.last_modified_at | date_to_xmlschema }}</lastmod>
+    {%- else %}
+    <lastmod>{{ site.time | date_to_xmlschema }}</lastmod>
+    {%- endif %}
+    <changefreq>monthly</changefreq>
+    <priority>{%- if doc.date %}0.8{% else %}0.5{% endif %}</priority>
+  </url>
+  {%- endfor %}
+</urlset>
