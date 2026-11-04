@@ -6,6 +6,7 @@
 @font-face{font-family:"Font Awesome 6 Free";font-style:normal;font-weight:900;font-display:block;src:url(../webfonts/fa-solid-subset.woff2) format("woff2")}
 @font-face{font-family:"Font Awesome 6 Free";font-style:normal;font-weight:400;font-display:block;src:url(../webfonts/fa-regular-subset.woff2) format("woff2")}
 @font-face{font-family:"Font Awesome 6 Brands";font-style:normal;font-weight:400;font-display:block;src:url(../webfonts/fa-brands-subset.woff2) format("woff2")}
+:root{--fa-font-brands:normal 400 1em/1 "Font Awesome 6 Brands";--fa-font-regular:normal 400 1em/1 "Font Awesome 6 Free";--fa-font-solid:normal 900 1em/1 "Font Awesome 6 Free"}
 .fa{font-family:var(--fa-style-family,"Font Awesome 6 Free");font-weight:var(--fa-style,900)}
 .fa,.fa-brands,.fa-regular,.fa-solid,.fab,.far,.fas{-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased;display:var(--fa-display,inline-block);font-style:normal;font-variant:normal;line-height:1;text-rendering:auto}
 .fa-brands:before,.fa-regular:before,.fa-solid:before,.fa:before,.fab:before,.far:before,.fas:before{content:var(--fa)}
@@ -34,6 +35,7 @@
 .fa-compass{--fa:"\f14e"}
 .fa-display{--fa:"\e163"}
 .fa-envelope{--fa:"\f0e0"}
+.fa-exclamation-circle{--fa:"\f06a"}
 .fa-facebook-square{--fa:"\f082"}
 .fa-file-code{--fa:"\f1c9"}
 .fa-filter{--fa:"\f0b0"}
@@ -45,6 +47,7 @@
 .fa-hashtag{--fa:"\23"}
 .fa-home{--fa:"\f015"}
 .fa-info-circle{--fa:"\f05a"}
+.fa-lightbulb{--fa:"\f0eb"}
 .fa-link{--fa:"\f0c1"}
 .fa-linkedin{--fa:"\f08c"}
 .fa-list-ul{--fa:"\f0ca"}
@@ -65,5 +68,6 @@
 .fa-telegram{--fa:"\f2c6"}
 .fa-threads{--fa:"\e618"}
 .fa-thumbtack{--fa:"\f08d"}
+.fa-warning{--fa:"\f071"}
 .fa-weibo{--fa:"\f18a"}
 .fa-xmark{--fa:"\f00d"}

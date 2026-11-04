@@ -69,6 +69,23 @@ def used_icons() -> set[str]:
     return used
 
 
+def css_referenced_icons(codepoints: dict[str, int]) -> set[str]:
+    """Icons emitted by CSS `content: '\\fXXX'` rules rather than HTML classes.
+
+    Chirpy renders its prompt icons (tip/info/warning/danger) and a few other
+    decorations this way, so class scanning alone misses them.
+    """
+    by_codepoint = {codepoint: name for name, codepoint in codepoints.items()}
+    found: set[str] = set()
+    for path in (ROOT / "_sass").rglob("*.scss"):
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        for match in re.finditer(r"'\\([0-9a-fA-F]{3,6})'", text):
+            name = by_codepoint.get(int(match.group(1), 16))
+            if name:
+                found.add(name)
+    return found
+
+
 def subset_font(src: pathlib.Path, dst: pathlib.Path, unicodes: list[int]) -> None:
     options = subset.Options()
     options.flavor = "woff2"
@@ -86,7 +103,10 @@ def subset_font(src: pathlib.Path, dst: pathlib.Path, unicodes: list[int]) -> No
 
 def main() -> None:
     codepoints = parse_codepoints()
-    icons = sorted((used_icons() - UTILITY | EXTRA) & codepoints.keys())
+    icons = sorted(
+        ((used_icons() | css_referenced_icons(codepoints)) - UTILITY | EXTRA)
+        & codepoints.keys()
+    )
 
     rules = "\n".join(
         f'.fa-{name}{{--fa:"\\{codepoints[name]:x}"}}' for name in icons
@@ -100,6 +120,7 @@ def main() -> None:
 @font-face{{font-family:"Font Awesome 6 Free";font-style:normal;font-weight:900;font-display:block;src:url(../webfonts/fa-solid-subset.woff2) format("woff2")}}
 @font-face{{font-family:"Font Awesome 6 Free";font-style:normal;font-weight:400;font-display:block;src:url(../webfonts/fa-regular-subset.woff2) format("woff2")}}
 @font-face{{font-family:"Font Awesome 6 Brands";font-style:normal;font-weight:400;font-display:block;src:url(../webfonts/fa-brands-subset.woff2) format("woff2")}}
+:root{{--fa-font-brands:normal 400 1em/1 "Font Awesome 6 Brands";--fa-font-regular:normal 400 1em/1 "Font Awesome 6 Free";--fa-font-solid:normal 900 1em/1 "Font Awesome 6 Free"}}
 .fa{{font-family:var(--fa-style-family,"Font Awesome 6 Free");font-weight:var(--fa-style,900)}}
 .fa,.fa-brands,.fa-regular,.fa-solid,.fab,.far,.fas{{-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased;display:var(--fa-display,inline-block);font-style:normal;font-variant:normal;line-height:1;text-rendering:auto}}
 .fa-brands:before,.fa-regular:before,.fa-solid:before,.fa:before,.fab:before,.far:before,.fas:before{{content:var(--fa)}}
