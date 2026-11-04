@@ -471,11 +471,37 @@ order: 5
     transform: translateX(6px);
     filter: blur(2px);
   }
+  /* Card-style list items in the My Collections panel */
+  #tabpanel-my-collections ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 0.75rem;
+  }
+  #tabpanel-my-collections li {
+    margin: 0;
+    padding: 0.95rem 1.15rem;
+    background: var(--card-bg);
+    border: 1px solid var(--main-border-color);
+    border-radius: 0.9rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    line-height: 1.55;
+    transition:
+      transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  #tabpanel-my-collections li:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--card-shadow);
+  }
   @media (prefers-reduced-motion: reduce) {
     .collection-tab-pill,
     .collection-tab-panel,
     .collection-tab-btn,
-    .collection-tab-btn i {
+    .collection-tab-btn i,
+    #tabpanel-my-collections li {
       transition: none !important;
       transform: none !important;
       filter: none !important;

@@ -14,6 +14,16 @@ search,
   margin-left: auto;
   transition: width 0.25s linear, max-width 0.25s linear, border-color 0.25s linear, box-shadow 0.25s linear;
 
+  /* Lift the search pill on hover and give it the card shadow while active. */
+  &:hover {
+    box-shadow: var(--search-shadow-hover);
+  }
+
+  &.input-focus,
+  &:focus-within {
+    box-shadow: var(--card-shadow);
+  }
+
   i {
     z-index: 2;
     font-size: 0.9rem;
