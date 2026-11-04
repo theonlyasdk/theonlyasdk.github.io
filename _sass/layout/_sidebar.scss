@@ -113,6 +113,13 @@ $sidebar-display: 'sidebar-display'; /* the attribute for sidebar display */
     }
 
     img {
+      /* Explicit box + ratio: overrides the global `img { height: auto }`
+         so the avatar never relies on intrinsic sizing (avoids CLS and
+         the Chrome "lazy-loaded image without dimensions" warning). */
+      width: 100%;
+      height: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
       transition: transform 0.5s v.$easing-func;
 
       &:hover {

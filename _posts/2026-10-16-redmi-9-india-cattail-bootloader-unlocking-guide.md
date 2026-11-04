@@ -20,12 +20,12 @@ If you're the owner of a Redmi 9 **India** variant and you want to install a cus
 <div class="img-row">
 
 <figure class="img-row-item">
-<img src="/assets/img/posts/redmi-9-india-cattail.png" alt="A picture of Redmi 9 Indian variant (codename &quot;cattail&quot;)">
+<img src="/assets/img/posts/redmi-9-india-cattail.png" width="160" height="212" alt="A picture of Redmi 9 Indian variant (codename &quot;cattail&quot;)">
 <em>Redmi 9 India — codename &quot;cattail&quot; (this guide's target)</em>
 </figure>
 
 <figure class="img-row-item">
-<img src="/assets/img/posts/redmi-9-global-lancelot.png" alt="A picture of Xiaomi Redmi 9 Global variant (codename &quot;lancelot&quot;)">
+<img src="/assets/img/posts/redmi-9-global-lancelot.png" width="160" height="212" alt="A picture of Xiaomi Redmi 9 Global variant (codename &quot;lancelot&quot;)">
 <em>Redmi 9 Global — codename &quot;lancelot&quot; (not compatible)</em>
 </figure>
 
@@ -75,7 +75,7 @@ You need to have:
 
 The four screens you'll move through, in order:
 
-![MIUI settings showing Developer options with OEM unlocking enabled, the Mi Unlock status screen, the permissions dialog, and the Add account and device button](/assets/img/posts/miui-oem-unlocking-and-unlock-status.jpg)
+![MIUI settings showing Developer options with OEM unlocking enabled, the Mi Unlock status screen, the permissions dialog, and the Add account and device button](/assets/img/posts/miui-oem-unlocking-and-unlock-status.jpg){: width="1889" height="952"}
 *Developer options → OEM unlocking → Mi Unlock status → Add account and device. Screenshot courtesy of [miuirom.org](https://miuirom.org/updates/xiaomi-bootloader).*
 
 ## 3. PC setup and unlocking
@@ -105,10 +105,10 @@ To **exit** fastboot without unlocking anything, hold the **Power** button for a
 
 The two states you'll see in the tool:
 
-![Mi Unlock Tool showing Phone connected with the Unlock button](/assets/img/posts/mi-unlock-tool-phone-connected.jpg)
+![Mi Unlock Tool showing Phone connected with the Unlock button](/assets/img/posts/mi-unlock-tool-phone-connected.jpg){: width="820" height="560"}
 *Your phone detected — click Unlock. Screenshot courtesy of [miuirom.org](https://miuirom.org/updates/xiaomi-bootloader).*
 
-![Mi Unlock Tool showing Unlocked successfully](/assets/img/posts/mi-unlock-tool-unlocked-successfully.jpg)
+![Mi Unlock Tool showing Unlocked successfully](/assets/img/posts/mi-unlock-tool-unlocked-successfully.jpg){: width="820" height="560"}
 *Unlocked successfully. Screenshot courtesy of [miuirom.org](https://miuirom.org/updates/xiaomi-bootloader).*
 
 ### About the wait time
@@ -201,7 +201,7 @@ Usually the 30-day account age rule, or too many failed attempts on that account
 
 **"Couldn't unlock — the place where the account is registered does not match the place where the phone is sold"**
 
-![Mi Unlock error saying the account registration place does not match where the phone is sold](/assets/img/posts/mi-unlock-region-mismatch-error.png)
+![Mi Unlock error saying the account registration place does not match where the phone is sold](/assets/img/posts/mi-unlock-region-mismatch-error.png){: width="1300" height="731"}
 *The region mismatch error from Mi Unlock Tool. Screenshot courtesy of [miuirom.org](https://miuirom.org/updates/mi-flash-unlock).*
 
 Xiaomi requires the region on your Mi account to match the region the phone was sold in. If you registered your account in a different country from the one you bought the phone in, the unlock is refused no matter how many times you retry. Create or switch to a Mi account registered in the phone's country of purchase.
