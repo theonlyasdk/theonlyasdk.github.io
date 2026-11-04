@@ -552,28 +552,30 @@ order: 5
     color: var(--text-muted-color);
   }
   @media (hover: hover) {
-    /* Button-like hover: card tints + border deepens + extruded hard "side"
-       (a zero-blur shadow offset straight below), like a physical key raised
-       off the page */
+    /* Button-like hover: card tints + border deepens, and an extruded slab
+       appears below - the "side" is painted in the card's own colour with a
+       hairline outline, so there is no dark band under the card */
     .mc-card.is-linked:hover {
       transform: translateY(-1px);
       background: color-mix(in srgb, var(--text-muted-color) 6%, var(--card-bg));
       border-color: color-mix(in srgb, var(--text-muted-color) 38%, var(--main-border-color));
       box-shadow:
-        0 4px 0 var(--card-extrude-color),
-        0 10px 16px rgba(0, 0, 0, 0.1);
+        0 4px 0 var(--card-bg),
+        0 4px 0 1px var(--main-border-color),
+        0 14px 16px rgba(0, 0, 0, 0.08);
     }
     .mc-card.is-linked:hover .mc-icon {
       background: color-mix(in srgb, var(--text-muted-color) 26%, transparent);
     }
   }
-  /* Press feedback: the key pushes into the page (its side collapses), fast
-     snap in, slow return on release */
+  /* Press feedback: the card sinks until the slab is nearly flush, snapping
+     in fast and returning slowly on release */
   .mc-card.is-linked:active {
     transform: translateY(3px);
     box-shadow:
-      0 1px 0 var(--card-extrude-color),
-      0 2px 4px rgba(0, 0, 0, 0.12);
+      0 0 0 var(--card-bg),
+      0 1px 0 1px var(--main-border-color),
+      0 2px 4px rgba(0, 0, 0, 0.1);
     transition-duration: 0.08s;
   }
   @media (prefers-reduced-motion: reduce) {
