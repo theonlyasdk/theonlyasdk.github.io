@@ -67,8 +67,15 @@ refactor: true
             {% capture lqip %}lqip="{{ post.image.lqip }}"{% endcapture %}
           {% endif %}
 
+          {% assign is_webp = false %}
+          {% if src contains ".webp" %}
+            {% assign is_webp = true %}
+            {% assign src_480 = src | replace: ".webp", "-480w.webp" %}
+            {% assign src_720 = src | replace: ".webp", "-720w.webp" %}
+          {% endif %}
+
           <div class="col-md-5">
-            <img src="{{ src }}" alt="{{ alt }}" {{ lqip }}{% if forloop.first %} fetchpriority="high" loading="eager"{% else %} loading="lazy"{% endif %}>
+            <img src="{{ src }}" alt="{{ alt }}"{% if is_webp %} srcset="{{ src_480 }} 480w,{{ src_720 }} 720w,{{ src }} 1200w" sizes="(max-width: 768px) 100vw, 360px"{% endif %} width="1200" height="630" {{ lqip }}{% if forloop.first %} fetchpriority="high" loading="eager"{% else %} loading="lazy"{% endif %}>
           </div>
 
           {% assign card_body_col = '7' %}

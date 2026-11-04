@@ -28,7 +28,7 @@ Welcome to {{ site.title }} — a personal blog by TheOnlyASDK about computers, 
 - [Archives]({{ site.url }}{{ site.baseurl }}/archives/)
 - [Tags]({{ site.url }}{{ site.baseurl }}/tags/)
 - [Categories]({{ site.url }}{{ site.baseurl }}/categories/)
-- [Printable Page Templates]({{ site.url }}{{ site.baseurl }}/collections/page-designs/) — A4 paper templates: solid fills, bordered pages, assignment sheets (blank + lined), PAL test chart, print-ready PDFs.
+- [Printable Page Templates]({{ site.url }}{{ site.baseurl }}/collections/page-designs/) — A4 paper templates: solid fills, bordered pages, assignment sheets (blank + lined), brainstorm sheet, millimeter graph paper, PAL test chart, print-ready PDFs.
 
 ## Goodies (interactive demos in browser)
 {%- assign goods = site.data.goodies -%}

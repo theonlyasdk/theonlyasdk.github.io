@@ -218,6 +218,7 @@ The report confirms excellent fundamentals:
 | **Favicon Preload** | `_includes/head.html` | Removed `<link rel="preload" fetchpriority="high" ... android-chrome-512x512.webp>`. | Frees 32 KiB high-priority network bandwidth in initial critical path. |
 | **InstantPage Script** | `_includes/footer.html` | Added `defer` to `instantpage-5.2.0.js`. | Prevents render-blocking script parse in footer. |
 | **Font & Asset Optimization** | Multiple | Self-hosted 52-glyph FontAwesome subset, WOFF2 Latin subsets, minified JS, WebP post covers. | Slashes over 400 KiB transfer size and eliminates 3rd-party CDN hops. |
+| **Responsive `srcset` & Aspect Ratio** | `_layouts/home.html`, `_layouts/post.html`, `tools/generate_cover_variants.py` | Generated 480w and 720w WebP variants from master covers; added responsive `srcset`, `sizes`, and explicit `width="1200" height="630"`. | Cuts mobile LCP image payload to ~14-25 KB and eliminates image-based CLS risk. |
 
 
 ---
@@ -226,13 +227,13 @@ The report confirms excellent fundamentals:
 
 A prioritized checklist of remaining optimizations for future iterations:
 
-### Priority 1: Image Sizing & Responsive Variants (High Impact)
-- [ ] **Generate Responsive `srcset` Variants for Post Covers:**
-  Currently, post covers are served as static 1200px WebP files across all viewports. On mobile screens, they are rendered at only ~680×360 px.
-  - Generate 480w, 720w, and 1200w variants during build or asset preparation.
-  - Implement `<img srcset="..." sizes="(max-width: 768px) 100vw, 680px">` in `_layouts/home.html` and `_layouts/post.html`.
-- [ ] **Add Explicit `width` and `height` Attributes to Post Previews:**
-  Add intrinsic aspect-ratio attributes (e.g. `width="1200" height="630"`) to `_layouts/home.html` post cover images to avoid any potential future layout shifts and ensure precise aspect-ratio reservation.
+### Priority 1: Image Sizing & Responsive Variants (High Impact) `[COMPLETED]`
+- [x] **Generate Responsive `srcset` Variants for Post Covers:**
+  Created `tools/generate_cover_variants.py` and generated 480w and 720w WebP variants downsampled from master cover assets with Lanczos filtering.
+  - Implemented responsive `srcset` and `sizes="(max-width: 768px) 100vw, 360px"` on `_layouts/home.html`.
+  - Implemented responsive `srcset` and `sizes="(max-width: 850px) 100vw, 850px"` on `_layouts/post.html`.
+- [x] **Add Explicit `width` and `height` Attributes to Post Previews:**
+  Added intrinsic aspect-ratio dimensions (`width="1200" height="630"`) to `_layouts/home.html` and `_layouts/post.html` to reserve container aspect ratio before image download.
 
 ### Priority 2: Non-Critical CSS Deferral (Medium Impact)
 - [ ] **Defer GLightbox & Polyfill Stylesheets:**

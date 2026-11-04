@@ -37,7 +37,8 @@ script_includes:
       {% endif %}
 
       {% if page.image %}
-        {% capture src %}src="{{ page.image.path | default: page.image }}"{% endcapture %}
+        {% assign img_path = page.image.path | default: page.image %}
+        {% capture src %}src="{{ img_path }}"{% endcapture %}
         {% capture class %}class="preview-img{% if page.image.no_bg %}{{ ' no-bg' }}{% endif %}"{% endcapture %}
         {% capture alt %}alt="{{ page.image.alt | xml_escape | default: "Preview Image" }}"{% endcapture %}
 
@@ -45,8 +46,15 @@ script_includes:
           {%- capture lqip -%}lqip="{{ page.image.lqip }}"{%- endcapture -%}
         {% endif %}
 
+        {% assign is_webp = false %}
+        {% if img_path contains ".webp" %}
+          {% assign is_webp = true %}
+          {% assign src_480 = img_path | replace: ".webp", "-480w.webp" %}
+          {% assign src_720 = img_path | replace: ".webp", "-720w.webp" %}
+        {% endif %}
+
         <div class="mt-3 mb-3">
-          <img {{ src }} {{ class }} {{ alt }} w="1200" h="630" {{ lqip }} loading="eager" fetchpriority="high">
+          <img {{ src }} {{ class }} {{ alt }}{% if is_webp %} srcset="{{ src_480 }} 480w,{{ src_720 }} 720w,{{ img_path }} 1200w" sizes="(max-width: 850px) 100vw, 850px"{% endif %} w="1200" h="630" {{ lqip }} loading="eager" fetchpriority="high">
           {%- if page.image.alt -%}
             <figcaption class="text-center pt-2 pb-2">{{ page.image.alt }}</figcaption>
           {%- endif -%}

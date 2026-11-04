@@ -564,7 +564,7 @@ order: 5
 
 Short, print-friendly references for the desk or the workshop wall.
 
-- 🖨 **[Printable Page Templates](/collections/page-designs/)** — Solid fills, bordered pages, assignment trackers, PAL test chart - print-ready PDF downloads!<span class="post-tag shake-new">NEW!</span>
+- 🖨 **[Printable Page Templates](/collections/page-designs/)** — Solid fills, borders, assignment sheets, brainstorm planner, millimeter graph paper, PAL test chart — print-ready PDF downloads!<span class="post-tag shake-new">NEW!</span>
 - ★ <span class="text-muted">**Linux Command Cheatsheet**</span> <span class="post-tag">Coming Soon</span> — the 20% of commands that cover 80% of terminal work.
 - ★ <span class="text-muted">**Git Survival Sheet**</span> <span class="post-tag">Coming Soon</span> — init to rebase, plus how to undo almost anything.
 - ★ <span class="text-muted">**Regex Quick Reference**</span> <span class="post-tag">Coming Soon</span> — character classes, quantifiers and lookarounds on one page.

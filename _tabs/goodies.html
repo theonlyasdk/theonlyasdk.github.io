@@ -934,6 +934,18 @@ order: 6
       transition: none;
     }
 
+    .goodie-shimmer {
+      animation: none !important;
+      background-image: none !important;
+      background-color: var(--goodie-shimmer-bg) !important;
+    }
+
+    .card-cover img {
+      animation: none;
+      transition: none;
+      opacity: 1 !important;
+    }
+
     .goodie-spinner {
       display: none !important;
     }
@@ -949,15 +961,100 @@ order: 6
     }
   }
 
+  /* Goodies Shimmer Loading */
+  :root {
+    --goodie-shimmer-bg: color-mix(in srgb, var(--text-color) 7%, var(--card-bg));
+    --goodie-shimmer-highlight: color-mix(in srgb, var(--text-color) 16%, var(--card-bg));
+    --goodie-shimmer-dur: 1.8s;
+  }
+
+  .goodie-shimmer {
+    background-color: var(--goodie-shimmer-bg);
+    background-image: linear-gradient(
+      90deg,
+      var(--goodie-shimmer-bg) 0%,
+      var(--goodie-shimmer-highlight) 50%,
+      var(--goodie-shimmer-bg) 100%
+    );
+    background-size: 200% 100%;
+    background-repeat: no-repeat;
+    animation: goodie-shimmer var(--goodie-shimmer-dur) linear infinite;
+  }
+
+  @keyframes goodie-shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  /* Skeleton placeholder cards (rendered before scripts mount) */
+  .goodie-card.goodie-card-skeleton {
+    opacity: 1;
+    animation: none;
+    cursor: default;
+    pointer-events: none;
+  }
+
+  .goodie-card.goodie-card-skeleton:hover,
+  .goodie-card.goodie-card-skeleton:active {
+    transform: none;
+    box-shadow: var(--card-shadow);
+    filter: none;
+  }
+
+  .goodie-skeleton-body {
+    padding: 0 1.25rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+
+  .goodie-skeleton-line {
+    flex-shrink: 0;
+  }
+
+  .goodie-skeleton-title {
+    height: 1.4rem;
+    width: 55%;
+    margin-top: 1.25rem;
+    margin-bottom: 0.75rem;
+    border-radius: 6px;
+  }
+
+  .goodie-skeleton-text {
+    height: 0.85rem;
+    width: 95%;
+    margin-bottom: 0.5rem;
+    border-radius: 4px;
+  }
+
+  .goodie-skeleton-text-short {
+    width: 65%;
+    margin-bottom: 0.5rem;
+  }
+
   .card-cover {
     position: relative;
     height: 200px;
     overflow: hidden;
     margin: 0; /* flush to card edges */
     flex-shrink: 0;
+    background-color: var(--goodie-shimmer-bg);
     /* The fade back IN after the crossfade. Matches MORPH_CROSSFADE_IN in
        assets/js/goodies.js. */
     transition: opacity 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .card-cover.is-loading::after {
+    opacity: 0;
+  }
+
+  .card-cover.is-loading .goodie-actions {
+    opacity: 0;
+    pointer-events: none;
   }
 
   /* The scrim cross-fades across the layout swap rather than transitioning its
@@ -987,6 +1084,13 @@ order: 6
     object-fit: cover;
     display: block;
     transform: scale(1.2);
+    opacity: 0;
+    transition: opacity 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .card-cover.is-loaded img,
+  .card-cover:not(.is-loading) img {
+    opacity: 1;
   }
 
   /* Custom Modal System */
@@ -1159,6 +1263,7 @@ order: 6
        take the pointer itself, or the strip of cover between and around the
        buttons would stop opening the goodie. The pills re-arm it below. */
     pointer-events: none;
+    transition: opacity 240ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .goodie-action-btn {
@@ -1624,7 +1729,20 @@ order: 6
   </button>
 </div>
 </div>
-<div class="row row-cols-1 row-cols-md-2 g-0" id="goodies-grid" aria-live="polite"></div>
+<div class="row row-cols-1 row-cols-md-2 g-0" id="goodies-grid" aria-live="polite">
+  {% for i in (1..6) %}
+  <div class="col d-flex flex-column goodie-skeleton-col" aria-hidden="true">
+    <div class="goodie-card goodie-card-skeleton">
+      <div class="card-cover goodie-shimmer"></div>
+      <div class="goodie-skeleton-body">
+        <div class="goodie-skeleton-line goodie-skeleton-title goodie-shimmer"></div>
+        <div class="goodie-skeleton-line goodie-skeleton-text goodie-shimmer"></div>
+        <div class="goodie-skeleton-line goodie-skeleton-text goodie-skeleton-text-short goodie-shimmer"></div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
 
 <!-- Custom Mini-game Modal -->
 <div id="custom-minigame-modal" class="custom-modal-overlay" onclick="closeMinigame(event)">

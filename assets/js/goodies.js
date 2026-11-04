@@ -16,6 +16,9 @@
   function imageFallback(image) {
     image.hidden = true;
     const container = image.closest('.card-cover') || image.parentElement;
+    if (container) {
+      container.classList.remove('goodie-shimmer', 'is-loading');
+    }
     const fallback = document.createElement('div');
     fallback.className = 'goodie-image-fallback';
     fallback.textContent = 'Preview unavailable. The goodie is still available.';
@@ -65,7 +68,7 @@
 
   function buildGoodieCard(goodie, index) {
     const card = document.createElement('div'); card.className = 'goodie-card'; card.tabIndex = 0; card.setAttribute('role', 'button'); card.style.setProperty('--anim-delay', `${((index + 1) * .1).toFixed(1)}s`);
-    const cover = document.createElement('div'); cover.className = 'card-cover';
+    const cover = document.createElement('div'); cover.className = 'card-cover goodie-shimmer is-loading';
     /* Previews ship in three flavours: a 480px WebP thumbnail for cards,
        a 960px WebP for large viewports, and the original PNG as last
        resort. <picture> picks the first supported format; if a WebP file
@@ -84,7 +87,21 @@
       Object.entries(rest).forEach(([k, v]) => source.setAttribute(k, v));
       picture.appendChild(source);
     });
-    const image = document.createElement('img'); image.src = siteUrl(goodie.image); image.alt = goodie.name; image.loading = 'lazy'; image.decoding = 'async'; image.width = 400; image.height = 200; image.addEventListener('error', () => imageFallback(image), { once: true }); picture.appendChild(image); cover.appendChild(picture);
+    const image = document.createElement('img'); image.src = siteUrl(goodie.image); image.alt = goodie.name; image.loading = 'lazy'; image.decoding = 'async'; image.width = 400; image.height = 200;
+    const markImageLoaded = () => {
+      cover.classList.remove('goodie-shimmer', 'is-loading');
+      cover.classList.add('is-loaded');
+    };
+    if (image.complete && image.naturalWidth > 0) {
+      markImageLoaded();
+    } else {
+      image.addEventListener('load', markImageLoaded, { once: true });
+      image.addEventListener('error', () => {
+        cover.classList.remove('goodie-shimmer', 'is-loading');
+        imageFallback(image);
+      }, { once: true });
+    }
+    picture.appendChild(image); cover.appendChild(picture);
     /* Info is on every card - it carries the description, so it is meaningful
        even for a goodie that ships with a full credits block. Credits is added
        only when there is an author and a licence to show, so third-party work

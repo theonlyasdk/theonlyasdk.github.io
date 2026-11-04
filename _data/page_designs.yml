@@ -99,3 +99,15 @@
   description: Blank A4 assignment sheet with a clean double border and no header fields — essays, diagrams and free-form answers.
   image: /assets/img/page-designs/page-assignment-border-only.png
   pdf: /assets/files/page-designs/page-assignment-border-only.pdf
+
+- name: Brainstorm Sheet
+  category: Templates
+  description: Structured A4 brainstorming template with main idea, ideas & possibilities, questions, top 3 ideas, and next steps — ideation, planning and workshops.
+  image: /assets/img/page-designs/page-brainstorm-sheet.png
+  pdf: /assets/files/page-designs/page-brainstorm-sheet.pdf
+
+- name: Millimeter Graph Paper — Green
+  category: Grids
+  description: Standard metric A4 millimeter graph paper with 1mm, 5mm, and 10mm green grid lines — math, engineering and technical plotting.
+  image: /assets/img/page-designs/page-graph-paper-mm-green.png
+  pdf: /assets/files/page-designs/page-graph-paper-mm-green.pdf
