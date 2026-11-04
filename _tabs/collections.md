@@ -490,20 +490,55 @@ order: 5
     border-radius: 0.9rem;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
     transition:
-      transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
-      background-color 0.22s cubic-bezier(0.22, 1, 0.36, 1),
-      border-color 0.22s cubic-bezier(0.22, 1, 0.36, 1),
-      box-shadow 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+      transform 0.14s cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 0.14s ease,
+      border-color 0.14s ease,
+      box-shadow 0.14s cubic-bezier(0.22, 1, 0.36, 1);
   }
-  .mc-card-inner {
+  /* Extruded physical 3D button appearance for linked cards */
+  .mc-card.is-linked {
+    position: relative;
+    --mc-extrusion-border: color-mix(in srgb, var(--sidebar-border-color) 80%, black);
+    --mc-extrusion-slab: color-mix(in srgb, var(--card-bg) 60%, black);
+    --mc-extrusion-shadow: rgba(0, 0, 0, 0.18);
+    --mc-extrusion-hover-shadow: rgba(0, 0, 0, 0.24);
+    border-bottom: 4px solid var(--mc-extrusion-border);
+    box-shadow:
+      0 4px 0 var(--mc-extrusion-slab),
+      0 6px 14px var(--mc-extrusion-shadow);
+    cursor: pointer;
+  }
+
+  /* Refined, softer extrusion specifically tailored for light mode aesthetics */
+  :root[data-bs-theme="light"] .mc-card.is-linked {
+    --mc-extrusion-border: #d0d7de;
+    --mc-extrusion-slab: #e2e7ec;
+    --mc-extrusion-shadow: rgba(31, 35, 40, 0.08);
+    --mc-extrusion-hover-shadow: rgba(31, 35, 40, 0.12);
+    border-color: #e1e4e8;
+    border-bottom: 4px solid var(--mc-extrusion-border);
+    box-shadow:
+      0 3px 0 var(--mc-extrusion-slab),
+      0 6px 12px var(--mc-extrusion-shadow);
+  }
+  .mc-card-inner,
+  a.mc-card-inner {
     display: flex;
     align-items: flex-start;
     gap: 0.85rem;
     height: 100%;
     padding: 1rem 1.1rem;
-    color: inherit;
-    text-decoration: none;
+    color: inherit !important;
+    text-decoration: none !important;
+    border-bottom: none !important;
     border-radius: inherit;
+  }
+  a.mc-card-inner:hover,
+  a.mc-card-inner:focus,
+  a.mc-card-inner:active {
+    color: inherit !important;
+    text-decoration: none !important;
+    border-bottom: none !important;
   }
   a.mc-card-inner:focus-visible {
     outline: 2px solid var(--heading-color);
@@ -552,31 +587,44 @@ order: 5
     color: var(--text-muted-color);
   }
   @media (hover: hover) {
-    /* Button-like hover: card tints + border deepens, and an extruded slab
-       appears below - the "side" is painted in the card's own colour with a
-       hairline outline, so there is no dark band under the card */
     .mc-card.is-linked:hover {
-      transform: translateY(-1px);
+      transform: translateY(-2px);
       background: color-mix(in srgb, var(--text-muted-color) 6%, var(--card-bg));
-      border-color: color-mix(in srgb, var(--text-muted-color) 38%, var(--main-border-color));
+      border-color: color-mix(in srgb, var(--link-color) 45%, var(--main-border-color));
+      border-bottom-color: color-mix(in srgb, var(--link-color) 60%, black);
       box-shadow:
-        0 4px 0 var(--card-bg),
-        0 4px 0 1px var(--main-border-color),
-        0 14px 16px rgba(0, 0, 0, 0.08);
+        0 6px 0 var(--mc-extrusion-slab),
+        0 10px 20px var(--mc-extrusion-hover-shadow);
+    }
+    :root[data-bs-theme="light"] .mc-card.is-linked:hover {
+      border-color: color-mix(in srgb, var(--link-color) 50%, #d0d7de);
+      border-bottom-color: color-mix(in srgb, var(--link-color) 60%, #b0b8c0);
+      box-shadow:
+        0 5px 0 var(--mc-extrusion-slab),
+        0 8px 16px var(--mc-extrusion-hover-shadow);
     }
     .mc-card.is-linked:hover .mc-icon {
-      background: color-mix(in srgb, var(--text-muted-color) 26%, transparent);
+      background: color-mix(in srgb, var(--link-color) 20%, transparent);
+      color: var(--link-color);
     }
   }
-  /* Press feedback: the card sinks until the slab is nearly flush, snapping
-     in fast and returning slowly on release */
+  /* Push-down press state: physically depresses into the surface */
   .mc-card.is-linked:active {
-    transform: translateY(3px);
+    transform: translateY(4px);
+    border-bottom-width: 1px;
     box-shadow:
-      0 0 0 var(--card-bg),
-      0 1px 0 1px var(--main-border-color),
-      0 2px 4px rgba(0, 0, 0, 0.1);
-    transition-duration: 0.08s;
+      0 0 0 var(--mc-extrusion-slab),
+      0 1px 3px rgba(0, 0, 0, 0.2);
+    background: color-mix(in srgb, var(--link-color) 8%, var(--card-bg));
+    transition-duration: 0.05s;
+  }
+  :root[data-bs-theme="light"] .mc-card.is-linked:active {
+    transform: translateY(3px);
+    border-bottom-width: 1px;
+    box-shadow:
+      0 0 0 var(--mc-extrusion-slab),
+      0 1px 2px rgba(31, 35, 40, 0.12);
+    background: color-mix(in srgb, var(--link-color) 6%, white);
   }
   @media (prefers-reduced-motion: reduce) {
     .collection-tab-pill,
@@ -763,28 +811,72 @@ Longer guides worth working through end to end.
 
 ## ✦ Curated Collections
 
-Curated piles of links for rabbit-hole days.
+Curated lists of links and tools for curious rabbit-hole days.
 
 <ul class="mc-card-list">
   <li class="mc-card is-linked">
     <a class="mc-card-inner" href="https://github.com/awesome-selfhosted/awesome-selfhosted" target="_blank" rel="noopener">
-      <span class="mc-icon" aria-hidden="true">★</span>
+      <span class="mc-icon" aria-hidden="true">🏠</span>
       <div class="mc-body">
         <div class="mc-head">
           <h3 class="mc-title">Awesome Self-Hosted</h3>
         </div>
-        <p class="mc-desc">Community-maintained list of self-hostable software.</p>
+        <p class="mc-desc">Community list of free software you can easily run on your own home server.</p>
+      </div>
+    </a>
+  </li>
+  <li class="mc-card is-linked">
+    <a class="mc-card-inner" href="https://free-for.dev/" target="_blank" rel="noopener">
+      <span class="mc-icon" aria-hidden="true">☁️</span>
+      <div class="mc-body">
+        <div class="mc-head">
+          <h3 class="mc-title">Free for Developers</h3>
+        </div>
+        <p class="mc-desc">Huge list of cloud software and web services with completely free plans for personal projects.</p>
+      </div>
+    </a>
+  </li>
+  <li class="mc-card is-linked">
+    <a class="mc-card-inner" href="https://github.com/trimstray/the-book-of-secret-knowledge" target="_blank" rel="noopener">
+      <span class="mc-icon" aria-hidden="true">📖</span>
+      <div class="mc-body">
+        <div class="mc-head">
+          <h3 class="mc-title">The Book of Secret Knowledge</h3>
+        </div>
+        <p class="mc-desc">Collection of awesome one-line commands, cheat sheets, and handy tools for computer systems.</p>
       </div>
     </a>
   </li>
   <li class="mc-card is-linked">
     <a class="mc-card-inner" href="https://github.com/alebcizr/awesome-cli" target="_blank" rel="noopener">
-      <span class="mc-icon" aria-hidden="true">★</span>
+      <span class="mc-icon" aria-hidden="true">💻</span>
       <div class="mc-body">
         <div class="mc-head">
           <h3 class="mc-title">Awesome Command Line</h3>
         </div>
-        <p class="mc-desc">Tools, dotfiles and reading for terminal enjoyers.</p>
+        <p class="mc-desc">Modern tools, helpful setup guides, and tips for working in the terminal.</p>
+      </div>
+    </a>
+  </li>
+  <li class="mc-card is-linked">
+    <a class="mc-card-inner" href="https://www.privacyguides.org/" target="_blank" rel="noopener">
+      <span class="mc-icon" aria-hidden="true">🛡️</span>
+      <div class="mc-body">
+        <div class="mc-head">
+          <h3 class="mc-title">Privacy Guides</h3>
+        </div>
+        <p class="mc-desc">Simple guides and safe recommendations for privacy-friendly browsers, apps, and operating systems.</p>
+      </div>
+    </a>
+  </li>
+  <li class="mc-card is-linked">
+    <a class="mc-card-inner" href="https://tiny-helpers.dev/" target="_blank" rel="noopener">
+      <span class="mc-icon" aria-hidden="true">🧰</span>
+      <div class="mc-body">
+        <div class="mc-head">
+          <h3 class="mc-title">Tiny Helpers</h3>
+        </div>
+        <p class="mc-desc">A handy directory of free, single-purpose web tools to make icons, colors, and code snippets.</p>
       </div>
     </a>
   </li>
@@ -792,39 +884,105 @@ Curated piles of links for rabbit-hole days.
 
 ## ✦ Tools & References
 
-Bookmark-grade utilities and lookup pages.
+Bookmark-grade interactive utilities and quick lookup pages.
 
 <ul class="mc-card-list">
   <li class="mc-card is-linked">
+    <a class="mc-card-inner" href="https://learnxinyminutes.com/" target="_blank" rel="noopener">
+      <span class="mc-icon" aria-hidden="true">⏱️</span>
+      <div class="mc-body">
+        <div class="mc-head">
+          <h3 class="mc-title">Learn X in Y Minutes</h3>
+        </div>
+        <p class="mc-desc">Quick guided tours of almost any programming language with code examples and plain explanations.</p>
+      </div>
+    </a>
+  </li>
+  <li class="mc-card is-linked">
     <a class="mc-card-inner" href="https://explainshell.com/" target="_blank" rel="noopener">
-      <span class="mc-icon" aria-hidden="true">★</span>
+      <span class="mc-icon" aria-hidden="true">🐚</span>
       <div class="mc-body">
         <div class="mc-head">
           <h3 class="mc-title">Explainshell</h3>
         </div>
-        <p class="mc-desc">Paste a command, learn what each flag does.</p>
+        <p class="mc-desc">Paste any Linux terminal command to see a plain English breakdown of what each flag does.</p>
+      </div>
+    </a>
+  </li>
+  <li class="mc-card is-linked">
+    <a class="mc-card-inner" href="https://www.shellcheck.net/" target="_blank" rel="noopener">
+      <span class="mc-icon" aria-hidden="true">🔎</span>
+      <div class="mc-body">
+        <div class="mc-head">
+          <h3 class="mc-title">ShellCheck</h3>
+        </div>
+        <p class="mc-desc">Paste your shell scripts here to find mistakes, bad habits, and instant beginner-friendly fixes.</p>
+      </div>
+    </a>
+  </li>
+  <li class="mc-card is-linked">
+    <a class="mc-card-inner" href="https://gchq.github.io/CyberChef/" target="_blank" rel="noopener">
+      <span class="mc-icon" aria-hidden="true">🍳</span>
+      <div class="mc-body">
+        <div class="mc-head">
+          <h3 class="mc-title">CyberChef</h3>
+        </div>
+        <p class="mc-desc">The Swiss Army knife of data to decode, convert, format, and inspect tricky text or binary files.</p>
+      </div>
+    </a>
+  </li>
+  <li class="mc-card is-linked">
+    <a class="mc-card-inner" href="https://crontab.guru/" target="_blank" rel="noopener">
+      <span class="mc-icon" aria-hidden="true">⏰</span>
+      <div class="mc-body">
+        <div class="mc-head">
+          <h3 class="mc-title">Crontab Guru</h3>
+        </div>
+        <p class="mc-desc">Interactive schedule editor that translates confusing timer numbers into simple human sentences.</p>
+      </div>
+    </a>
+  </li>
+  <li class="mc-card is-linked">
+    <a class="mc-card-inner" href="https://regex101.com/" target="_blank" rel="noopener">
+      <span class="mc-icon" aria-hidden="true">🧪</span>
+      <div class="mc-body">
+        <div class="mc-head">
+          <h3 class="mc-title">Regex101</h3>
+        </div>
+        <p class="mc-desc">Interactive search pattern tester with color highlights and step-by-step explanations of what matches.</p>
+      </div>
+    </a>
+  </li>
+  <li class="mc-card is-linked">
+    <a class="mc-card-inner" href="https://excalidraw.com/" target="_blank" rel="noopener">
+      <span class="mc-icon" aria-hidden="true">✏️</span>
+      <div class="mc-body">
+        <div class="mc-head">
+          <h3 class="mc-title">Excalidraw</h3>
+        </div>
+        <p class="mc-desc">Sketch quick diagrams and whiteboard ideas with a clean hand-drawn look right in your browser.</p>
       </div>
     </a>
   </li>
   <li class="mc-card is-linked">
     <a class="mc-card-inner" href="https://devdocs.io/" target="_blank" rel="noopener">
-      <span class="mc-icon" aria-hidden="true">★</span>
+      <span class="mc-icon" aria-hidden="true">📚</span>
       <div class="mc-body">
         <div class="mc-head">
           <h3 class="mc-title">DevDocs</h3>
         </div>
-        <p class="mc-desc">Offline-capable API documentation in one place.</p>
+        <p class="mc-desc">Clean and fast documentation library that works offline for hundreds of programming languages.</p>
       </div>
     </a>
   </li>
   <li class="mc-card is-linked">
     <a class="mc-card-inner" href="https://caniuse.com/" target="_blank" rel="noopener">
-      <span class="mc-icon" aria-hidden="true">★</span>
+      <span class="mc-icon" aria-hidden="true">🌐</span>
       <div class="mc-body">
         <div class="mc-head">
           <h3 class="mc-title">Can I Use</h3>
         </div>
-        <p class="mc-desc">Browser support tables for web features.</p>
+        <p class="mc-desc">Check which modern web features and styles work across mobile and desktop browsers.</p>
       </div>
     </a>
   </li>

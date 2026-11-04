@@ -42,7 +42,7 @@ Welcome to {{ site.title }} — a personal blog by TheOnlyASDK about computers, 
 ## Printable Page Templates (PDFs)
 {%- assign designs = site.data.page_designs -%}
 {%- for d in designs %}
-- [{{ d.name }}]({{ site.url }}{{ site.baseurl }}{{ d.pdf }}) — {{ d.description }} (Category: {{ d.category }})
+- [{{ d.name }}]({{ site.url }}{{ site.baseurl }}{{ d.pdf }}) — {{ d.description }} (Category: {{ d.category }}{% if d.folder %}, Folder: {{ d.folder }}{% endif %})
 {%- endfor %}
 
 ## Blog posts ({{ site.posts | size }} total, newest first)

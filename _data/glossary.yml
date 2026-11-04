@@ -1,0 +1,143 @@
+# Tech Jargon Glossary for Wikipedia-Style Hover Cards
+# Terms are scanned within post layouts (.content) and wrapped on their first mention per section.
+
+edl:
+  term: "EDL Mode"
+  category: "Qualcomm / Android"
+  summary: "Emergency Download Mode. A low-level ROM-resident bootloader state in Qualcomm chipsets used for unbricking and partition restoration when primary bootloaders fail."
+  url: "https://en.wikipedia.org/wiki/Qualcomm_EDL_mode"
+  aliases: ["EDL", "EDL mode", "Emergency Download Mode"]
+
+fastboot:
+  term: "Fastboot"
+  category: "Android Bootloader"
+  summary: "A diagnostic protocol and command-line tool used to flash images directly to internal partitions over USB before the Android kernel boots."
+  url: "https://en.wikipedia.org/wiki/Fastboot"
+  aliases: ["fastboot", "Fastboot mode"]
+
+vbmeta:
+  term: "vbmeta"
+  category: "Android Partition"
+  summary: "Verified Boot Metadata partition. Houses cryptographic signatures and hash trees enforcing Android Verified Boot (AVB 2.0) partition integrity."
+  url: "https://source.android.com/docs/security/features/verifiedboot/avb"
+  aliases: ["vbmeta", "VBMeta", "vbmeta.img"]
+
+dtbo:
+  term: "DTBO"
+  category: "Linux / Kernel"
+  summary: "Device Tree Blob Overlay. Houses hardware-specific device tree modifications applied dynamically over the base kernel device tree at boot time."
+  url: "https://source.android.com/docs/core/architecture/dto"
+  aliases: ["DTBO", "dtbo.img"]
+
+payload-bin:
+  term: "payload.bin"
+  category: "Android OTA"
+  summary: "The container archive inside modern Android A/B OTA update packages containing raw block partition images like boot, system, vendor, and product."
+  url: "https://source.android.com/docs/core/ota/ab_updates"
+  aliases: ["payload.bin"]
+
+cachyos:
+  term: "CachyOS"
+  category: "Linux Distribution"
+  summary: "An Arch Linux-based performance-focused distribution featuring x86-64-v3/v4 optimized packages and advanced CPU schedulers like BORE and EEVDF."
+  url: "https://cachyos.org"
+  aliases: ["CachyOS"]
+
+twrp:
+  term: "TWRP"
+  category: "Android Recovery"
+  summary: "Team Win Recovery Project. A touch-driven custom recovery environment for Android devices used for flashing zips, creating full backups (Nandroid), and wiping partitions."
+  url: "https://twrp.me"
+  aliases: ["TWRP", "Team Win Recovery Project"]
+
+sp-flash-tool:
+  term: "SP Flash Tool"
+  category: "MediaTek Flashing"
+  summary: "Smart Phone Flash Tool. A low-level PC flashing software for devices powered by MediaTek SoCs used for flashing scatter-based ROMs and unbricking."
+  url: "https://spflashtool.com"
+  aliases: ["SP Flash Tool", "SPFlashTool"]
+
+wayland:
+  term: "Wayland"
+  category: "Linux Graphics"
+  summary: "A modern display server protocol replacing X11, designed to eliminate screen tearing, isolate client applications, and provide minimal input latency."
+  url: "https://wayland.freedesktop.org"
+  aliases: ["Wayland"]
+
+kwin:
+  term: "KWin"
+  category: "KDE Compositor"
+  summary: "The default window manager and Wayland compositor for KDE Plasma, managing window presentation, compositor latency, and desktop effects."
+  url: "https://userbase.kde.org/KWin"
+  aliases: ["KWin"]
+
+magisk:
+  term: "Magisk"
+  category: "Android Root"
+  summary: "A suite for systemless Android root and customization, modifying boot images to inject modules without altering the read-only system partitions."
+  url: "https://github.com/topjohnwu/Magisk"
+  aliases: ["Magisk"]
+
+kernelsu:
+  term: "KernelSU"
+  category: "Android Root"
+  summary: "A kernel-based root solution for Android operating directly within kernel space, offering finer permission control and resistance against detection."
+  url: "https://kernelsu.org"
+  aliases: ["KernelSU"]
+
+gsi:
+  term: "GSI"
+  category: "Android System"
+  summary: "Generic System Image. A pure Android OS build designed to run unmodified across any Project Treble-compliant device regardless of hardware vendor."
+  url: "https://source.android.com/docs/core/architecture/kernel-generic-system-image"
+  aliases: ["GSI", "Generic System Image"]
+
+eevdf:
+  term: "EEVDF"
+  category: "Linux Scheduler"
+  summary: "Earliest Eligible Virtual Deadline First. The default CPU scheduler introduced in Linux kernel 6.6, replacing CFS to minimize dispatch latency."
+  url: "https://lwn.net/Articles/925371/"
+  aliases: ["EEVDF"]
+
+bore:
+  term: "BORE Scheduler"
+  category: "Linux Scheduler"
+  summary: "Burst-Oriented Response Enhancer. A Linux CPU scheduler modification designed to prioritize interactive desktop tasks during bursts of intensive workloads."
+  url: "https://github.com/firelzrd/bore-scheduler"
+  aliases: ["BORE", "BORE scheduler"]
+
+mi-flash:
+  term: "Mi Flash"
+  category: "Xiaomi Flashing"
+  summary: "Xiaomi's official flashing utility for writing stock Fastboot ROMs, restoring factory partition tables, and unbricking Mi and Redmi smartphones."
+  url: "https://xiaomiflashtool.com"
+  aliases: ["Mi Flash", "MiFlash", "Mi Flash Tool"]
+
+bootloader:
+  term: "Bootloader"
+  category: "System Firmware"
+  summary: "The first code executed when powering on a device, initializing essential hardware before loading the Linux kernel or recovery image."
+  url: "https://source.android.com/docs/core/architecture/bootloader"
+  aliases: ["bootloader", "Bootloader"]
+
+treble:
+  term: "Project Treble"
+  category: "Android Architecture"
+  summary: "Google's modular architecture separating the Android OS framework from vendor hardware-specific implementations to enable generic OS updates."
+  url: "https://source.android.com/docs/core/architecture"
+  aliases: ["Project Treble", "Treble"]
+
+ufs:
+  term: "UFS"
+  category: "Storage Hardware"
+  summary: "Universal Flash Storage. A high-speed flash storage specification featuring full-duplex serial architecture, widely used in modern smartphones."
+  url: "https://en.wikipedia.org/wiki/Universal_Flash_Storage"
+  aliases: ["UFS", "UFS 2.1"]
+
+soc:
+  term: "SoC"
+  category: "Hardware"
+  summary: "System on a Chip. An integrated circuit consolidating a CPU, GPU, memory controller, modem, and peripheral controllers onto a single silicon die."
+  url: "https://en.wikipedia.org/wiki/System_on_a_chip"
+  exact_case: true
+  aliases: ["SoC", "SoCs"]

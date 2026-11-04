@@ -1,0 +1,171 @@
+<!-- Sidebar Local Time & Status Pill -->
+<div class="sidebar-status-wrapper full-width-flex-center">
+  <div
+    class="sidebar-status-pill"
+    id="sidebar-status-pill"
+    role="status"
+    aria-label="Local time and status"
+    title="Local time in Asia/Kolkata (IST, UTC+05:30)"
+  >
+    <div class="status-top-row">
+      <span class="status-dot" id="status-dot" aria-hidden="true"></span>
+      <time class="status-time" id="status-time">
+        <span class="status-digits" id="status-digits">--:--</span>
+        <span class="status-ampm" id="status-ampm">--</span>
+        <span class="status-tz">IST</span>
+      </time>
+    </div>
+    <div class="status-flavor" id="status-flavor">
+      <span class="status-emoji" id="status-emoji" aria-hidden="true">🌙</span>
+      <span class="status-text" id="status-text">Asleep / dreaming in C++</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    /* Cache Intl formatters */
+    var timeFmt = null;
+    var hourFmt = null;
+
+    try {
+      timeFmt = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Kolkata',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      });
+      hourFmt = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Kolkata',
+        hour: 'numeric',
+        hourCycle: 'h23'
+      });
+    } catch (e) {
+      timeFmt = null;
+      hourFmt = null;
+    }
+
+    /* Refined activity status matrix (IST) */
+    function getStatus(hour) {
+      if (hour >= 7 && hour < 12) {
+        return {
+          emoji: '🌅',
+          text: 'Morning coffee & building'
+        };
+      } else if (hour >= 12 && hour < 18) {
+        return {
+          emoji: '⚡',
+          text: 'Hacking & tinkering'
+        };
+      } else if (hour >= 18 && hour < 23) {
+        return {
+          emoji: '☕',
+          text: 'Evening side-projects'
+        };
+      } else {
+        return {
+          emoji: '🌙',
+          text: 'Asleep / dreaming in C++'
+        };
+      }
+    }
+
+    var timerId = null;
+
+    function updateStatusPill() {
+      var digitsEl = document.getElementById('status-digits');
+      var ampmEl = document.getElementById('status-ampm');
+      var emojiEl = document.getElementById('status-emoji');
+      var textEl = document.getElementById('status-text');
+      var dotEl = document.getElementById('status-dot');
+      var pill = document.getElementById('sidebar-status-pill');
+
+      if (!digitsEl || !ampmEl || !emojiEl || !textEl || !pill) {
+        return;
+      }
+
+      var now = new Date();
+      var digitsStr = '--:--';
+      var ampmStr = '';
+      var hour = 0;
+
+      if (timeFmt && hourFmt) {
+        var formatted = timeFmt.format(now);
+        var splitIdx = formatted.lastIndexOf(' ');
+        if (splitIdx !== -1) {
+          digitsStr = formatted.slice(0, splitIdx);
+          ampmStr = formatted.slice(splitIdx + 1);
+        } else {
+          digitsStr = formatted;
+        }
+        hour = parseInt(hourFmt.format(now), 10);
+      } else {
+        /* Fallback for environments lacking IANA timezone Intl support */
+        var utc = now.getTime() + now.getTimezoneOffset() * 60000;
+        var istDate = new Date(utc + 3600000 * 5.5);
+        hour = istDate.getHours();
+        var m = istDate.getMinutes();
+        var minStr = m < 10 ? '0' + m : m;
+        ampmStr = hour >= 12 ? 'PM' : 'AM';
+        var h12 = hour % 12;
+        if (h12 === 0) {
+          h12 = 12;
+        }
+        digitsStr = h12 + ':' + minStr;
+      }
+
+      var status = getStatus(hour);
+
+      digitsEl.textContent = digitsStr;
+      ampmEl.textContent = ampmStr;
+      emojiEl.textContent = status.emoji;
+      textEl.textContent = status.text;
+
+      if (dotEl) {
+        if (hour < 7 || hour >= 23) {
+          dotEl.classList.add('is-night');
+        } else {
+          dotEl.classList.remove('is-night');
+        }
+      }
+
+      pill.setAttribute(
+        'title',
+        'Local Time: ' + digitsStr + ' ' + ampmStr + ' IST (Asia/Kolkata, UTC+05:30) \u2014 ' + status.emoji + ' ' + status.text
+      );
+    }
+
+    function startTimer() {
+      if (timerId === null) {
+        timerId = setInterval(updateStatusPill, 30000);
+      }
+    }
+
+    function stopTimer() {
+      if (timerId !== null) {
+        clearInterval(timerId);
+        timerId = null;
+      }
+    }
+
+    /* Pause timer when tab is hidden to conserve battery */
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) {
+        stopTimer();
+      } else {
+        updateStatusPill();
+        startTimer();
+      }
+    });
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function () {
+        updateStatusPill();
+        startTimer();
+      });
+    } else {
+      updateStatusPill();
+      startTimer();
+    }
+  })();
+</script>

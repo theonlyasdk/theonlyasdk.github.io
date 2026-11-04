@@ -243,6 +243,10 @@ script_includes:
     {{ content }}
   </div>
 
+  <script id="glossary-data" type="application/json">
+    {{ site.data.glossary | jsonify }}
+  </script>
+
   <div class="post-tail-wrapper text-muted">
     <!-- categories -->
     {% if page.categories.size > 0 %}

@@ -1,0 +1,40 @@
+<!-- Random Discovery Dice ("I'm Feeling Curious") -->
+<div class="dice-container position-relative d-inline-flex align-items-center">
+  <button
+    type="button"
+    id="random-dice-btn"
+    class="btn btn-link random-dice-btn dice-face-5"
+    aria-label="I'm feeling curious (Random post or toy)"
+    title="I'm feeling curious — press R or click to roll"
+  >
+    <span class="dice-morph-pill">
+      <span class="dice-box" aria-hidden="true">
+        <svg class="dice-svg" viewBox="0 0 24 24" width="20" height="20" focusable="false">
+          <!-- 3D extruded slab underlayer -->
+          <rect class="dice-extrusion" x="2" y="4" width="20" height="18" rx="4" />
+          <!-- Main die face -->
+          <rect class="dice-face" x="2" y="2" width="20" height="18" rx="4" />
+          <!-- Pips (7 dots matrix) -->
+          <g class="dice-pips">
+            <circle class="pip pip-tl" cx="6.5" cy="6.5" r="1.5" />
+            <circle class="pip pip-tr" cx="17.5" cy="6.5" r="1.5" />
+            <circle class="pip pip-ml" cx="6.5" cy="11" r="1.5" />
+            <circle class="pip pip-center" cx="12" cy="11" r="1.5" />
+            <circle class="pip pip-mr" cx="17.5" cy="11" r="1.5" />
+            <circle class="pip pip-bl" cx="6.5" cy="15.5" r="1.5" />
+            <circle class="pip pip-br" cx="17.5" cy="15.5" r="1.5" />
+          </g>
+        </svg>
+      </span>
+      <span class="dice-msg" id="dice-msg" aria-live="polite">
+        <span class="dice-sparkle" aria-hidden="true">✨</span>
+        <span class="dice-msg-title" id="dice-msg-title">...</span>
+        <svg class="dice-msg-arrow" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 8h10M9 4l4 4-4 4" />
+        </svg>
+      </span>
+    </span>
+  </button>
+  <!-- Confetti explosion stage outside the overflow-clipped pill -->
+  <div id="dice-confetti-stage" class="dice-confetti-stage" aria-hidden="true"></div>
+</div>

@@ -36,6 +36,7 @@
 
 #topbar {
   @extend %btn-color;
+  position: relative;
   margin-top: .5em;
   transition: background-color 300ms v.$easing-func;
 
@@ -91,12 +92,22 @@
   font-weight: 600;
   font-family: sans-serif;
   color: var(--topbar-text-color);
-  text-align: center;
-  width: 70%;
   word-break: keep-all;
 
   @include bp.lt(bp.get(lg)) {
     display: block;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    width: auto;
+    max-width: calc(100% - 160px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 1;
   }
 
   @include bp.lg {

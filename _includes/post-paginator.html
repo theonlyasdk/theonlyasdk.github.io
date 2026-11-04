@@ -9,8 +9,15 @@
       {% assign prev_url = '#' %}
     {% endif %}
 
-    <li class="page-item {% unless paginator.previous_page %}disabled{% endunless %}">
-      <a class="page-link" href="{{ prev_url }}" aria-label="previous-page">
+    <li class="page-item {% unless paginator.previous_page %}disabled{% endunless %}" title="Previous page">
+      <a
+        class="page-link"
+        href="{{ prev_url }}"
+        aria-label="previous-page"
+        title="Previous page"
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+      >
         <i class="fas fa-angle-left"></i>
       </a>
     </li>
@@ -44,10 +51,14 @@
 
       {% if show %}
         <!-- show number -->
-        <li class="page-item {% if i == paginator.page %} active{% endif %}">
+        <li class="page-item {% if i == paginator.page %} active{% endif %}" title="Page {{ i }}">
           <a
             class="page-link"
             href="{% if i > 1 %}{{ site.paginate_path | replace: ':num', i | relative_url }}{% else %}{{ '/' | relative_url }}{% endif %}"
+            aria-label="Page {{ i }}"
+            title="Page {{ i }}"
+            data-bs-toggle="tooltip"
+            data-bs-placement="top"
           >
             {{- i -}}
           </a>
@@ -81,8 +92,15 @@
       {% assign next_url = '#' %}
     {% endif %}
 
-    <li class="page-item {% unless paginator.next_page_path %}disabled{% endunless %}">
-      <a class="page-link" href="{{ next_url }}" aria-label="next-page">
+    <li class="page-item {% unless paginator.next_page_path %}disabled{% endunless %}" title="Next page">
+      <a
+        class="page-link"
+        href="{{ next_url }}"
+        aria-label="next-page"
+        title="Next page"
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+      >
         <i class="fas fa-angle-right"></i>
       </a>
     </li>

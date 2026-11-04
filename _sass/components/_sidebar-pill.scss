@@ -1,0 +1,138 @@
+@use '../abstracts/variables' as v;
+@use '../abstracts/breakpoints' as bp;
+
+/* ==========================================================================
+   Sidebar Local Time & Status Pill
+   Sleek capsule badge beneath avatar with live IST clock and activity status.
+   ========================================================================== */
+
+.sidebar-status-wrapper {
+  margin-top: 0.85rem;
+  margin-bottom: 0.25rem;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-status-pill {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3.5px;
+  padding: 6px 14px;
+  max-width: 100%;
+  border-radius: 14px;
+  background-color: var(--menu-bg, var(--sidebar-btn-bg));
+  border: 1px solid var(--menu-border-color, var(--sidebar-border-color));
+  box-shadow: 0 2px 8px var(--menu-shadow-color, rgba(0, 0, 0, 0.15));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  text-decoration: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+  line-height: 1.2;
+  white-space: nowrap;
+  transition:
+    transform 0.18s cubic-bezier(0.2, 0, 0, 1),
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in srgb, var(--link-color) 45%, var(--menu-border-color, var(--sidebar-border-color)));
+    box-shadow: 0 4px 12px var(--menu-shadow-color, rgba(0, 0, 0, 0.2));
+  }
+
+  .status-top-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .status-dot {
+    width: 6.5px;
+    height: 6.5px;
+    border-radius: 50%;
+    background-color: #10b981;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25), 0 0 8px rgba(16, 185, 129, 0.6);
+    display: inline-block;
+    flex-shrink: 0;
+
+    &.is-night {
+      background-color: #818cf8;
+      box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.25), 0 0 8px rgba(129, 140, 248, 0.6);
+    }
+  }
+
+  /* Clock digits + AM/PM + timezone micro-badge */
+  .status-time {
+    display: inline-flex;
+    align-items: baseline;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.2px;
+
+    .status-digits {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--heading-color);
+    }
+
+    .status-ampm {
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: var(--text-muted-color);
+      text-transform: uppercase;
+      margin-left: 3px;
+    }
+
+    .status-tz {
+      font-size: 0.58rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      padding: 1px 4.5px;
+      border-radius: 4px;
+      background: color-mix(in srgb, var(--text-muted-color) 16%, transparent);
+      color: var(--text-muted-color);
+      margin-left: 4px;
+      line-height: 1.1;
+      vertical-align: 0.5px;
+    }
+  }
+
+  /* Refined activity status */
+  .status-flavor {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+
+    .status-emoji {
+      font-size: 0.74rem;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .status-text {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.1px;
+      color: var(--text-muted-color);
+    }
+  }
+}
+
+/* Accessibility overrides */
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-status-pill {
+    transition: none !important;
+
+    &:hover {
+      transform: none !important;
+    }
+  }
+}

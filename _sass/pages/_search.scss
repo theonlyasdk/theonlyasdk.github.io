@@ -228,6 +228,25 @@ search,
   @include bp.lg {
     display: none;
   }
+  ul a,
+  .text-center a {
+    border-bottom: none !important;
+    text-decoration: none !important;
+
+    &:hover {
+      border-bottom: none !important;
+      opacity: 0.85;
+    }
+  }
+
+  li {
+    border-bottom: 1px solid var(--main-border-color);
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
 
   h4 {
     margin-bottom: 1.5rem;

@@ -12,7 +12,18 @@
 <!-- Overlay-drawer behaviour for the mobile sidebar: drag-to-close (touch and
      mouse) plus the standard slide-out before link navigation.
      Bump ?v= on changes to bust cached assets. -->
-<script src="{{ '/assets/js/sidebar-drawer.js' | relative_url }}?v=6" defer></script>
+<script src="{{ '/assets/js/sidebar-drawer.js' | relative_url }}?v=7" defer></script>
+<!-- Random Discovery Dice -->
+<script src="{{ '/assets/js/random-dice.js' | relative_url }}?v=1" defer></script>
+
+<!-- Tech Jargon Wikipedia-Style Hover Cards -->
+{% if page.layout == 'post' %}
+  <script src="{{ '/assets/js/hovercard.js' | relative_url }}?v=1" defer></script>
+{% endif %}
+
+<!-- Restore scroll position on main page when navigating back from a post.
+     Bump ?v= on changes to bust cached assets. -->
+<script src="{{ '/assets/js/scroll-restore.js' | relative_url }}?v=1" defer></script>
 
 {% if site.toc and page.toc %}
   <link rel="stylesheet" href="{{ site.data.origin[type].toc.css | relative_url }}">

@@ -1,0 +1,29 @@
+- name: Assignments
+  slug: assignments
+  category: Assignments
+  description: Clean sheets for homework, essays, and notes with line guides and page numbers.
+
+- name: Borders
+  slug: borders
+  category: Borders
+  description: Blank sheets with neat borders and corner styles for journals and handouts.
+
+- name: Fills
+  slug: fills
+  category: Fills
+  description: Solid colored sheets in black, blue, green, and red for report covers and crafts.
+
+- name: Templates
+  slug: templates
+  category: Templates
+  description: Helpful planning sheets, like monthly assignment lists and idea brainstorming maps.
+
+- name: Grids
+  slug: grids
+  category: Grids
+  description: Graph paper with green grid lines for math class, charts, and science sketches.
+
+- name: Test
+  slug: test
+  category: Test
+  description: Color test pages to check ink colors and print quality before printing large batches.

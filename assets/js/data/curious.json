@@ -1,0 +1,22 @@
+---
+layout: compress
+---
+
+[
+  {% for post in site.posts %}
+  {
+    "title": {{ post.title | jsonify }},
+    "url": {{ post.url | relative_url | jsonify }},
+    "type": "post"
+  }{% unless forloop.last and site.data.goodies.size == 0 %},{% endunless %}
+  {% endfor %}
+  {% for goodie in site.data.goodies %}
+  {% if goodie.iframe_url and goodie.iframe_url contains '/goodies/' %}
+  {
+    "title": {{ goodie.name | jsonify }},
+    "url": {{ goodie.iframe_url | relative_url | jsonify }},
+    "type": "goodie"
+  }{% unless forloop.last %},{% endunless %}
+  {% endif %}
+  {% endfor %}
+]

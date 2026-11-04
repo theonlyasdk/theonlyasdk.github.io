@@ -1,113 +1,132 @@
 - name: Black Fill
   category: Fills
-  description: A solid black A4 sheet — covers, title pages and high-contrast backing.
+  folder: Fills
+  description: Solid black paper for booklet covers, title pages, or craft projects.
   image: /assets/img/page-designs/page-black-fill.png
   pdf: /assets/files/page-designs/page-black-fill.pdf
 
 - name: Blue Fill
   category: Fills
-  description: A solid blue A4 sheet — dividers, covers and color backing.
+  folder: Fills
+  description: Solid blue paper for binder dividers, colorful folders, or poster backing.
   image: /assets/img/page-designs/page-blue-fill.png
   pdf: /assets/files/page-designs/page-blue-fill.pdf
 
 - name: Green Fill
   category: Fills
-  description: A solid green A4 sheet — dividers, covers and color backing.
+  folder: Fills
+  description: Solid green paper for nature reports, book covers, and colored dividers.
   image: /assets/img/page-designs/page-green-fill.png
   pdf: /assets/files/page-designs/page-green-fill.pdf
 
 - name: Red Fill
   category: Fills
-  description: A solid red A4 sheet — dividers, covers and color backing.
+  folder: Fills
+  description: Solid red paper for bold project covers, notice flyers, or paper crafts.
   image: /assets/img/page-designs/page-red-fill.png
   pdf: /assets/files/page-designs/page-red-fill.pdf
 
 - name: Black Dotted Rounded Border
   category: Borders
-  description: A4 sheet with a dotted, round-cornered black border and a page-number header — notebooks, logs and worksheets.
+  folder: Borders
+  description: Blank paper framed with a gentle dotted border, curved corners, and a page number slot up top.
   image: /assets/img/page-designs/page-border-black-dotted-rounded.png
   pdf: /assets/files/page-designs/page-border-black-dotted-rounded.pdf
 
 - name: Black Dotted Sharp Border
   category: Borders
-  description: A4 sheet with a dotted, sharp-cornered black border and a page-number header — notebooks, logs and worksheets.
+  folder: Borders
+  description: Blank paper framed with a neat dotted border, square corners, and a page number space up top.
   image: /assets/img/page-designs/page-border-black-dotted-sharp.png
   pdf: /assets/files/page-designs/page-border-black-dotted-sharp.pdf
 
 - name: Black Rounded Border
   category: Borders
-  description: A4 sheet with a solid, round-cornered black border and a page-number header — notebooks, logs and worksheets.
+  folder: Borders
+  description: Blank paper with a clean black outline, rounded corners, and a spot for page numbers.
   image: /assets/img/page-designs/page-border-black-rounded.png
   pdf: /assets/files/page-designs/page-border-black-rounded.pdf
 
 - name: Black Sharp Border
   category: Borders
-  description: A4 sheet with a solid, sharp-cornered black border and a page-number header — notebooks, logs and worksheets.
+  folder: Borders
+  description: Blank paper with a straight solid outline, crisp square corners, and a page number spot.
   image: /assets/img/page-designs/page-border-black-sharp.png
   pdf: /assets/files/page-designs/page-border-black-sharp.pdf
 
 - name: PAL Test Chart
   category: Test
-  description: PAL color-bar test page — check printer color output and alignment before a big print run.
+  folder: Test
+  description: Color bar pattern to test your printer and make sure colors print true before printing big jobs.
   image: /assets/img/page-designs/page-test-pal.png
   pdf: /assets/files/page-designs/page-test-pal.pdf
 
 - name: Assignments for Month
   category: Templates
-  description: Monthly assignments tracker sheet with columns for Name, Paper, and Due date — perfect for students, teachers, and project tracking.
+  folder: Templates
+  description: Monthly schedule sheet to track homework, projects, and due dates all in one view.
   image: /assets/img/page-designs/assignments-for-month.png
   pdf: /assets/files/page-designs/assignments-for-month.pdf
 
-- name: Assignment Sheet — Centered Page No.
+- name: Blank (Centered Page Number)
   category: Assignments
-  description: Blank A4 assignment sheet with a double border and a centered Page No. field — free writing, diagrams and worksheets.
+  folder: Assignments
+  description: Blank page with a double line border and a page number spot centered at the top. Great for sketches, math, and essays.
   image: /assets/img/page-designs/page-assignment-blank-center.png
   pdf: /assets/files/page-designs/page-assignment-blank-center.pdf
 
-- name: Assignment Sheet — Right Page No.
+- name: Blank (Right Page Number)
   category: Assignments
-  description: Blank A4 assignment sheet with a double border and a right-aligned Page No. field — free writing, diagrams and worksheets.
+  folder: Assignments
+  description: Blank page with a double line border and a page number spot on the top right.
   image: /assets/img/page-designs/page-assignment-blank-right.png
   pdf: /assets/files/page-designs/page-assignment-blank-right.pdf
 
-- name: Assignment Sheet — Boxed Page No.
+- name: Blank (Boxed Page Number)
   category: Assignments
-  description: Blank A4 assignment sheet with a double border and a boxed Page No. field — free writing, diagrams and worksheets.
+  folder: Assignments
+  description: Blank page with a double line border and a small neat box for your page number.
   image: /assets/img/page-designs/page-assignment-blank-box.png
   pdf: /assets/files/page-designs/page-assignment-blank-box.pdf
 
-- name: Lined Assignment Sheet — Centered Page No.
+- name: Lined (Centered Page Number)
   category: Assignments
-  description: Ruled A4 assignment sheet with a double border and a centered Page No. field — handwriting, notes and written answers.
+  folder: Assignments
+  description: Lined writing sheet with neat rules, a double border, and a centered page number spot up top.
   image: /assets/img/page-designs/page-assignment-lined-center.png
   pdf: /assets/files/page-designs/page-assignment-lined-center.pdf
 
-- name: Lined Assignment Sheet — Right Page No.
+- name: Lined (Right Page Number)
   category: Assignments
-  description: Ruled A4 assignment sheet with a double border and a right-aligned Page No. field — handwriting, notes and written answers.
+  folder: Assignments
+  description: Lined writing sheet with neat rules, a double border, and a page number spot on the top right.
   image: /assets/img/page-designs/page-assignment-lined-right.png
   pdf: /assets/files/page-designs/page-assignment-lined-right.pdf
 
-- name: Lined Assignment Sheet — Boxed Page No.
+- name: Lined (Boxed Page Number)
   category: Assignments
-  description: Ruled A4 assignment sheet with a double border and a boxed Page No. field — handwriting, notes and written answers.
+  folder: Assignments
+  description: Lined writing sheet with neat rules, a double border, and a boxed page number on top.
   image: /assets/img/page-designs/page-assignment-lined-box.png
   pdf: /assets/files/page-designs/page-assignment-lined-box.pdf
 
-- name: Assignment Sheet — Border Only
+- name: Blank (Border Only)
   category: Assignments
-  description: Blank A4 assignment sheet with a clean double border and no header fields — essays, diagrams and free-form answers.
+  folder: Assignments
+  description: Blank page framed by a clean double border with no headers or text, leaving full room for diagrams or writing.
   image: /assets/img/page-designs/page-assignment-border-only.png
   pdf: /assets/files/page-designs/page-assignment-border-only.pdf
 
 - name: Brainstorm Sheet
   category: Templates
-  description: Structured A4 brainstorming template with main idea, ideas & possibilities, questions, top 3 ideas, and next steps — ideation, planning and workshops.
+  folder: Templates
+  description: Idea organizer with boxes for your main goal, loose thoughts, big questions, top choices, and next steps.
   image: /assets/img/page-designs/page-brainstorm-sheet.png
   pdf: /assets/files/page-designs/page-brainstorm-sheet.pdf
 
-- name: Millimeter Graph Paper — Green
+- name: Millimeter Graph Paper in Green
   category: Grids
-  description: Standard metric A4 millimeter graph paper with 1mm, 5mm, and 10mm green grid lines — math, engineering and technical plotting.
+  folder: Grids
+  description: Metric graph paper with light green grid lines for math class, charts, science diagrams, and drawings.
   image: /assets/img/page-designs/page-graph-paper-mm-green.png
   pdf: /assets/files/page-designs/page-graph-paper-mm-green.pdf

@@ -27,7 +27,7 @@
     const filter = $(options.filterId);
     if (!grid || !filter) return null;
 
-    const items = options.items || [];
+    let items = options.items || [];
     const search = options.searchId ? $(options.searchId) : null;
     const clearBtn = options.clearId ? $(options.clearId) : null;
     let currentList = [];
@@ -44,7 +44,7 @@
 
     function matchesQuery(item, query) {
       if (!query) return true;
-      const haystack = `${item.name} ${item.description || ''} ${item.category || ''}`.toLowerCase();
+      const haystack = `${item.name} ${item.description || ''} ${item.category || ''} ${item.searchTerms || ''}`.toLowerCase();
       return query.split(/\s+/).every(term => haystack.includes(term));
     }
 
@@ -283,24 +283,31 @@
       });
     }
 
-    // Category pills.
-    ['All', ...new Set(items.map(item => item.category))].forEach(category => {
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'btn-search-filter ' + options.filterBtnClass;
-      button.textContent = category;
-      button.setAttribute('aria-pressed', category === 'All' ? 'true' : 'false');
-      if (category === 'All') button.classList.add('active');
-      button.addEventListener('click', () => {
-        filter.querySelectorAll('button').forEach(el => {
-          el.classList.toggle('active', el === button);
-          el.setAttribute('aria-pressed', el === button ? 'true' : 'false');
+    /* Category pills */
+    function setupPills() {
+      filter.replaceChildren();
+      const categories = ['All', ...new Set(items.map(item => item.category))];
+      categories.forEach(category => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'btn-search-filter ' + options.filterBtnClass;
+        button.textContent = category;
+        button.setAttribute('aria-pressed', category === 'All' ? 'true' : 'false');
+        if (category === 'All') button.classList.add('active');
+        button.addEventListener('click', () => {
+          filter.querySelectorAll('button').forEach(el => {
+            el.classList.toggle('active', el === button);
+            el.setAttribute('aria-pressed', el === button ? 'true' : 'false');
+          });
+          activeCategory = category === 'All' ? '' : category;
+          render();
         });
-        activeCategory = category === 'All' ? '' : category;
-        render();
+        filter.appendChild(button);
       });
-      filter.appendChild(button);
-    });
+      filter.hidden = categories.length <= 2 && categories[0] === 'All';
+    }
+
+    setupPills();
 
     // Search box.
     if (search) {
@@ -325,8 +332,20 @@
       });
     }
 
+    function setItems(newItems) {
+      items = newItems || [];
+      initialized = false;
+      activeCategory = '';
+      if (search) {
+        search.value = '';
+        if (clearBtn) clearBtn.hidden = true;
+      }
+      setupPills();
+      render();
+    }
+
     render();
-    return { render };
+    return { render, setItems };
   }
 
   window.CollectionGrid = CollectionGrid;
