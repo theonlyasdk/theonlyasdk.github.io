@@ -11,7 +11,6 @@
 
   <!-- Preload Resources -->
   <link rel="preload" href="{{ '/assets/css/:THEME.css' | replace: ':THEME', site.theme | relative_url }}?v=7" as="style" />
-  <link rel="preload" href="{{ '/assets/js/dist/theme.min.js' | relative_url }}" as="script" />
 
   <style> * { font-display: swap; } </style>
 
@@ -124,7 +123,32 @@
 
   <!-- Scripts -->
 
-  <script src="{{ '/assets/js/dist/theme.min.js' | relative_url }}"></script>
+  <!-- Theme init. Inlined (2.5 KB, from the theme bundle) so it can never fail
+       to load and leave the deferred page bundles without the global `Theme`:
+       commons.min.js calls Theme.newThemeMap() at parse time and throws
+       "Theme is not defined" when this script is missing. -->
+  <script>
+    {% include theme-init.html %}
+  </script>
+  <script>
+    /* Safety net: if the inlined initialiser failed to parse or run (very old
+       browser, script blocked), define a no-op Theme so the page bundles still
+       run. The theme toggle becomes inert instead of taking every page script
+       down with a ReferenceError. */
+    if (typeof window.Theme === "undefined") {
+      window.Theme = {
+        Mode: { DARK: "dark", LIGHT: "light", SYSTEM: "system" },
+        isToggleable: false,
+        isDark: false,
+        resolvedTheme: "light",
+        newThemeMap: function (light, dark) {
+          return { light: light, dark: dark };
+        },
+        update: function () {},
+        init: function () {}
+      };
+    }
+  </script>
 
   {% include site-url.html %}
 
