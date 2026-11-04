@@ -491,6 +491,8 @@ order: 5
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
     transition:
       transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.22s cubic-bezier(0.22, 1, 0.36, 1),
       box-shadow 0.22s cubic-bezier(0.22, 1, 0.36, 1);
   }
   .mc-card-inner {
@@ -520,6 +522,7 @@ order: 5
     line-height: 1;
     border-radius: 0.7rem;
     background: color-mix(in srgb, var(--text-muted-color) 14%, transparent);
+    transition: background-color 0.22s cubic-bezier(0.22, 1, 0.36, 1);
   }
   .mc-body {
     flex: 1 1 auto;
@@ -549,9 +552,17 @@ order: 5
     color: var(--text-muted-color);
   }
   @media (hover: hover) {
+    /* Button-like hover: surface tint + darker border + ring, on top of the lift */
     .mc-card.is-linked:hover {
       transform: translateY(-2px);
-      box-shadow: var(--card-shadow);
+      background: color-mix(in srgb, var(--text-muted-color) 6%, var(--card-bg));
+      border-color: color-mix(in srgb, var(--text-muted-color) 38%, var(--main-border-color));
+      box-shadow:
+        var(--card-shadow),
+        0 0 0 1px color-mix(in srgb, var(--text-muted-color) 16%, transparent);
+    }
+    .mc-card.is-linked:hover .mc-icon {
+      background: color-mix(in srgb, var(--text-muted-color) 26%, transparent);
     }
   }
   /* Press feedback: quick dip on :active, slow return on release */
