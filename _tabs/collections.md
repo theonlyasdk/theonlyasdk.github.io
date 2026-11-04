@@ -471,37 +471,91 @@ order: 5
     transform: translateX(6px);
     filter: blur(2px);
   }
-  /* Card-style list items in the My Collections panel */
-  #tabpanel-my-collections ul {
+  /* Card list shared by the My Collections and Other Collections panels.
+     The whole card is the tap/click target: the anchor carries the padding,
+     so there is no tiny inline link to aim for on touch screens. */
+  .mc-card-list {
     list-style: none;
     padding: 0;
     margin: 0 0 2rem;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
     gap: 0.75rem;
   }
-  #tabpanel-my-collections li {
+  .mc-card {
     margin: 0;
-    padding: 0.95rem 1.15rem;
     background: var(--card-bg);
     border: 1px solid var(--main-border-color);
     border-radius: 0.9rem;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-    line-height: 1.55;
     transition:
       transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
       box-shadow 0.22s cubic-bezier(0.22, 1, 0.36, 1);
   }
-  #tabpanel-my-collections li:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--card-shadow);
+  a.mc-card-inner {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.85rem;
+    height: 100%;
+    padding: 1rem 1.1rem;
+    color: inherit;
+    text-decoration: none;
+    border-radius: inherit;
+  }
+  a.mc-card-inner:focus-visible {
+    outline: 2px solid var(--heading-color);
+    outline-offset: 2px;
+  }
+  .mc-icon {
+    flex: 0 0 auto;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: grid;
+    place-items: center;
+    font-size: 1.15rem;
+    line-height: 1;
+    border-radius: 0.7rem;
+    background: color-mix(in srgb, var(--text-muted-color) 14%, transparent);
+  }
+  .mc-body {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .mc-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .mc-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--text-color);
+  }
+  .mc-desc {
+    margin: 0.35rem 0 0;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: var(--text-muted-color);
+  }
+  .mc-card.is-locked .mc-title {
+    color: var(--text-muted-color);
+  }
+  @media (hover: hover) {
+    .mc-card.is-linked:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--card-shadow);
+    }
   }
   @media (prefers-reduced-motion: reduce) {
     .collection-tab-pill,
     .collection-tab-panel,
     .collection-tab-btn,
     .collection-tab-btn i,
-    #tabpanel-my-collections li {
+    .mc-card {
       transition: none !important;
       transform: none !important;
       filter: none !important;
@@ -564,22 +618,116 @@ order: 5
 
 Short, print-friendly references for the desk or the workshop wall.
 
-- 🖨 **[Printable Page Templates](/collections/page-designs/)** — Solid fills, borders, assignment sheets, brainstorm planner, millimeter graph paper, PAL test chart — print-ready PDF downloads!<span class="post-tag shake-new">NEW!</span>
-- ★ <span class="text-muted">**Linux Command Cheatsheet**</span> <span class="post-tag">Coming Soon</span> — the 20% of commands that cover 80% of terminal work.
-- ★ <span class="text-muted">**Git Survival Sheet**</span> <span class="post-tag">Coming Soon</span> — init to rebase, plus how to undo almost anything.
-- ★ <span class="text-muted">**Regex Quick Reference**</span> <span class="post-tag">Coming Soon</span> — character classes, quantifiers and lookarounds on one page.
+<ul class="mc-card-list">
+  <li class="mc-card is-linked">
+    <a class="mc-card-inner" href="/collections/page-designs/">
+      <span class="mc-icon" aria-hidden="true">🖨</span>
+      <div class="mc-body">
+        <div class="mc-head">
+          <h3 class="mc-title">Printable Page Templates</h3>
+          <span class="post-tag shake-new">NEW!</span>
+        </div>
+        <p class="mc-desc">Solid fills, borders, assignment sheets, brainstorm planner, millimeter graph paper, PAL test chart — print-ready PDF downloads!</p>
+      </div>
+    </a>
+  </li>
+  <li class="mc-card is-locked">
+    <div class="mc-card-inner">
+      <span class="mc-icon" aria-hidden="true">★</span>
+      <div class="mc-body">
+        <div class="mc-head">
+          <h3 class="mc-title">Linux Command Cheatsheet</h3>
+          <span class="post-tag">Coming Soon</span>
+        </div>
+        <p class="mc-desc">The 20% of commands that cover 80% of terminal work.</p>
+      </div>
+    </div>
+  </li>
+  <li class="mc-card is-locked">
+    <div class="mc-card-inner">
+      <span class="mc-icon" aria-hidden="true">★</span>
+      <div class="mc-body">
+        <div class="mc-head">
+          <h3 class="mc-title">Git Survival Sheet</h3>
+          <span class="post-tag">Coming Soon</span>
+        </div>
+        <p class="mc-desc">Init to rebase, plus how to undo almost anything.</p>
+      </div>
+    </div>
+  </li>
+  <li class="mc-card is-locked">
+    <div class="mc-card-inner">
+      <span class="mc-icon" aria-hidden="true">★</span>
+      <div class="mc-body">
+        <div class="mc-head">
+          <h3 class="mc-title">Regex Quick Reference</h3>
+          <span class="post-tag">Coming Soon</span>
+        </div>
+        <p class="mc-desc">Character classes, quantifiers and lookarounds on one page.</p>
+      </div>
+    </div>
+  </li>
+</ul>
 
 ## ✦ Tutorials
 
 Longer guides worth working through end to end.
 
-- ★ <span class="text-muted">**Terminal Basics**</span> <span class="post-tag">Coming Soon</span> — from zero to comfortable on the command line.
-- ★ <span class="text-muted">**Dotfiles From Scratch**</span> <span class="post-tag">Coming Soon</span> — version-control your setup like a grown-up.
-- ★ <span class="text-muted">**Self-Hosting 101**</span> <span class="post-tag">Coming Soon</span> — put your own services on your own hardware.
+<ul class="mc-card-list">
+  <li class="mc-card is-locked">
+    <div class="mc-card-inner">
+      <span class="mc-icon" aria-hidden="true">★</span>
+      <div class="mc-body">
+        <div class="mc-head">
+          <h3 class="mc-title">Terminal Basics</h3>
+          <span class="post-tag">Coming Soon</span>
+        </div>
+        <p class="mc-desc">From zero to comfortable on the command line.</p>
+      </div>
+    </div>
+  </li>
+  <li class="mc-card is-locked">
+    <div class="mc-card-inner">
+      <span class="mc-icon" aria-hidden="true">★</span>
+      <div class="mc-body">
+        <div class="mc-head">
+          <h3 class="mc-title">Dotfiles From Scratch</h3>
+          <span class="post-tag">Coming Soon</span>
+        </div>
+        <p class="mc-desc">Version-control your setup like a grown-up.</p>
+      </div>
+    </div>
+  </li>
+  <li class="mc-card is-locked">
+    <div class="mc-card-inner">
+      <span class="mc-icon" aria-hidden="true">★</span>
+      <div class="mc-body">
+        <div class="mc-head">
+          <h3 class="mc-title">Self-Hosting 101</h3>
+          <span class="post-tag">Coming Soon</span>
+        </div>
+        <p class="mc-desc">Put your own services on your own hardware.</p>
+      </div>
+    </div>
+  </li>
+</ul>
 
 ## ✦ Reading Shelf
 
-- ★ <span class="text-muted">**My Reading Shelf**</span> <span class="post-tag">Coming Soon</span> — essays and docs I re-read every year.
+<ul class="mc-card-list">
+  <li class="mc-card is-locked">
+    <div class="mc-card-inner">
+      <span class="mc-icon" aria-hidden="true">★</span>
+      <div class="mc-body">
+        <div class="mc-head">
+          <h3 class="mc-title">My Reading Shelf</h3>
+          <span class="post-tag">Coming Soon</span>
+        </div>
+        <p class="mc-desc">Essays and docs I re-read every year.</p>
+      </div>
+    </div>
+  </li>
+</ul>
 
 </div>
 
@@ -589,16 +737,70 @@ Longer guides worth working through end to end.
 
 Curated piles of links for rabbit-hole days.
 
-- ★ **[Awesome Self-Hosted](https://github.com/awesome-selfhosted/awesome-selfhosted){:target="_blank" rel="noopener"}** — community-maintained list of self-hostable software.
-- ★ **[Awesome Command Line](https://github.com/alebcizr/awesome-cli){:target="_blank" rel="noopener"}** — tools, dotfiles and reading for terminal enjoyers.
+<ul class="mc-card-list">
+  <li class="mc-card is-linked">
+    <a class="mc-card-inner" href="https://github.com/awesome-selfhosted/awesome-selfhosted" target="_blank" rel="noopener">
+      <span class="mc-icon" aria-hidden="true">★</span>
+      <div class="mc-body">
+        <div class="mc-head">
+          <h3 class="mc-title">Awesome Self-Hosted</h3>
+        </div>
+        <p class="mc-desc">Community-maintained list of self-hostable software.</p>
+      </div>
+    </a>
+  </li>
+  <li class="mc-card is-linked">
+    <a class="mc-card-inner" href="https://github.com/alebcizr/awesome-cli" target="_blank" rel="noopener">
+      <span class="mc-icon" aria-hidden="true">★</span>
+      <div class="mc-body">
+        <div class="mc-head">
+          <h3 class="mc-title">Awesome Command Line</h3>
+        </div>
+        <p class="mc-desc">Tools, dotfiles and reading for terminal enjoyers.</p>
+      </div>
+    </a>
+  </li>
+</ul>
 
 ## ✦ Tools & References
 
 Bookmark-grade utilities and lookup pages.
 
-- ★ **[Explainshell](https://explainshell.com/){:target="_blank" rel="noopener"}** — paste a command, learn what each flag does.
-- ★ **[DevDocs](https://devdocs.io/){:target="_blank" rel="noopener"}** — offline-capable API documentation in one place.
-- ★ **[Can I Use](https://caniuse.com/){:target="_blank" rel="noopener"}** — browser support tables for web features.
+<ul class="mc-card-list">
+  <li class="mc-card is-linked">
+    <a class="mc-card-inner" href="https://explainshell.com/" target="_blank" rel="noopener">
+      <span class="mc-icon" aria-hidden="true">★</span>
+      <div class="mc-body">
+        <div class="mc-head">
+          <h3 class="mc-title">Explainshell</h3>
+        </div>
+        <p class="mc-desc">Paste a command, learn what each flag does.</p>
+      </div>
+    </a>
+  </li>
+  <li class="mc-card is-linked">
+    <a class="mc-card-inner" href="https://devdocs.io/" target="_blank" rel="noopener">
+      <span class="mc-icon" aria-hidden="true">★</span>
+      <div class="mc-body">
+        <div class="mc-head">
+          <h3 class="mc-title">DevDocs</h3>
+        </div>
+        <p class="mc-desc">Offline-capable API documentation in one place.</p>
+      </div>
+    </a>
+  </li>
+  <li class="mc-card is-linked">
+    <a class="mc-card-inner" href="https://caniuse.com/" target="_blank" rel="noopener">
+      <span class="mc-icon" aria-hidden="true">★</span>
+      <div class="mc-body">
+        <div class="mc-head">
+          <h3 class="mc-title">Can I Use</h3>
+        </div>
+        <p class="mc-desc">Browser support tables for web features.</p>
+      </div>
+    </a>
+  </li>
+</ul>
 
 </div>
 
