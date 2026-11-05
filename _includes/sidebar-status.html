@@ -7,14 +7,11 @@
     aria-label="Local time and status"
     title="Local time in Asia/Kolkata (IST, UTC+05:30)"
   >
-    <div class="status-top-row">
-      <span class="status-dot" id="status-dot" aria-hidden="true"></span>
-      <time class="status-time" id="status-time">
-        <span class="status-digits" id="status-digits">--:--</span>
-        <span class="status-ampm" id="status-ampm">--</span>
-        <span class="status-tz">IST</span>
-      </time>
-    </div>
+    <time class="status-time" id="status-time">
+      <span class="status-digits" id="status-digits">--:--</span>
+      <span class="status-ampm" id="status-ampm">--</span>
+      <span class="status-tz">IST</span>
+    </time>
     <div class="status-flavor" id="status-flavor">
       <span class="status-emoji" id="status-emoji" aria-hidden="true">🌙</span>
       <span class="status-text" id="status-text">Asleep / dreaming in C++</span>
@@ -77,7 +74,6 @@
       var ampmEl = document.getElementById('status-ampm');
       var emojiEl = document.getElementById('status-emoji');
       var textEl = document.getElementById('status-text');
-      var dotEl = document.getElementById('status-dot');
       var pill = document.getElementById('sidebar-status-pill');
 
       if (!digitsEl || !ampmEl || !emojiEl || !textEl || !pill) {
@@ -120,14 +116,6 @@
       ampmEl.textContent = ampmStr;
       emojiEl.textContent = status.emoji;
       textEl.textContent = status.text;
-
-      if (dotEl) {
-        if (hour < 7 || hour >= 23) {
-          dotEl.classList.add('is-night');
-        } else {
-          dotEl.classList.remove('is-night');
-        }
-      }
 
       pill.setAttribute(
         'title',

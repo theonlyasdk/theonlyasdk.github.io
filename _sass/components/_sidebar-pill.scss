@@ -3,7 +3,7 @@
 
 /* ==========================================================================
    Sidebar Local Time & Status Pill
-   Sleek capsule badge beneath avatar with live IST clock and activity status.
+   Flat capsule badge beneath avatar with live IST clock and activity status.
    ========================================================================== */
 
 .sidebar-status-wrapper {
@@ -20,15 +20,15 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3.5px;
-  padding: 6px 14px;
+  gap: 2.5px;
+  padding: 6px 18px;
   max-width: 100%;
-  border-radius: 14px;
+  border-radius: 9999px;
   background-color: var(--menu-bg, var(--sidebar-btn-bg));
   border: 1px solid var(--menu-border-color, var(--sidebar-border-color));
-  box-shadow: 0 2px 8px var(--menu-shadow-color, rgba(0, 0, 0, 0.15));
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   text-decoration: none;
   user-select: none;
   -webkit-user-select: none;
@@ -36,39 +36,16 @@
   line-height: 1.2;
   white-space: nowrap;
   transition:
-    transform 0.18s cubic-bezier(0.2, 0, 0, 1),
     border-color 0.2s ease,
-    background-color 0.2s ease,
-    box-shadow 0.2s ease;
+    background-color 0.2s ease;
 
   &:hover {
-    transform: translateY(-1px);
     border-color: color-mix(in srgb, var(--link-color) 45%, var(--menu-border-color, var(--sidebar-border-color)));
-    box-shadow: 0 4px 12px var(--menu-shadow-color, rgba(0, 0, 0, 0.2));
+    box-shadow: none;
+    transform: none;
   }
 
-  .status-top-row {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .status-dot {
-    width: 6.5px;
-    height: 6.5px;
-    border-radius: 50%;
-    background-color: #10b981;
-    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25), 0 0 8px rgba(16, 185, 129, 0.6);
-    display: inline-block;
-    flex-shrink: 0;
-
-    &.is-night {
-      background-color: #818cf8;
-      box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.25), 0 0 8px rgba(129, 140, 248, 0.6);
-    }
-  }
-
-  /* Clock digits + AM/PM + timezone micro-badge */
+  /* Clock digits + AM/PM + timezone text */
   .status-time {
     display: inline-flex;
     align-items: baseline;
@@ -91,17 +68,11 @@
     }
 
     .status-tz {
-      font-size: 0.58rem;
+      font-size: 0.65rem;
       font-weight: 600;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      padding: 1px 4.5px;
-      border-radius: 4px;
-      background: color-mix(in srgb, var(--text-muted-color) 16%, transparent);
       color: var(--text-muted-color);
-      margin-left: 4px;
-      line-height: 1.1;
-      vertical-align: 0.5px;
+      text-transform: uppercase;
+      margin-left: 3.5px;
     }
   }
 
