@@ -102,3 +102,17 @@
     tech:
       - Vanilla JS
       - Web Speech API
+
+- name: SketchNote
+  category: Tools
+  description: A lightweight vector and raster sketching, drawing, and note-taking canvas with layers and shapes.
+  image: /assets/img/goodies/sketchnote.png
+  iframe_url: /goodies/sketchnote/index.html
+  info:
+    summary: A versatile vector and raster sketching workbench and note-taking canvas. Sketch smoothly with pen, pencil, or highlighter with stylus pressure dynamics, draw geometric shapes and arrows, organize ideas across layers and paper grids, drop text blocks, and export crisp PNG or SVG graphics.
+    controls: Pick tools from the bottom dock or right-click to invoke the radial quick menu. Use the side dock to calibrate stroke width and opacity. Use the top bar for layers, undo/redo, theme toggle, notes gallery, and export.
+    tech:
+      - Canvas 2D
+      - SVG
+      - Vanilla JS
+
