@@ -703,7 +703,7 @@ Short, print-friendly references for the desk or the workshop wall.
           <h3 class="mc-title">Printable Page Templates</h3>
           <span class="post-tag shake-new">NEW!</span>
         </div>
-        <p class="mc-desc">Solid fills, borders, assignment sheets, brainstorm planner, millimeter graph paper, PAL test chart, all print-ready PDF downloads!</p>
+        <p class="mc-desc">Solid fills, borders, assignment sheets, brainstorm planner, goal planner, habit tracker, password logs, millimeter graph paper, PAL test chart, all print-ready PDF downloads!</p>
       </div>
     </a>
   </li>

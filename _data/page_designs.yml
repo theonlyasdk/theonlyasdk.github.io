@@ -130,3 +130,31 @@
   description: Metric graph paper with light green grid lines for math class, charts, science diagrams, and drawings.
   image: /assets/img/page-designs/page-graph-paper-mm-green.png
   pdf: /assets/files/page-designs/page-graph-paper-mm-green.pdf
+
+- name: 365 Days of Discipline
+  category: Templates
+  folder: Templates
+  description: Year-long habit tracker with a goal, start and end dates, and 365 color-coded day boxes grouped by month.
+  image: /assets/img/page-designs/365-days-of-discipline.png
+  pdf: /assets/files/page-designs/365-days-of-discipline.pdf
+
+- name: Goal Planning
+  category: Templates
+  folder: Templates
+  description: One-page worksheet that breaks a single goal into three targets with space for action steps under each.
+  image: /assets/img/page-designs/goal-planning.png
+  pdf: /assets/files/page-designs/goal-planning.pdf
+
+- name: Passwords (Serif)
+  category: Templates
+  folder: Templates
+  description: Classic serif password log with eight account blocks, each with fields for username, password, and notes.
+  image: /assets/img/page-designs/passwords-serif.png
+  pdf: /assets/files/page-designs/passwords-serif.pdf
+
+- name: Passwords (Table)
+  category: Templates
+  folder: Templates
+  description: Compact password log laid out as a ruled table with columns for account, username, password, and notes.
+  image: /assets/img/page-designs/passwords-table.png
+  pdf: /assets/files/page-designs/passwords-table.pdf

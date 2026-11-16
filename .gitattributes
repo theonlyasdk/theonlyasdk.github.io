@@ -1,0 +1,4 @@
+# Treat print-ready PDFs and their PNG previews as binary so line-ending
+# normalization (core.autocrlf) never corrupts them on checkout.
+*.pdf binary
+*.png binary
