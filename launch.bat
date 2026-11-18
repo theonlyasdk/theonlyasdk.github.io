@@ -54,9 +54,9 @@ if exist "%ProgramFiles%\Google\Chrome\Application\chrome.exe" set "CHROME_EXE=%
 if not defined CHROME_EXE if exist "%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe" set "CHROME_EXE=%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe"
 if not defined CHROME_EXE if exist "%LocalAppData%\Google\Chrome\Application\chrome.exe" set "CHROME_EXE=%LocalAppData%\Google\Chrome\Application\chrome.exe"
 if defined CHROME_EXE (
-  start /B cmd /c "ping -n 6 127.0.0.1 >nul & start \"\" \"%CHROME_EXE%\" http://127.0.0.1:4000/"
+  start /B powershell -NoProfile -Command "Start-Sleep -Seconds 5; Start-Process '%CHROME_EXE%' 'http://127.0.0.1:4000/'"
 ) else (
-  start /B cmd /c "ping -n 6 127.0.0.1 >nul & start \"\" http://127.0.0.1:4000/"
+  start /B powershell -NoProfile -Command "Start-Sleep -Seconds 5; Start-Process 'http://127.0.0.1:4000/'"
 )
 call bundle exec jekyll serve --livereload --host 127.0.0.1
 if defined once exit /b %errorlevel%
