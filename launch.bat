@@ -6,6 +6,7 @@ rem     [1] -> local dev (bundle exec jekyll serve --livereload)
 rem     [2] -> production build (JEKYLL_ENV=production jekyll build)
 rem     [3] -> build + test (production build + html-proofer)
 rem     [4] -> new post (tools\new_post.py)
+rem   Interactive menu picks an item on a single keypress (no Enter needed).
 setlocal
 
 rem Option passed on the command line: run it once, then exit.
@@ -24,8 +25,12 @@ echo   [2] Production build
 echo   [3] Build + test
 echo   [4] New post
 echo.
+rem Single-key menu: choice.exe acts on the keypress itself, so no Enter is needed.
+choice /c 01234 /n /m "Choose 0-4: "
+if errorlevel 255 goto done
 set "choice="
-set /p "choice=Choose 0-4: "
+if errorlevel 5 (set "choice=4") else if errorlevel 4 (set "choice=3") else if errorlevel 3 (set "choice=2") else if errorlevel 2 (set "choice=1") else if errorlevel 1 (set "choice=0")
+if not defined choice goto menu
 
 :run_choice
 if "%choice%"=="0" goto done
@@ -42,6 +47,17 @@ goto menu
 :dev
 echo.
 echo Starting local dev server...
+rem Open the site in a browser once Jekyll has had time to boot. Prefer
+rem Chrome (if installed) and fall back to the default browser otherwise.
+set "CHROME_EXE="
+if exist "%ProgramFiles%\Google\Chrome\Application\chrome.exe" set "CHROME_EXE=%ProgramFiles%\Google\Chrome\Application\chrome.exe"
+if not defined CHROME_EXE if exist "%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe" set "CHROME_EXE=%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe"
+if not defined CHROME_EXE if exist "%LocalAppData%\Google\Chrome\Application\chrome.exe" set "CHROME_EXE=%LocalAppData%\Google\Chrome\Application\chrome.exe"
+if defined CHROME_EXE (
+  start /B cmd /c "ping -n 6 127.0.0.1 >nul & start \"\" \"%CHROME_EXE%\" http://127.0.0.1:4000/"
+) else (
+  start /B cmd /c "ping -n 6 127.0.0.1 >nul & start \"\" http://127.0.0.1:4000/"
+)
 call bundle exec jekyll serve --livereload --host 127.0.0.1
 if defined once exit /b %errorlevel%
 goto menu
