@@ -637,6 +637,229 @@ order: 5
       filter: none !important;
     }
   }
+
+  /* Featured Collection Spotlight */
+  .collections-featured {
+    margin: 2.25rem auto 0.25rem auto;
+    max-width: 100%;
+  }
+  .featured-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    margin: 0 0 0.85rem 0;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted-color);
+  }
+  .featured-heading::before {
+    content: '';
+    flex: 0 0 auto;
+    width: 1.75rem;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--link-color);
+  }
+  .featured-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    gap: 0.75rem;
+    align-items: stretch;
+  }
+  .featured-hero {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.35rem 1.4rem;
+    border-radius: 1rem;
+    border: 1px solid var(--main-border-color) !important;
+    background:
+      radial-gradient(120% 150% at 0% 0%, color-mix(in srgb, var(--link-color) 14%, transparent), transparent 62%),
+      var(--card-bg);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    color: inherit !important;
+    text-decoration: none !important;
+    transition:
+      transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.18s ease,
+      box-shadow 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .featured-hero-icon {
+    flex: 0 0 auto;
+    width: 3.5rem;
+    height: 3.5rem;
+    display: grid;
+    place-items: center;
+    font-size: 1.6rem;
+    line-height: 1;
+    border-radius: 0.9rem;
+    background: color-mix(in srgb, var(--link-color) 14%, transparent);
+    border: 1px solid color-mix(in srgb, var(--link-color) 24%, transparent);
+    transition: background-color 0.18s ease, border-color 0.18s ease;
+  }
+  .featured-hero-body {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .featured-hero-title {
+    display: block;
+    margin: 0 0 0.3rem 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--text-color);
+  }
+  .featured-hero-desc {
+    display: block;
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: var(--text-muted-color);
+  }
+  .featured-hero-meta {
+    display: block;
+    margin-top: 0.55rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.02em;
+    color: var(--text-muted-color);
+  }
+  .featured-hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.9rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--link-color);
+  }
+  .featured-hero-cta i {
+    font-size: 0.8rem;
+    color: var(--link-color);
+    transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .featured-side {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-auto-rows: 1fr;
+    gap: 0.75rem;
+  }
+  .featured-mini {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.85rem 1rem;
+    border-radius: 1rem;
+    border: 1px solid var(--main-border-color) !important;
+    background: var(--card-bg);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    color: inherit !important;
+    text-decoration: none !important;
+    transition:
+      transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.18s ease,
+      box-shadow 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .featured-mini-icon {
+    flex: 0 0 auto;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: grid;
+    place-items: center;
+    font-size: 1.15rem;
+    line-height: 1;
+    border-radius: 0.7rem;
+    background: color-mix(in srgb, var(--text-muted-color) 14%, transparent);
+    transition: background-color 0.18s ease;
+  }
+  .featured-mini-body {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .featured-mini-title {
+    display: block;
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--text-color);
+  }
+  .featured-mini-desc {
+    display: block;
+    margin: 0.15rem 0 0 0;
+    font-size: 0.8rem;
+    line-height: 1.45;
+    color: var(--text-muted-color);
+  }
+  .featured-hero:focus-visible,
+  .featured-mini:focus-visible {
+    outline: 2px solid var(--link-color);
+    outline-offset: 3px;
+  }
+  @media (hover: hover) {
+    .featured-hero:hover,
+    .featured-mini:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--link-color) 45%, var(--main-border-color)) !important;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+    }
+    :root[data-bs-theme="light"] .featured-hero:hover,
+    :root[data-bs-theme="light"] .featured-mini:hover {
+      box-shadow: 0 6px 14px rgba(31, 35, 40, 0.1);
+    }
+    .featured-hero:hover .featured-hero-icon {
+      background: color-mix(in srgb, var(--link-color) 22%, transparent);
+      border-color: color-mix(in srgb, var(--link-color) 38%, transparent);
+    }
+    .featured-hero:hover .featured-hero-cta i {
+      transform: translateX(3px);
+    }
+    .featured-mini:hover .featured-mini-icon {
+      background: color-mix(in srgb, var(--link-color) 20%, transparent);
+    }
+  }
+  .featured-hero:active,
+  .featured-mini:active {
+    transform: translateY(1px);
+    transition-duration: 0.05s;
+  }
+  @media (max-width: 849px) {
+    .featured-grid {
+      grid-template-columns: 1fr;
+    }
+    .featured-side {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 560px) {
+    .collections-featured {
+      margin-top: 1.5rem;
+    }
+    .featured-hero {
+      padding: 1.1rem;
+      gap: 0.8rem;
+    }
+    .featured-side {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .featured-hero,
+    .featured-mini,
+    .featured-hero-cta i,
+    .featured-hero-icon,
+    .featured-mini-icon {
+      transition: none !important;
+    }
+    .featured-hero:hover,
+    .featured-mini:hover,
+    .featured-hero:active,
+    .featured-mini:active {
+      transform: none !important;
+    }
+  }
 </style>
 
 <marquee class="fading-marquee" behavior="scroll" direction="left" scrollamount="6"><span class="star-edge">★</span> Welcome to my Collections page ★ Cheatsheets, tutorials and curated collections ★ New links added regularly ★ Don't forget to sign the guestbook <span class="star-edge">★</span></marquee>
@@ -668,6 +891,37 @@ order: 5
     }
   })();
 </script>
+
+<section class="collections-featured" aria-labelledby="featured-heading">
+  <h2 class="featured-heading" id="featured-heading">Featured collection</h2>
+  <div class="featured-grid">
+    <a class="featured-hero" href="/collections/page-designs/">
+      <span class="featured-hero-icon" aria-hidden="true">🖨</span>
+      <span class="featured-hero-body">
+        <span class="featured-hero-title" role="heading" aria-level="3">Printable Page Templates</span>
+        <span class="featured-hero-desc">Solid fills, borders, assignment sheets, brainstorm and goal planners, habit trackers, password logs, graph paper, and PAL test charts — all A4 and print-ready.</span>
+        <span class="featured-hero-meta">23 templates · 6 categories · A4 PDF</span>
+        <span class="featured-hero-cta">Browse printables <i class="fa-solid fa-angle-right" aria-hidden="true"></i></span>
+      </span>
+    </a>
+    <div class="featured-side">
+      <a class="featured-mini" href="https://github.com/awesome-selfhosted/awesome-selfhosted" target="_blank" rel="noopener">
+        <span class="featured-mini-icon" aria-hidden="true">🏠</span>
+        <span class="featured-mini-body">
+          <span class="featured-mini-title">Awesome Self-Hosted</span>
+          <span class="featured-mini-desc">Free software for your own home server.</span>
+        </span>
+      </a>
+      <a class="featured-mini" href="https://www.privacyguides.org/" target="_blank" rel="noopener">
+        <span class="featured-mini-icon" aria-hidden="true">🛡️</span>
+        <span class="featured-mini-body">
+          <span class="featured-mini-title">Privacy Guides</span>
+          <span class="featured-mini-desc">Safer browsers, apps, and operating systems.</span>
+        </span>
+      </a>
+    </div>
+  </div>
+</section>
 
 <div class="collection-tabs-wrapper">
   <div class="collection-tab-bar" role="tablist" aria-label="Collection categories">
