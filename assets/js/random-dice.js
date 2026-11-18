@@ -22,9 +22,6 @@
   var targets = FALLBACK_TARGETS.slice();
   var isLoaded = false;
   var isRolling = false;
-  var isMorphed = false;
-  var pendingUrl = null;
-  var navTimer = null;
   var audioCtx = null;
 
   /* Lazy-fetch full targets list from generated curious.json */
@@ -178,13 +175,6 @@
 
   /* Execute the roll sequence and morph in place */
   function rollDice() {
-    /* If already morphed, clicking again navigates immediately */
-    if (isMorphed && pendingUrl) {
-      if (navTimer) clearTimeout(navTimer);
-      window.location.href = pendingUrl;
-      return;
-    }
-
     if (isRolling) return;
     isRolling = true;
 
@@ -207,7 +197,16 @@
     if (candidates.length === 0) candidates = targets;
     var chosen = candidates[Math.floor(Math.random() * candidates.length)];
     var finalFace = Math.floor(Math.random() * 6) + 1;
-    pendingUrl = chosen.url;
+
+    /* Open a blank tab from the user gesture, then navigate after the roll is revealed. */
+    var destinationWindow = window.open(chosen.url, '_blank');
+    if (destinationWindow) {
+      destinationWindow.opener = null;
+      destinationWindow.location.href = 'about:blank';
+      setTimeout(function () {
+        destinationWindow.location.href = chosen.url;
+      }, 1450);
+    }
 
     /* Start rolling animation */
     btn.classList.add('is-rolling');
@@ -229,7 +228,6 @@
         msgTitle.textContent = chosen.title;
       }
       btn.classList.add('is-morphed');
-      isMorphed = true;
       isRolling = false;
 
       if (topbar) {
@@ -238,11 +236,6 @@
 
       /* Trigger colorful 3D confetti burst */
       spawnConfetti();
-
-      /* Give reader comfortable window to enjoy confetti & title before navigating */
-      navTimer = setTimeout(function () {
-        window.location.href = chosen.url;
-      }, 1050);
     }, 400);
   }
 
@@ -255,7 +248,7 @@
     btn.addEventListener('mouseenter', fetchTargets);
     btn.addEventListener('focus', fetchTargets);
 
-    /* Click triggers the roll / morph / navigation */
+    /* Click triggers the roll/morph experience without interrupting the current page */
     btn.addEventListener('click', function (e) {
       e.preventDefault();
       fetchTargets();
